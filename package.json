@@ -1,0 +1,21 @@
+{
+  "name": "deco-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/check": "0.9.4",
+    "astro": "4.16.18",
+    "typescript": "5.6.3"
+  },
+  "devDependencies": {},
+  "allowScripts": {
+    "esbuild@0.21.5": true,
+    "sharp@0.33.5": true
+  }
+}
