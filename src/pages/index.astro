@@ -37,14 +37,41 @@ const popularProducts = [
 ];
 
 const locations = [
-  ['01', 'Santa Catarina', 'Bodega', 'C. Multitech 2 Ote. 103, Nuevo León, México'],
-  ['02', 'Zapopan', 'Bodega', 'C. Hernán Cortés 6935-3, Jalisco, México'],
-  ['03', 'Naucalpan', 'Bodega', 'Calz. de la Naranja 166, Estado de México, México'],
-  ['04', 'Puebla', 'Bodega', 'Av Nacional 5572, Col. Ángeles Mayorazgo, Puebla, México'],
-  ['05', 'Mérida', 'Tienda', 'Av Yucatán 586, Yucatán, México']
+  ['01', 'Camcun', 'Bodega', 'Av Nacional 85, Col. Morelos, Quintana Roo, México'],
+  ['02', 'Mérida', 'Tienda', 'Av Yucatán 586, Yucatán, México']
 ];
 
-const projectItems = ['Expo CIHAC', 'Proyecto AR Design', 'Jeshi Ramen & Boba Tea', 'Gimnasio Volt', 'Hospital Delta', 'Estética Bella & Bestia', 'Residencia'];
+const projectItems = [
+  {
+    name: 'Expo CIHAC',
+    slug: 'expo-cihac',
+    type: 'Feria comercial',
+    location: 'Ciudad de México',
+    imageAlt: 'Muro de exhibición con paneles y recubrimientos iluminados en Expo CIHAC',
+    visual: 'expo-cihac',
+    chips: ['Panel lambrín laminado', 'Mármol sintético', 'Piedra sintética travertino', 'Viga coextruida']
+  },
+  {
+    name: 'Proyecto AR Design',
+    slug: 'proyecto-ar-design',
+    type: 'Corporativo',
+    location: 'Monterrey, Nuevo León',
+    imageAlt: 'Interior corporativo con paneles verticales y puerta de vidrio texturizado',
+    visual: 'ar-design',
+    chips: ['Recubrimiento vinílico', 'Panel lambrín wavy', 'Piedra sintética PU', 'Panel SPC muros']
+  },
+  {
+    name: 'Jeshi Ramen & Boba Tea',
+    slug: 'jeshi-ramen-boba-tea',
+    type: 'Comercial',
+    location: 'San Pedro Garza García, N.L',
+    imageAlt: 'Restaurante con lambrines, celosía azul y plafón decorativo',
+    visual: 'jeshi-ramen',
+    chips: ['Panel lambrín laminado', 'Mármol sintético']
+  }
+];
+
+const initialProject = projectItems[0];
 ---
 
 <html lang="es">
@@ -72,7 +99,7 @@ const projectItems = ['Expo CIHAC', 'Proyecto AR Design', 'Jeshi Ramen & Boba Te
         </div>
       </div>
       <a class="calculator-strip" href="/contacto">
-        Calcula tu material y visualízalo en tu espacio <span aria-hidden="true">→</span>
+        Calcula tu material <span aria-hidden="true">→</span>
       </a>
     </header>
 
@@ -138,31 +165,80 @@ const projectItems = ['Expo CIHAC', 'Proyecto AR Design', 'Jeshi Ramen & Boba Te
         <div class="archive-label">Archivo de proyectos</div>
         <div class="projects-layout">
           <aside class="project-index" aria-label="Lista de proyectos">
-            {projectItems.map((item, index) => (
-              <a class={index === 0 ? 'active' : ''} href="/proyectos">
-                <span>{String(index + 1).padStart(2, '0')}</span>{item}
-              </a>
+            {projectItems.map((project, index) => (
+              <button
+                class={index === 0 ? 'active' : ''}
+                type="button"
+                data-project-index={index}
+                aria-pressed={index === 0 ? 'true' : 'false'}
+              >
+                <span>{String(index + 1).padStart(2, '0')}</span>{project.name}
+              </button>
             ))}
           </aside>
-          <article class="project-feature">
-            <div class="project-wall" aria-hidden="true">
-              <span></span><span></span><span></span><span></span>
-            </div>
+          <article class="project-feature" data-project-feature>
+            <div
+              class={`project-image project-image-${initialProject.visual}`}
+              data-project-image
+              role="img"
+              aria-label={initialProject.imageAlt}
+            ></div>
             <div class="project-card">
-              <span>Feria comercial</span>
-              <h2>Expo CIHAC</h2>
-              <p>Ciudad de México</p>
-              <div class="chips">
-                <small>Panel lambrín laminado</small>
-                <small>Mármol sintético</small>
-                <small>Piedra travertino</small>
+              <span data-project-type>{initialProject.type}</span>
+              <h2 data-project-name>{initialProject.name}</h2>
+              <p data-project-location>{initialProject.location}</p>
+              <div class="chips" data-project-chips>
+                {initialProject.chips.map((chip) => <small>{chip}</small>)}
               </div>
-              <a href="/proyectos">Ver proyecto →</a>
+              <a data-project-link href={`/proyectos/${initialProject.slug}`}>Ver proyecto →</a>
             </div>
           </article>
         </div>
       </section>
     </main>
+
+    <!-- Seccion: Interacciones de proyectos -->
+    <script define:vars={{ projectItems }}>
+      const projectButtons = document.querySelectorAll('[data-project-index]');
+      const projectImage = document.querySelector('[data-project-image]');
+      const projectType = document.querySelector('[data-project-type]');
+      const projectName = document.querySelector('[data-project-name]');
+      const projectLocation = document.querySelector('[data-project-location]');
+      const projectChips = document.querySelector('[data-project-chips]');
+      const projectLink = document.querySelector('[data-project-link]');
+
+      const setActiveProject = (activeIndex) => {
+        const project = projectItems[activeIndex];
+
+        if (!project || !projectImage || !projectType || !projectName || !projectLocation || !projectChips || !projectLink) {
+          return;
+        }
+
+        projectButtons.forEach((button, index) => {
+          const isActive = index === activeIndex;
+          button.classList.toggle('active', isActive);
+          button.setAttribute('aria-pressed', String(isActive));
+        });
+
+        projectImage.className = `project-image project-image-${project.visual}`;
+        projectImage.setAttribute('aria-label', project.imageAlt);
+        projectType.textContent = project.type;
+        projectName.textContent = project.name;
+        projectLocation.textContent = project.location;
+        projectLink.href = `/proyectos/${project.slug}`;
+        projectChips.replaceChildren(...project.chips.map((chip) => {
+          const chipElement = document.createElement('small');
+          chipElement.textContent = chip;
+          return chipElement;
+        }));
+      };
+
+      projectButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          setActiveProject(Number(button.dataset.projectIndex));
+        });
+      });
+    </script>
 
     <!-- Seccion: Footer / Enlaces de apoyo -->
     <footer class="site-footer">

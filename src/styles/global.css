@@ -357,15 +357,23 @@ footer h2,
   gap: 18px;
 }
 
-.project-index a {
+.project-index button {
   display: grid;
   grid-template-columns: 72px 1fr;
   align-items: center;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: #363d3c;
+  font: inherit;
   font-size: 0.63rem;
   font-weight: 800;
   letter-spacing: 0.12em;
+  text-align: left;
   text-transform: uppercase;
+  cursor: pointer;
+  transition: color 160ms ease;
 }
 
 .project-index span {
@@ -374,11 +382,21 @@ footer h2,
   letter-spacing: -0.08em;
 }
 
-.project-index a.active {
+.project-index button:hover,
+.project-index button:focus-visible {
+  color: #d8ddd8;
+}
+
+.project-index button:focus-visible {
+  outline: 1px solid var(--green);
+  outline-offset: 8px;
+}
+
+.project-index button.active {
   color: var(--white);
 }
 
-.project-index a.active::before {
+.project-index button.active::before {
   content: '';
   width: 22px;
   height: 1px;
@@ -394,20 +412,49 @@ footer h2,
   background: #181a17;
 }
 
-.project-wall {
+.project-image {
   position: absolute;
   inset: 0;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 26px;
-  padding: 36px;
-  background: linear-gradient(90deg, rgba(74, 48, 27, 0.7), rgba(28, 24, 18, 0.95));
+  background-position: center;
+  background-size: cover;
+  transition: opacity 160ms ease;
 }
 
-.project-wall span {
-  border: 8px solid #7f5b3d;
-  background: linear-gradient(140deg, #cfc7aa, #645c50);
-  box-shadow: 0 0 35px rgba(250, 226, 168, 0.44);
+.project-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.34));
+}
+
+.project-image-expo-cihac {
+  background-image:
+    radial-gradient(circle at 22% 27%, #f5ead4 0 7%, transparent 8%),
+    radial-gradient(circle at 52% 26%, #383838 0 6%, transparent 7%),
+    radial-gradient(circle at 81% 26%, #bbc0b9 0 7%, transparent 8%),
+    linear-gradient(90deg, rgba(64, 42, 26, 0.34) 0 2%, transparent 2% 7%, rgba(255, 241, 207, 0.74) 7% 9%, transparent 9% 16%),
+    linear-gradient(90deg, transparent 0 35%, rgba(56, 35, 21, 0.88) 35% 43%, transparent 43% 100%),
+    repeating-linear-gradient(90deg, #7d5736 0 14px, #c69b65 14px 18px, #44301f 18px 24px),
+    linear-gradient(135deg, #9e7b52, #2c261e);
+}
+
+.project-image-ar-design {
+  background-image:
+    linear-gradient(90deg, #5b3521 0 12%, transparent 12% 100%),
+    repeating-linear-gradient(90deg, rgba(214, 216, 208, 0.96) 0 5px, rgba(143, 148, 141, 0.96) 5px 8px, rgba(243, 243, 237, 0.96) 8px 13px, transparent 13px 18px),
+    linear-gradient(100deg, transparent 0 58%, rgba(16, 22, 18, 0.78) 58% 74%, rgba(220, 217, 197, 0.92) 74% 100%),
+    radial-gradient(circle at 74% 42%, rgba(255, 255, 210, 0.88), transparent 16%),
+    linear-gradient(135deg, #c8c8bd, #10120f);
+}
+
+.project-image-jeshi-ramen {
+  background-image:
+    radial-gradient(circle at 43% 12%, #e94173 0 4%, transparent 5%),
+    radial-gradient(circle at 56% 15%, #f45b5c 0 4%, transparent 5%),
+    repeating-linear-gradient(90deg, rgba(191, 193, 184, 0.96) 0 10px, rgba(104, 110, 104, 0.96) 10px 15px, rgba(217, 218, 211, 0.96) 15px 23px, transparent 23px 34px),
+    linear-gradient(90deg, transparent 0 23%, rgba(26, 17, 11, 0.92) 23% 72%, rgba(74, 107, 132, 0.94) 72% 100%),
+    repeating-linear-gradient(90deg, #9a6b37 0 8px, #d3a15e 8px 12px, #28231d 12px 20px),
+    linear-gradient(145deg, #f0ddba, #17130f 62%, #385a74);
 }
 
 .project-card {
