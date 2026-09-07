@@ -82,6 +82,7 @@ Buenas practicas que deben seguirse explicitamente:
 - Cuidar performance: generar sitio estatico, optimizar imagenes, evitar JavaScript innecesario en el cliente y no cargar dependencias pesadas sin necesidad.
 - Cuidar SEO tecnico: titulos, descripciones, URLs claras, headings ordenados, metadatos sociales y contenido indexable.
 - Mantener estilos escalables y coherentes con el sistema visual de Deco; evitar CSS duplicado, selectores fragiles o soluciones visuales dificiles de mantener.
+- Documentar la estructura de archivos editables con comentarios breves. En archivos `.astro`, cada seccion principal debe tener un comentario con su nombre antes del bloque correspondiente, por ejemplo `<!-- Seccion: Hero -->`, para facilitar modificaciones directas por cualquier persona.
 - Probar cambios importantes con `npm run build` y, cuando aplique, `npx tsc --noEmit` antes de considerarlos listos.
 - No hacer cambios destructivos en contenido, media, base de datos, FTP o Git sin confirmacion explicita del usuario.
 

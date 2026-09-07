@@ -1,39 +1,47 @@
 ---
 import '../styles/global.css';
 
-const navItems = ['Inicio', 'Productos', 'Proyectos', 'Ubicaciones', 'Deco Rewards'];
+const navItems = [
+  { label: 'Inicio', href: '/' },
+  { label: 'Productos', href: '/productos' },
+  { label: 'Proyectos', href: '/proyectos' },
+  { label: 'Ubicaciones', href: '/ubicaciones' },
+  { label: 'Contacto', href: '/contacto' }
+];
 
 const categories = [
   {
     number: '01',
     name: 'Interior',
+    slug: 'interior',
     count: '20 productos',
     description: 'Paneles, lambrines y mármol sintético'
   },
   {
     number: '02',
     name: 'Exterior',
+    slug: 'exterior',
     count: '10 productos',
     description: 'Lambrín extruido, deck y piedra sintética'
   }
 ];
 
-const products = [
-  'Deck para piso',
-  'Esquinero exterior',
-  'Esquinero laminado',
-  'Tablero premium',
-  'Lambrín coextruido',
-  'Lambrín extruido',
-  'Louver tech'
+const popularProducts = [
+  { name: 'Deck para piso', slug: 'deck-para-piso', category: 'Exterior' },
+  { name: 'Esquinero exterior', slug: 'esquinero-exterior', category: 'Exterior' },
+  { name: 'Esquinero laminado', slug: 'esquinero-laminado', category: 'Interior' },
+  { name: 'Tablero premium', slug: 'tablero-premium', category: 'Interior' },
+  { name: 'Lambrín coextruido', slug: 'lambrin-coextruido', category: 'Exterior' },
+  { name: 'Lambrín extruido', slug: 'lambrin-extruido', category: 'Exterior' },
+  { name: 'Louver tech', slug: 'louver-tech', category: 'Interior' }
 ];
 
 const locations = [
-  ['01', 'Nuevo León', 'Bodega', 'C. Multitech 2 Ote. 103, Santa Catarina, Nuevo León, México'],
-  ['02', 'Jalisco', 'Bodega', 'C. Hernán Cortés 6935-3, Zapopan, Jalisco, México'],
-  ['03', 'Estado de México', 'Bodega', 'Calle Calz. de la Naranja 166, Naucalpan de Juárez, México'],
+  ['01', 'Santa Catarina', 'Bodega', 'C. Multitech 2 Ote. 103, Nuevo León, México'],
+  ['02', 'Zapopan', 'Bodega', 'C. Hernán Cortés 6935-3, Jalisco, México'],
+  ['03', 'Naucalpan', 'Bodega', 'Calz. de la Naranja 166, Estado de México, México'],
   ['04', 'Puebla', 'Bodega', 'Av Nacional 5572, Col. Ángeles Mayorazgo, Puebla, México'],
-  ['05', 'Yucatán', 'Tienda', 'Av Yucatán 586, Mérida, Yucatán, México']
+  ['05', 'Mérida', 'Tienda', 'Av Yucatán 586, Yucatán, México']
 ];
 
 const projectItems = ['Expo CIHAC', 'Proyecto AR Design', 'Jeshi Ramen & Boba Tea', 'Gimnasio Volt', 'Hospital Delta', 'Estética Bella & Bestia', 'Residencia'];
@@ -47,36 +55,39 @@ const projectItems = ['Expo CIHAC', 'Proyecto AR Design', 'Jeshi Ramen & Boba Te
     <title>Deco | Revestimientos Premium</title>
   </head>
   <body>
+    <!-- Seccion: Header / Navegacion principal -->
     <header class="site-header">
       <div class="nav-shell">
-        <a class="brand" href="#inicio" aria-label="Deco inicio">
+        <a class="brand" href="/" aria-label="Deco inicio">
           <span>DECO</span>
           <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span>TECH</span>
+          <span>ABC</span>
         </a>
         <nav class="desktop-nav" aria-label="Navegación principal">
-          {navItems.map((item) => <a href={`#${item.toLowerCase().replaceAll(' ', '-')}`}>{item}</a>)}
+          {navItems.map((item) => <a href={item.href}>{item.label}</a>)}
         </nav>
         <div class="header-actions" aria-label="Acciones rápidas">
           <a href="https://wa.me/" aria-label="WhatsApp">◔</a>
-          <a href="#productos" aria-label="Buscar">⌕</a>
+          <a href="/productos" aria-label="Buscar productos">⌕</a>
         </div>
       </div>
-      <a class="calculator-strip" href="#productos">
+      <a class="calculator-strip" href="/contacto">
         Calcula tu material y visualízalo en tu espacio <span aria-hidden="true">→</span>
       </a>
     </header>
 
     <main id="inicio">
+      <!-- Seccion: Hero principal -->
       <section class="hero" aria-label="Vista principal Deco">
         <video class="hero-video" autoplay muted loop playsinline preload="metadata" aria-label="Video principal de Deco">
           <source src="/assets/videos/header-hero.mp4" type="video/mp4" />
         </video>
       </section>
 
+      <!-- Seccion: Compra por categoria -->
       <section id="productos" class="section categories-section">
         <div class="section-head">
-          <a href="#productos">Compra por categoría</a>
+          <a href="/productos">Compra por categoría</a>
           <span>30 productos en línea</span>
         </div>
         <div class="category-list">
@@ -88,40 +99,47 @@ const projectItems = ['Expo CIHAC', 'Proyecto AR Design', 'Jeshi Ramen & Boba Te
                 <strong>{category.count}</strong>
                 <p>{category.description}</p>
               </div>
-              <a class="round-button" href="#productos" aria-label={`Ver ${category.name}`}>→</a>
-            </article>
-          ))}
-        </div>
-        <div class="product-strip" aria-label="Productos destacados">
-          {products.map((product, index) => (
-            <article class="product-card">
-              <div class={`product-form product-form-${index + 1}`} aria-hidden="true"></div>
-              <h3>{product}</h3>
+              <a class="round-button" href={`/productos?categoria=${category.slug}`} aria-label={`Ver ${category.name}`}>→</a>
             </article>
           ))}
         </div>
       </section>
 
+      <!-- Seccion: Productos populares -->
+      <section class="section popular-section" aria-labelledby="popular-title">
+        <div class="product-strip" aria-label="Productos populares">
+          {popularProducts.map((product, index) => (
+            <a class="product-card" href={`/productos/${product.slug}`}>
+              <div class={`product-form product-form-${index + 1}`} aria-hidden="true"></div>
+              <span>{product.category}</span>
+              <h3>{product.name}</h3>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <!-- Seccion: Ubicaciones destacadas -->
       <section id="ubicaciones" class="dark-section locations-section">
         <div class="location-list">
-          {locations.map(([number, state, type, address]) => (
+          {locations.map(([number, city, type, address]) => (
             <article class="location-row">
               <span class="row-number">{number}</span>
-              <h2>{state}</h2>
+              <h2>{city}</h2>
               <strong class={type === 'Tienda' ? 'tag filled' : 'tag'}>{type}</strong>
               <p>{address}</p>
-              <a class="round-button dark" href="#ubicaciones" aria-label={`Ver ubicación ${state}`}>→</a>
+              <a class="round-button dark" href="/ubicaciones" aria-label={`Ver ubicación ${city}`}>→</a>
             </article>
           ))}
         </div>
       </section>
 
+      <!-- Seccion: Archivo de proyectos -->
       <section id="proyectos" class="dark-section projects-section">
         <div class="archive-label">Archivo de proyectos</div>
         <div class="projects-layout">
           <aside class="project-index" aria-label="Lista de proyectos">
             {projectItems.map((item, index) => (
-              <a class={index === 0 ? 'active' : ''} href="#proyectos">
+              <a class={index === 0 ? 'active' : ''} href="/proyectos">
                 <span>{String(index + 1).padStart(2, '0')}</span>{item}
               </a>
             ))}
@@ -139,32 +157,30 @@ const projectItems = ['Expo CIHAC', 'Proyecto AR Design', 'Jeshi Ramen & Boba Te
                 <small>Mármol sintético</small>
                 <small>Piedra travertino</small>
               </div>
-              <a href="#proyectos">Ver proyecto →</a>
+              <a href="/proyectos">Ver proyecto →</a>
             </div>
           </article>
         </div>
       </section>
     </main>
 
+    <!-- Seccion: Footer / Enlaces de apoyo -->
     <footer class="site-footer">
       <div class="footer-title">Innovative <em>ideas,</em><br /> inspired <em>living</em></div>
       <div class="footer-grid">
         <nav aria-label="Explora">
           <h2>/Explora</h2>
-          <a href="#ubicaciones">Ubicaciones</a>
-          <a href="#productos">Catálogo</a>
-          <a href="#inicio">Sobre nosotros</a>
+          <a href="/ubicaciones">Ubicaciones</a>
+          <a href="/productos">Catálogo</a>
+          <a href="/contacto">Contacto</a>
         </nav>
         <nav aria-label="Productos populares">
           <h2>/Productos populares</h2>
-          <a href="#productos">Esquinero laminado</a>
-          <a href="#productos">Perfil aluminio</a>
-          <a href="#productos">Recubrimiento vinílico</a>
-          <a href="#productos">Panel lambrín wavy</a>
+          {popularProducts.slice(0, 4).map((product) => <a href={`/productos/${product.slug}`}>{product.name}</a>)}
         </nav>
         <div>
           <h2>/Asistencia</h2>
-          <a href="mailto:atencion@decotech.mx">Contacto</a>
+          <a href="/contacto">Contacto</a>
           <p>Teléfono: (81) 2351 2953</p>
           <form class="feedback-form">
             <label for="feedback">¿Quejas o sugerencias?</label>
