@@ -113,47 +113,33 @@ a {
 }
 
 .hero {
+  position: relative;
   height: calc(100vh - 129px);
   min-height: 470px;
   overflow: hidden;
-  background: #181817;
-}
-
-.hero-surface {
-  position: relative;
-  height: 100%;
   background:
     radial-gradient(circle at 72% 24%, rgba(140, 181, 77, 0.34), transparent 17%),
     linear-gradient(90deg, rgba(0, 0, 0, 0) 0 58%, rgba(4, 7, 5, 0.34) 70%, rgba(6, 7, 6, 0.7) 100%),
     linear-gradient(102deg, #b3783e 0%, #dba162 38%, #a36837 56%, #24251f 57%, #474f36 100%);
-  filter: saturate(0.92);
 }
 
-.hero-surface::before {
+.hero::after {
   content: '';
   position: absolute;
   inset: 0;
   background:
-    repeating-linear-gradient(101deg, rgba(44, 23, 10, 0.36) 0 3px, transparent 3px 62px),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 52%);
-  opacity: 0.72;
+    linear-gradient(90deg, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.28)),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.16));
+  pointer-events: none;
 }
 
-.hero-surface span {
-  position: absolute;
-  top: -18%;
-  bottom: -12%;
-  width: 0.7vw;
-  background: rgba(0, 0, 0, 0.83);
-  transform: rotate(-14deg);
-  filter: blur(0.4px);
+.hero-video {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
 }
-
-.hero-surface span:nth-child(1) { left: 13%; }
-.hero-surface span:nth-child(2) { left: 31%; }
-.hero-surface span:nth-child(3) { left: 48%; }
-.hero-surface span:nth-child(4) { left: 58%; width: 1.15vw; }
-.hero-surface span:nth-child(5) { left: 79%; opacity: 0.18; }
 
 .section {
   padding: 50px 10.5vw 0;
