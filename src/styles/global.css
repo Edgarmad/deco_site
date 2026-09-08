@@ -1,6 +1,6 @@
 :root {
   --black: #141512;
-  --black-soft: #0a0a0a;
+  --black-soft: #1a1a1a;
   --white: #f6f5f1;
   --white-pure: #fff;
   --muted: #999;
@@ -340,16 +340,77 @@ footer h2,
   padding: 20px 2.4vw 0;
   border-top: 1px solid rgba(255, 255, 255, 0.22);
 }
+.projects-section.archive {
+  padding: 0 2.4vw 0;
+  border-top: 0px solid rgba(255, 255, 255, 0.22);
+}
 
 .archive-label {
-  margin-bottom: 26px;
+  color: #8292b2;
+}
+
+.archive-head {
+  min-height: 136px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.archive-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.archive-count {
+  min-width: 74px;
+  color: #65706e;
+  font-family: Georgia, serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.03em;
+}
+
+.archive-count strong {
+  color: var(--white-pure);
+  font-family: Arial, ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.archive-controls button {
+  width: 40px;
+  height: 40px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: #aeb6b3;
+  font-size: 1.65rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+}
+
+.archive-controls button:hover,
+.archive-controls button:focus-visible {
+  border-color: var(--green);
+  background: rgba(61, 133, 85, 0.15);
+  color: var(--white-pure);
+}
+
+.archive-controls button:focus-visible {
+  outline: 1px solid var(--green);
+  outline-offset: 3px;
 }
 
 .projects-layout {
   display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
-  gap: 38px;
+  grid-template-columns: 330px minmax(0, 1fr);
+  gap: 34px;
   align-items: start;
+  padding-top: 40px;
 }
 
 .project-index {
@@ -359,7 +420,7 @@ footer h2,
 
 .project-index button {
   display: grid;
-  grid-template-columns: 72px 1fr;
+  grid-template-columns: 112px 1fr;
   align-items: center;
   width: 100%;
   padding: 0;
@@ -377,9 +438,10 @@ footer h2,
 }
 
 .project-index span {
-  font-size: 2.35rem;
+  font-size: 3.6rem;
   font-weight: 300;
   letter-spacing: -0.08em;
+  line-height: 0.95;
 }
 
 .project-index button:hover,
@@ -398,16 +460,16 @@ footer h2,
 
 .project-index button.active::before {
   content: '';
-  width: 22px;
+  width: 40px;
   height: 1px;
   background: var(--green);
-  transform: translateX(-30px);
+  transform: translateX(-62px);
   grid-row: 1;
 }
 
 .project-feature {
   position: relative;
-  min-height: 520px;
+  min-height: 560px;
   overflow: hidden;
   background: #181a17;
 }
@@ -598,8 +660,20 @@ footer p {
     grid-template-columns: 1fr;
   }
 
+  .projects-layout {
+    gap: 28px;
+  }
+
   .project-index {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .project-index button {
+    grid-template-columns: 86px 1fr;
+  }
+
+  .project-index span {
+    font-size: 2.8rem;
   }
 }
 
@@ -671,17 +745,39 @@ footer p {
     padding: 20px;
   }
 
+  .projects-section.archive {
+    padding: 0 20px 20px;
+  }
+
+  .archive-head {
+    min-height: 112px;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .archive-controls {
+    align-self: flex-end;
+  }
+
+  .projects-layout {
+    padding-top: 28px;
+  }
+
   .project-index {
     grid-template-columns: 1fr;
   }
 
-  .project-feature {
-    min-height: 430px;
+  .project-index button {
+    grid-template-columns: 72px 1fr;
   }
 
-  .project-wall {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 18px;
+  .project-index span {
+    font-size: 2.35rem;
+  }
+
+  .project-feature {
+    min-height: 430px;
   }
 
   .site-footer {

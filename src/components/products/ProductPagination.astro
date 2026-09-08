@@ -1,0 +1,67 @@
+---
+type Props = {
+  total: number;
+  perPage?: number;
+};
+
+const { total, perPage = 12 } = Astro.props;
+const pageCount = Math.max(1, Math.ceil(total / perPage));
+---
+
+<nav class="product-pagination" aria-label="Paginacion de productos" data-pagination data-per-page={perPage}>
+  <p data-pagination-summary>Mostrando 1-{Math.min(total, perPage)} de {total} productos</p>
+  <div class="pagination-buttons">
+    <button type="button" data-page-prev disabled>Anterior</button>
+    <span data-page-current aria-current="page">1</span>
+    <button type="button" data-page-next disabled={pageCount <= 1}>Siguiente</button>
+  </div>
+</nav>
+
+<style>
+  .product-pagination {
+    display: grid;
+    justify-items: center;
+    gap: 18px;
+    padding: 38px 0 70px;
+  }
+
+  .product-pagination p {
+    margin: 0;
+    color: #747a74;
+    font-size: 0.8rem;
+  }
+
+  .pagination-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .pagination-buttons button,
+  .pagination-buttons span {
+    min-width: 40px;
+    height: 40px;
+    display: inline-grid;
+    place-items: center;
+    border: 1px solid #d0d4ce;
+    background: transparent;
+    color: var(--black);
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .pagination-buttons span {
+    background: var(--black);
+    color: var(--white-pure);
+  }
+
+  .pagination-buttons button:not(:disabled) {
+    cursor: pointer;
+  }
+
+  .pagination-buttons button:disabled {
+    color: #aeb3ae;
+  }
+</style>

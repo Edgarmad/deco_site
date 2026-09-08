@@ -1,0 +1,136 @@
+{
+  "inventory_metadata": {
+    "source": "Google Drive",
+    "root_folder_url": "https://drive.google.com/drive/folders/12p5iAFIaNjnZSjPvLG4gPOmNUzrrt794",
+    "generated_at": "2026-09-08",
+    "excluded_folders": ["DOCUMENTOS ANTERIORES"],
+    "notes": "Inventario generado mediante crawl recursivo de Drive. La jerarquia es categoria > producto > variante > color > tipo_de_imagen (Imagen Principal / Imagen Secundaria / Extras). Algunas carpetas hoja aun no tienen archivos cargados; se marcan con status 'empty'. Se ignoraron archivos de sistema como .DS_Store."
+  },
+  "categories": [
+    {
+      "category": "Exterior",
+      "drive_folder_id": "1dWAtZ_YG_xj8GS8iQVpdbAXnX9kdeIdG",
+      "drive_url": "https://drive.google.com/drive/folders/1dWAtZ_YG_xj8GS8iQVpdbAXnX9kdeIdG",
+      "products": [
+        {
+          "product": "Lambrin Exterior",
+          "drive_folder_id": "1qlz7R7XX4vLIPjQYow3sRI74RPjItQ9x",
+          "drive_url": "https://drive.google.com/drive/folders/1qlz7R7XX4vLIPjQYow3sRI74RPjItQ9x",
+          "variants": [
+            {
+              "variant": "Cepillado",
+              "drive_folder_id": "1iljScwW5KzNEBmNk8p1H93Sn4SL1SjYa",
+              "drive_url": "https://drive.google.com/drive/folders/1iljScwW5KzNEBmNk8p1H93Sn4SL1SjYa",
+              "status": "empty",
+              "colors": []
+            }
+          ]
+        },
+        {
+          "product": "Deck",
+          "drive_folder_id": "1mO1gsrcSj9Oti1JE3l3_gM0MdrGoNXVL",
+          "drive_url": "https://drive.google.com/drive/folders/1mO1gsrcSj9Oti1JE3l3_gM0MdrGoNXVL",
+          "status": "empty",
+          "variants": []
+        }
+      ]
+    },
+    {
+      "category": "Interior",
+      "drive_folder_id": "1XFor9wZlSLIH4b0-Z5tNB18dNZ8nN26-",
+      "drive_url": "https://drive.google.com/drive/folders/1XFor9wZlSLIH4b0-Z5tNB18dNZ8nN26-",
+      "products": [
+        {
+          "product": "Panel Lambrin WPC",
+          "drive_folder_id": "1FU5JV_tLheKKOdagWuo9lnPH6hNrkPat",
+          "drive_url": "https://drive.google.com/drive/folders/1FU5JV_tLheKKOdagWuo9lnPH6hNrkPat",
+          "variants": [
+            {
+              "variant": "Lambrin Premium WPC",
+              "drive_folder_id": "1vc505QGKBV_BrHhC8kG1uKu6kCkyJA-L",
+              "drive_url": "https://drive.google.com/drive/folders/1vc505QGKBV_BrHhC8kG1uKu6kCkyJA-L",
+              "status": "empty",
+              "colors": []
+            },
+            {
+              "variant": "Lambrin Irregular",
+              "drive_folder_id": "1FHG5wkQSBM-WT4pFk-bwdzZ7C2faYp1_",
+              "drive_url": "https://drive.google.com/drive/folders/1FHG5wkQSBM-WT4pFk-bwdzZ7C2faYp1_",
+              "status": "empty",
+              "colors": []
+            },
+            {
+              "variant": "Lambrin Wavy Max",
+              "drive_folder_id": "1kZpi9LBY4gI7ODmb-97Td_ze1vpRFMYm",
+              "drive_url": "https://drive.google.com/drive/folders/1kZpi9LBY4gI7ODmb-97Td_ze1vpRFMYm",
+              "colors": [
+                {
+                  "color": "Roble Dorado",
+                  "drive_folder_id": "1RX1HPjw2gAjvRTGhEO--aLEuzlg_LHgg",
+                  "drive_url": "https://drive.google.com/drive/folders/1RX1HPjw2gAjvRTGhEO--aLEuzlg_LHgg",
+                  "status": "empty",
+                  "images": {
+                    "imagen_principal": [],
+                    "imagen_secundaria": [],
+                    "extras": []
+                  }
+                },
+                {
+                  "color": "Gold Rio",
+                  "drive_folder_id": "1D6AwXuKDjZP8-iLCUHzZMkqJXVVGKbQT",
+                  "drive_url": "https://drive.google.com/drive/folders/1D6AwXuKDjZP8-iLCUHzZMkqJXVVGKbQT",
+                  "status": "partial",
+                  "images": {
+                    "imagen_principal": [
+                      {
+                        "title": "BRASILIA Vertical.png",
+                        "note": "Nombre de archivo no coincide con el color (Gold Rio); revisar si esta correctamente asignado.",
+                        "mime_type": "image/png",
+                        "file_id": "1v-5g2SXvDiGV-l2CUQHsch4J73mq2Aum",
+                        "url": "https://drive.google.com/file/d/1v-5g2SXvDiGV-l2CUQHsch4J73mq2Aum/view?usp=drivesdk"
+                      }
+                    ],
+                    "imagen_secundaria": [],
+                    "extras": []
+                  }
+                },
+                {
+                  "color": "Brasilia",
+                  "drive_folder_id": "1592Rf3U27HDzAtvqGTTcGl4Ga3Kk9cak",
+                  "drive_url": "https://drive.google.com/drive/folders/1592Rf3U27HDzAtvqGTTcGl4Ga3Kk9cak",
+                  "status": "complete",
+                  "images": {
+                    "imagen_principal": [
+                      {
+                        "title": "BRASILIA Vertical.png",
+                        "mime_type": "image/png",
+                        "file_id": "1eROQ3TydjDhJtc_Qtsj1IZrAsQ9p50Oa",
+                        "url": "https://drive.google.com/file/d/1eROQ3TydjDhJtc_Qtsj1IZrAsQ9p50Oa/view?usp=drivesdk"
+                      }
+                    ],
+                    "imagen_secundaria": [
+                      {
+                        "title": "BRASILIA.png",
+                        "mime_type": "image/png",
+                        "file_id": "1IT1doQswQhxMdnBQApLktlc4YgopufzB",
+                        "url": "https://drive.google.com/file/d/1IT1doQswQhxMdnBQApLktlc4YgopufzB/view?usp=drivesdk"
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Brasilia LW.jpg",
+                        "mime_type": "image/jpeg",
+                        "file_id": "1B6y5IdZ34iuKKB_jkgDhp9jGOkRb6jkN",
+                        "url": "https://drive.google.com/file/d/1B6y5IdZ34iuKKB_jkgDhp9jGOkRb6jkN/view?usp=drivesdk"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

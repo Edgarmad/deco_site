@@ -1,0 +1,110 @@
+---
+import type { Product } from '../../types/products';
+
+type Props = {
+  product: Product;
+  index: number;
+};
+
+const { product, index } = Astro.props;
+const primaryColor = product.variants.flatMap((variant) => variant.colors)[0];
+const searchText = [
+  product.name,
+  product.sku,
+  product.macroCategory,
+  product.categorySlug,
+  ...product.variants.map((variant) => variant.name),
+  ...product.variants.flatMap((variant) => variant.colors.map((color) => color.name))
+].filter(Boolean).join(' ').toLowerCase();
+---
+
+<article
+  class="catalog-card"
+  data-product-card
+  data-macro={product.macroCategory}
+  data-category={product.categorySlug}
+  data-search={searchText}
+  data-name={product.name.toLowerCase()}
+  data-featured={product.featured ? 'true' : 'false'}
+  data-index={index}
+>
+  <a href={`/productos/${product.slug}`} aria-label={`Ver ${product.name}`}>
+    <div class={`catalog-visual catalog-visual-${(index % 6) + 1}`}>
+      {product.image ? <img src={product.image} alt={product.name} loading="lazy" /> : <span aria-hidden="true"></span>}
+    </div>
+    <div class="catalog-copy">
+      <h2>{product.name}</h2>
+      {product.sku && <p>SKU: {product.sku}</p>}
+      <small>{primaryColor?.name ?? product.variants[0]?.name ?? 'Acabado por confirmar'}</small>
+    </div>
+  </a>
+</article>
+
+<style>
+  .catalog-card {
+    min-height: 360px;
+    border-bottom: 1px solid var(--paper-line);
+    text-align: center;
+  }
+
+  .catalog-card[hidden] {
+    display: none;
+  }
+
+  .catalog-card a {
+    display: grid;
+    height: 100%;
+    grid-template-rows: 230px 1fr;
+    gap: 18px;
+    padding: 18px 12px 28px;
+  }
+
+  .catalog-visual {
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background: #f1f1ed;
+  }
+
+  .catalog-visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .catalog-visual span {
+    width: 54%;
+    height: 70%;
+    display: block;
+    transform: perspective(520px) rotateX(56deg) rotateZ(-22deg);
+    box-shadow: 12px 18px 28px rgba(0, 0, 0, 0.2);
+  }
+
+  .catalog-visual-1 span { background: repeating-linear-gradient(90deg, #8d5b32 0 18px, #d1a070 18px 28px, #55341f 28px 34px); }
+  .catalog-visual-2 span { background: repeating-linear-gradient(180deg, #b86d29 0 22px, #222 22px 29px, #ddba8b 29px 51px); }
+  .catalog-visual-3 span { background: repeating-linear-gradient(120deg, #c99b70 0 20px, #72513a 20px 35px, #e0c0a0 35px 49px); }
+  .catalog-visual-4 span { background: repeating-linear-gradient(90deg, #252525 0 10px, #d7d7d1 10px 24px, #9c6b48 24px 34px); }
+  .catalog-visual-5 span { background: linear-gradient(135deg, #59321e, #c6874e 52%, #21140d); }
+  .catalog-visual-6 span { background: repeating-linear-gradient(90deg, #6e4a25 0 18px, #b97936 18px 32px, #2a1f17 32px 40px); }
+
+  .catalog-copy h2 {
+    min-height: 44px;
+    margin: 0;
+    color: #24303d;
+    font-size: 0.92rem;
+    font-weight: 700;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+
+  .catalog-copy p,
+  .catalog-copy small {
+    display: block;
+    margin: 8px 0 0;
+    color: #8b908b;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+</style>

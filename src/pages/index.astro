@@ -161,8 +161,15 @@ const initialProject = projectItems[0];
       </section>
 
       <!-- Seccion: Archivo de proyectos -->
-      <section id="proyectos" class="dark-section projects-section">
-        <div class="archive-label">Archivo de proyectos</div>
+      <section id="proyectos" class="dark-section projects-section archive">
+        <div class="archive-head">
+          <div class="archive-label">Archivo de proyectos</div>
+          <div class="archive-controls" aria-label="Navegación de proyectos">
+            <span class="archive-count"><strong data-project-current>01</strong> / {String(projectItems.length).padStart(2, '0')}</span>
+            <button type="button" data-project-control="previous" aria-label="Proyecto anterior">‹</button>
+            <button type="button" data-project-control="next" aria-label="Proyecto siguiente">›</button>
+          </div>
+        </div>
         <div class="projects-layout">
           <aside class="project-index" aria-label="Lista de proyectos">
             {projectItems.map((project, index) => (
@@ -206,13 +213,18 @@ const initialProject = projectItems[0];
       const projectLocation = document.querySelector('[data-project-location]');
       const projectChips = document.querySelector('[data-project-chips]');
       const projectLink = document.querySelector('[data-project-link]');
+      const projectCurrent = document.querySelector('[data-project-current]');
+      const projectControls = document.querySelectorAll('[data-project-control]');
+      let activeProjectIndex = 0;
 
       const setActiveProject = (activeIndex) => {
         const project = projectItems[activeIndex];
 
-        if (!project || !projectImage || !projectType || !projectName || !projectLocation || !projectChips || !projectLink) {
+        if (!project || !projectImage || !projectType || !projectName || !projectLocation || !projectChips || !projectLink || !projectCurrent) {
           return;
         }
+
+        activeProjectIndex = activeIndex;
 
         projectButtons.forEach((button, index) => {
           const isActive = index === activeIndex;
@@ -226,6 +238,7 @@ const initialProject = projectItems[0];
         projectName.textContent = project.name;
         projectLocation.textContent = project.location;
         projectLink.href = `/proyectos/${project.slug}`;
+        projectCurrent.textContent = String(activeIndex + 1).padStart(2, '0');
         projectChips.replaceChildren(...project.chips.map((chip) => {
           const chipElement = document.createElement('small');
           chipElement.textContent = chip;
@@ -236,6 +249,14 @@ const initialProject = projectItems[0];
       projectButtons.forEach((button) => {
         button.addEventListener('click', () => {
           setActiveProject(Number(button.dataset.projectIndex));
+        });
+      });
+
+      projectControls.forEach((button) => {
+        button.addEventListener('click', () => {
+          const direction = button.dataset.projectControl === 'next' ? 1 : -1;
+          const nextProjectIndex = (activeProjectIndex + direction + projectItems.length) % projectItems.length;
+          setActiveProject(nextProjectIndex);
         });
       });
     </script>

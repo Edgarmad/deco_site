@@ -1,0 +1,112 @@
+---
+import type { ProductCategory } from '../../types/products';
+
+type Props = {
+  categories: ProductCategory[];
+};
+
+const { categories } = Astro.props;
+---
+
+<aside class="product-filters" data-filter-panel>
+  <button type="button" class="filter-toggle" data-filter-toggle aria-expanded="true">Ocultar filtros</button>
+  <div class="filter-body" data-filter-body>
+    <fieldset>
+      <legend>Tipo de producto</legend>
+      {categories.map((category) => (
+        <label>
+          <input type="checkbox" value={category.slug} data-category-filter />
+          <span>{category.name}</span>
+        </label>
+      ))}
+    </fieldset>
+    <fieldset>
+      <legend>Colores</legend>
+      {['Brasilia', 'Gold Rio', 'Roble Dorado'].map((color) => (
+        <label>
+          <input type="checkbox" value={color.toLowerCase()} data-color-filter />
+          <span>{color}</span>
+        </label>
+      ))}
+    </fieldset>
+    <label class="search-label" for="product-search">Buscar</label>
+    <input id="product-search" type="search" placeholder="Nombre, SKU o color" data-search-input />
+  </div>
+</aside>
+
+<style>
+  .product-filters {
+    align-self: start;
+    padding-right: 24px;
+    border-right: 1px solid var(--paper-line);
+  }
+
+  .filter-toggle {
+    width: 100%;
+    margin-bottom: 24px;
+    padding: 12px 14px;
+    border: 1px solid #d4d8d2;
+    background: transparent;
+    color: var(--black);
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .filter-body.hidden {
+    display: none;
+  }
+
+  fieldset {
+    display: grid;
+    gap: 12px;
+    margin: 0 0 30px;
+    padding: 0;
+    border: 0;
+  }
+
+  legend,
+  .search-label {
+    margin-bottom: 14px;
+    color: #818781;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #333832;
+    font-size: 0.86rem;
+  }
+
+  input[type='checkbox'] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--black);
+  }
+
+  input[type='search'] {
+    width: 100%;
+    margin-top: 10px;
+    padding: 13px 14px;
+    border: 1px solid #d4d8d2;
+    background: var(--white-pure);
+    color: var(--black);
+  }
+
+  @media (max-width: 900px) {
+    .product-filters {
+      padding-right: 0;
+      border-right: 0;
+      border-bottom: 1px solid var(--paper-line);
+      padding-bottom: 18px;
+    }
+  }
+</style>

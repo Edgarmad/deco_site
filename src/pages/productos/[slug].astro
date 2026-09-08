@@ -1,0 +1,287 @@
+---
+import '../../styles/global.css';
+import ProductMegaMenu from '../../components/products/ProductMegaMenu.astro';
+import { getProductCategories, getProducts } from '../../services/productService';
+
+export const getStaticPaths = async () => {
+  const products = await getProducts();
+  return products.map((product) => ({ params: { slug: product.slug }, props: { product } }));
+};
+
+const { product } = Astro.props;
+const categories = await getProductCategories();
+const category = categories.find((item) => item.slug === product.categorySlug);
+const relatedProducts = (await getProducts()).filter((item) => item.slug !== product.slug && item.categorySlug === product.categorySlug).slice(0, 3);
+const allColors = product.variants.flatMap((variant) => variant.colors);
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={product.summary ?? `Detalle de ${product.name} en Deco.`} />
+    <title>{product.name} | Deco</title>
+  </head>
+  <body>
+    <!-- Seccion: Header / Navegacion principal -->
+    <header class="site-header">
+      <div class="nav-shell">
+        <a class="brand" href="/" aria-label="Deco inicio">
+          <span>DECO</span>
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span>ABC</span>
+        </a>
+        <nav class="desktop-nav" aria-label="Navegacion principal">
+          <a href="/">Inicio</a>
+          <a class="active" href="/productos" aria-current="page">Productos</a>
+          <a href="/proyectos">Proyectos</a>
+          <a href="/ubicaciones">Ubicaciones</a>
+          <a href="/contacto">Contacto</a>
+        </nav>
+      </div>
+      <ProductMegaMenu categories={categories} activeCategory={product.categorySlug} />
+    </header>
+
+    <main>
+      <!-- Seccion: Detalle de producto -->
+      <section class="product-detail">
+        <a class="back-link" href="/productos">← Volver al catalogo</a>
+        <div class="detail-layout">
+          <div class="detail-media">
+            {product.image ? <img src={product.image} alt={product.name} /> : <span aria-hidden="true"></span>}
+          </div>
+          <article class="detail-copy">
+            <p>{category?.name ?? product.macroCategory}</p>
+            <h1>{product.name}</h1>
+            {product.sku && <strong>SKU: {product.sku}</strong>}
+            <div class="summary">{product.summary ?? 'Producto Deco en preparacion para publicacion final.'}</div>
+            <div class="detail-block">
+              <h2>Variantes</h2>
+              <div class="chips">
+                {product.variants.length > 0 ? product.variants.map((variant) => <small>{variant.name}</small>) : <small>Por confirmar</small>}
+              </div>
+            </div>
+            <div class="detail-block">
+              <h2>Colores</h2>
+              <div class="chips">
+                {allColors.length > 0 ? allColors.map((color) => <small>{color.name}</small>) : <small>Por confirmar</small>}
+              </div>
+            </div>
+            <a class="quote-link" href="/contacto">Solicitar cotizacion</a>
+          </article>
+        </div>
+      </section>
+
+      <!-- Seccion: Productos relacionados -->
+      <section class="related-section">
+        <h2>Relacionados</h2>
+        <div class="related-grid">
+          {relatedProducts.length > 0 ? relatedProducts.map((item) => (
+            <a href={`/productos/${item.slug}`}>
+              <span>{item.macroCategory}</span>
+              <strong>{item.name}</strong>
+            </a>
+          )) : <p>No hay relacionados disponibles por ahora.</p>}
+        </div>
+      </section>
+    </main>
+
+    <!-- Seccion: Footer / Enlaces de apoyo -->
+    <footer class="site-footer">
+      <div class="footer-title">Innovative <em>ideas,</em><br /> inspired <em>living</em></div>
+      <div class="footer-grid">
+        <nav aria-label="Explora">
+          <h2>/Explora</h2>
+          <a href="/ubicaciones">Ubicaciones</a>
+          <a href="/productos">Catalogo</a>
+          <a href="/contacto">Contacto</a>
+        </nav>
+        <nav aria-label="Categorias">
+          <h2>/Categorias</h2>
+          {categories.slice(0, 4).map((item) => <a href={`/productos?categoria=${item.slug}`}>{item.name}</a>)}
+        </nav>
+        <div>
+          <h2>/Asistencia</h2>
+          <a href="/contacto">Contacto</a>
+          <p>Telefono: (81) 2351 2953</p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .desktop-nav a.active {
+    text-decoration: underline;
+    text-decoration-color: var(--green);
+    text-underline-offset: 12px;
+    text-decoration-thickness: 3px;
+  }
+
+  .product-detail {
+    padding: 64px 8vw 78px;
+    background: var(--white-pure);
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 32px;
+    color: #677067;
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .detail-layout {
+    display: grid;
+    grid-template-columns: minmax(300px, 0.9fr) minmax(320px, 1fr);
+    gap: 58px;
+    align-items: center;
+  }
+
+  .detail-media {
+    min-height: 560px;
+    display: grid;
+    place-items: center;
+    background: #f0f0ec;
+  }
+
+  .detail-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .detail-media span {
+    width: 52%;
+    height: 64%;
+    transform: perspective(640px) rotateX(56deg) rotateZ(-22deg);
+    background: repeating-linear-gradient(90deg, #7a4f2c 0 22px, #c69055 22px 38px, #2b2018 38px 46px);
+    box-shadow: 18px 28px 40px rgba(0, 0, 0, 0.22);
+  }
+
+  .detail-copy p {
+    margin: 0 0 18px;
+    color: var(--green);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+  }
+
+  .detail-copy h1 {
+    margin: 0 0 20px;
+    font-size: clamp(3rem, 6vw, 6rem);
+    font-weight: 400;
+    letter-spacing: -0.07em;
+    line-height: 0.9;
+    text-transform: uppercase;
+  }
+
+  .detail-copy strong {
+    display: block;
+    margin-bottom: 22px;
+    color: #677067;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+  }
+
+  .summary {
+    max-width: 560px;
+    color: #596059;
+    line-height: 1.7;
+  }
+
+  .detail-block {
+    margin-top: 30px;
+  }
+
+  .detail-block h2,
+  .related-section h2 {
+    margin: 0 0 14px;
+    color: #818781;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .chips small {
+    padding: 8px 12px;
+    border: 1px solid #d4d8d2;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .quote-link {
+    display: inline-block;
+    margin-top: 38px;
+    padding: 15px 22px;
+    background: var(--black);
+    color: var(--white-pure);
+    font-size: 0.74rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .related-section {
+    padding: 54px 8vw 82px;
+    background: var(--white);
+  }
+
+  .related-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .related-grid a {
+    min-height: 150px;
+    display: grid;
+    align-content: end;
+    gap: 10px;
+    padding: 22px;
+    background: var(--white-pure);
+    border: 1px solid var(--paper-line);
+  }
+
+  .related-grid span {
+    color: var(--green);
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .related-grid strong {
+    font-size: 1.2rem;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 850px) {
+    .detail-layout,
+    .related-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .product-detail,
+    .related-section {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    .detail-media {
+      min-height: 380px;
+    }
+  }
+</style>

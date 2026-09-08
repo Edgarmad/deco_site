@@ -1,0 +1,471 @@
+---
+import '../styles/global.css';
+import ProductFilters from '../components/products/ProductFilters.astro';
+import ProductGrid from '../components/products/ProductGrid.astro';
+import ProductMegaMenu from '../components/products/ProductMegaMenu.astro';
+import ProductPagination from '../components/products/ProductPagination.astro';
+import { getProductCategories, getProducts } from '../services/productService';
+import type { ProductMacroCategory } from '../types/products';
+
+const navItems = [
+  { label: 'Inicio', href: '/' },
+  { label: 'Productos', href: '/productos' },
+  { label: 'Proyectos', href: '/proyectos' },
+  { label: 'Ubicaciones', href: '/ubicaciones' },
+  { label: 'Contacto', href: '/contacto' }
+];
+
+const products = await getProducts();
+const categories = await getProductCategories();
+const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
+  { label: 'Todo', value: 'todo' },
+  { label: 'Interior', value: 'interior' },
+  { label: 'Exterior', value: 'exterior' }
+];
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Catalogo Deco de revestimientos para interior y exterior." />
+    <title>Productos | Deco</title>
+  </head>
+  <body>
+    <!-- Seccion: Header / Navegacion principal -->
+    <header class="site-header">
+      <div class="nav-shell catalog-nav-shell">
+        <a class="brand" href="/" aria-label="Deco inicio">
+          <span>DECO</span>
+          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+          <span>ABC</span>
+        </a>
+        <nav class="desktop-nav" aria-label="Navegacion principal">
+          {navItems.map((item) => <a class={item.href === '/productos' ? 'active' : ''} href={item.href} aria-current={item.href === '/productos' ? 'page' : undefined}>{item.label}</a>)}
+        </nav>
+        <button class="mobile-menu-button" type="button" data-mobile-menu-button aria-expanded="false">Menu</button>
+      </div>
+      <nav class="mobile-menu" data-mobile-menu hidden aria-label="Navegacion movil">
+        {navItems.map((item) => <a href={item.href}>{item.label}</a>)}
+      </nav>
+      <ProductMegaMenu categories={categories} />
+    </header>
+
+    <main>
+
+      <!-- Seccion: Catalogo de productos -->
+      <section class="catalog-section" aria-labelledby="catalog-title">
+        <div class="catalog-toolbar">
+          <div class="catalog-tabs" role="tablist" aria-label="Filtro rapido por categoria">
+            {tabItems.map((tab) => (
+              <button type="button" data-macro-tab={tab.value} aria-pressed={tab.value === 'todo' ? 'true' : 'false'}>{tab.label}</button>
+            ))}
+          </div>
+          <div class="catalog-controls">
+            <label>
+              Ordenar por
+              <select data-sort-select>
+                <option value="featured">Destacados</option>
+                <option value="name">Nombre</option>
+              </select>
+            </label>
+            <button type="button" class="reset-filters" data-reset-filters>Limpiar filtros</button>
+            <span>Productos por pagina: 12</span>
+          </div>
+        </div>
+
+        {products.length === 0 ? (
+          <div class="catalog-empty-page">
+            <h1 id="catalog-title">Catalogo en preparacion</h1>
+            <p>La fuente de WordPress aun no tiene productos publicados. El sitio permanece listo para recibir contenido.</p>
+          </div>
+        ) : (
+          <div class="catalog-layout">
+            <ProductFilters categories={categories} />
+            <div class="catalog-results">
+              <h1 id="catalog-title">Todos los productos</h1>
+              <ProductGrid products={products} />
+              <ProductPagination total={products.length} />
+            </div>
+          </div>
+        )}
+      </section>
+    </main>
+
+    <!-- Seccion: Interacciones de catalogo -->
+    <script>
+      const menuButton = document.querySelector('[data-mobile-menu-button]');
+      const mobileMenu = document.querySelector('[data-mobile-menu]');
+
+      if (menuButton instanceof HTMLButtonElement && mobileMenu instanceof HTMLElement) {
+        menuButton.addEventListener('click', () => {
+          const isOpen = menuButton.getAttribute('aria-expanded') === 'true';
+          menuButton.setAttribute('aria-expanded', String(!isOpen));
+          mobileMenu.hidden = isOpen;
+        });
+      }
+
+      const cards = Array.from(document.querySelectorAll('[data-product-card]')).filter((card): card is HTMLElement => card instanceof HTMLElement);
+      const tabs = Array.from(document.querySelectorAll('[data-macro-tab]')).filter((tab): tab is HTMLButtonElement => tab instanceof HTMLButtonElement);
+      const categoryFilters = Array.from(document.querySelectorAll('[data-category-filter]')).filter((input): input is HTMLInputElement => input instanceof HTMLInputElement);
+      const colorFilters = Array.from(document.querySelectorAll('[data-color-filter]')).filter((input): input is HTMLInputElement => input instanceof HTMLInputElement);
+      const searchInput = document.querySelector('[data-search-input]');
+      const sortSelect = document.querySelector('[data-sort-select]');
+      const resetFilters = document.querySelector('[data-reset-filters]');
+      const emptyState = document.querySelector('[data-empty-state]');
+      const pagination = document.querySelector('[data-pagination]');
+      const prevButton = document.querySelector('[data-page-prev]');
+      const nextButton = document.querySelector('[data-page-next]');
+      const currentPageLabel = document.querySelector('[data-page-current]');
+      const summary = document.querySelector('[data-pagination-summary]');
+      const filterToggle = document.querySelector('[data-filter-toggle]');
+      const filterBody = document.querySelector('[data-filter-body]');
+      const perPage = pagination instanceof HTMLElement ? Number(pagination.dataset.perPage ?? 12) : 12;
+      let currentMacro = 'todo';
+      let currentPage = 1;
+
+      const updateUrl = () => {
+        const params = new URLSearchParams();
+        if (currentMacro !== 'todo') params.set('categoria', currentMacro);
+        if (searchInput instanceof HTMLInputElement && searchInput.value.trim()) params.set('q', searchInput.value.trim());
+        if (sortSelect instanceof HTMLSelectElement && sortSelect.value !== 'featured') params.set('orden', sortSelect.value);
+        if (currentPage > 1) params.set('page', String(currentPage));
+        const query = params.toString();
+        history.replaceState(null, '', query ? `/productos?${query}` : '/productos');
+      };
+
+      const sortCards = (items) => {
+        const sortValue = sortSelect instanceof HTMLSelectElement ? sortSelect.value : 'featured';
+        return [...items].sort((firstCard, secondCard) => {
+          if (sortValue === 'name') {
+            return (firstCard.dataset.name ?? '').localeCompare(secondCard.dataset.name ?? '', 'es');
+          }
+
+          const firstFeatured = firstCard.dataset.featured === 'true' ? 0 : 1;
+          const secondFeatured = secondCard.dataset.featured === 'true' ? 0 : 1;
+          if (firstFeatured !== secondFeatured) return firstFeatured - secondFeatured;
+
+          return Number(firstCard.dataset.index ?? 0) - Number(secondCard.dataset.index ?? 0);
+        });
+      };
+
+      const getFilteredCards = () => {
+        const checkedCategories = categoryFilters.filter((input) => input.checked).map((input) => input.value);
+        const checkedColors = colorFilters.filter((input) => input.checked).map((input) => input.value);
+        const query = searchInput instanceof HTMLInputElement ? searchInput.value.trim().toLowerCase() : '';
+
+        return cards.filter((card) => {
+          const searchText = card.dataset.search ?? '';
+          const matchesMacro = currentMacro === 'todo' || card.dataset.macro === currentMacro;
+          const matchesCategory = checkedCategories.length === 0 || checkedCategories.includes(card.dataset.category ?? '');
+          const matchesColor = checkedColors.length === 0 || checkedColors.some((color) => searchText.includes(color));
+          const matchesQuery = !query || searchText.includes(query);
+          return matchesMacro && matchesCategory && matchesColor && matchesQuery;
+        });
+      };
+
+      const renderCatalog = () => {
+        const filteredCards = sortCards(getFilteredCards());
+        const pageCount = Math.max(1, Math.ceil(filteredCards.length / perPage));
+        currentPage = Math.min(currentPage, pageCount);
+        const start = (currentPage - 1) * perPage;
+        const end = start + perPage;
+
+        cards.forEach((card) => {
+          card.hidden = true;
+          card.style.order = '';
+        });
+        filteredCards.slice(start, end).forEach((card, index) => {
+          card.hidden = false;
+          card.style.order = String(index);
+        });
+
+        if (emptyState instanceof HTMLElement) emptyState.hidden = filteredCards.length > 0;
+        if (prevButton instanceof HTMLButtonElement) prevButton.disabled = currentPage <= 1;
+        if (nextButton instanceof HTMLButtonElement) nextButton.disabled = currentPage >= pageCount;
+        if (currentPageLabel instanceof HTMLElement) currentPageLabel.textContent = String(currentPage);
+        if (summary instanceof HTMLElement) {
+          const visibleStart = filteredCards.length === 0 ? 0 : start + 1;
+          const visibleEnd = Math.min(end, filteredCards.length);
+          summary.textContent = `Mostrando ${visibleStart}-${visibleEnd} de ${filteredCards.length} productos`;
+        }
+        updateUrl();
+      };
+
+      const setMacro = (macro) => {
+        currentMacro = macro;
+        currentPage = 1;
+        tabs.forEach((tab) => tab.setAttribute('aria-pressed', String(tab.dataset.macroTab === macro)));
+        renderCatalog();
+      };
+
+      const resetAllFilters = () => {
+        currentMacro = 'todo';
+        currentPage = 1;
+        categoryFilters.forEach((input) => { input.checked = false; });
+        colorFilters.forEach((input) => { input.checked = false; });
+        if (searchInput instanceof HTMLInputElement) searchInput.value = '';
+        if (sortSelect instanceof HTMLSelectElement) sortSelect.value = 'featured';
+        tabs.forEach((tab) => tab.setAttribute('aria-pressed', String(tab.dataset.macroTab === 'todo')));
+        renderCatalog();
+      };
+
+      const params = new URLSearchParams(window.location.search);
+      const initialCategory = params.get('categoria');
+      const initialQuery = params.get('q');
+      const initialSort = params.get('orden');
+      const initialPage = Number(params.get('page') ?? 1);
+      if (initialQuery && searchInput instanceof HTMLInputElement) searchInput.value = initialQuery;
+      if (initialSort && sortSelect instanceof HTMLSelectElement) sortSelect.value = initialSort;
+      if (Number.isInteger(initialPage) && initialPage > 0) currentPage = initialPage;
+      if (initialCategory) {
+        const macroMatch = tabs.some((tab) => tab.dataset.macroTab === initialCategory);
+        if (macroMatch) currentMacro = initialCategory;
+        categoryFilters.forEach((input) => { input.checked = input.value === initialCategory; });
+      }
+
+      tabs.forEach((tab) => tab.addEventListener('click', () => setMacro(tab.dataset.macroTab ?? 'todo')));
+      categoryFilters.forEach((input) => input.addEventListener('change', () => { currentPage = 1; renderCatalog(); }));
+      colorFilters.forEach((input) => input.addEventListener('change', () => { currentPage = 1; renderCatalog(); }));
+      if (searchInput instanceof HTMLInputElement) searchInput.addEventListener('input', () => { currentPage = 1; renderCatalog(); });
+      if (sortSelect instanceof HTMLSelectElement) sortSelect.addEventListener('change', () => { currentPage = 1; renderCatalog(); });
+      if (resetFilters instanceof HTMLButtonElement) resetFilters.addEventListener('click', resetAllFilters);
+      if (prevButton instanceof HTMLButtonElement) prevButton.addEventListener('click', () => { currentPage -= 1; renderCatalog(); });
+      if (nextButton instanceof HTMLButtonElement) nextButton.addEventListener('click', () => { currentPage += 1; renderCatalog(); });
+      if (filterToggle instanceof HTMLButtonElement && filterBody instanceof HTMLElement) {
+        filterToggle.addEventListener('click', () => {
+          const isHidden = filterBody.classList.toggle('hidden');
+          filterToggle.setAttribute('aria-expanded', String(!isHidden));
+          filterToggle.textContent = isHidden ? 'Mostrar filtros' : 'Ocultar filtros';
+        });
+      }
+
+      setMacro(currentMacro);
+    </script>
+
+    <!-- Seccion: Footer / Enlaces de apoyo -->
+    <footer class="site-footer">
+      <div class="footer-title">Innovative <em>ideas,</em><br /> inspired <em>living</em></div>
+      <div class="footer-grid">
+        <nav aria-label="Explora">
+          <h2>/Explora</h2>
+          <a href="/ubicaciones">Ubicaciones</a>
+          <a href="/productos">Catalogo</a>
+          <a href="/contacto">Contacto</a>
+        </nav>
+        <nav aria-label="Categorias">
+          <h2>/Categorias</h2>
+          {categories.slice(0, 4).map((category) => <a href={`/productos?categoria=${category.slug}`}>{category.name}</a>)}
+        </nav>
+        <div>
+          <h2>/Asistencia</h2>
+          <a href="/contacto">Contacto</a>
+          <p>Telefono: (81) 2351 2953</p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .desktop-nav a.active {
+    color: var(--white-pure);
+    text-decoration: underline;
+    text-decoration-color: var(--green);
+    text-underline-offset: 12px;
+    text-decoration-thickness: 3px;
+  }
+
+  .mobile-menu-button,
+  .mobile-menu {
+    display: none;
+  }
+
+  .catalog-hero {
+    padding: 82px 8vw 58px;
+    background: var(--black-soft);
+    color: var(--white-pure);
+  }
+
+  .catalog-hero p {
+    margin: 0 0 18px;
+    color: var(--green-soft);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+  }
+
+  .catalog-hero h1 {
+    max-width: 860px;
+    margin: 0;
+    font-size: clamp(3.2rem, 7vw, 7.2rem);
+    font-weight: 400;
+    letter-spacing: -0.07em;
+    line-height: 0.9;
+    text-transform: uppercase;
+  }
+
+  .catalog-section {
+    padding: 0 6.6vw;
+    background: var(--white-pure);
+  }
+
+  .catalog-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--paper-line);
+  }
+
+  .catalog-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .catalog-tabs button {
+    padding: 10px 18px;
+    border: 1px solid #d5d8d2;
+    border-radius: 999px;
+    background: transparent;
+    color: #303530;
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .catalog-tabs button[aria-pressed='true'] {
+    background: var(--black);
+    border-color: var(--black);
+    color: var(--white-pure);
+  }
+
+  .catalog-controls {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    color: #737a73;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .catalog-controls label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .catalog-controls select,
+  .reset-filters {
+    padding: 10px 12px;
+    border: 1px solid #d5d8d2;
+    background: var(--white-pure);
+    color: var(--black);
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .reset-filters {
+    cursor: pointer;
+  }
+
+  .reset-filters:hover,
+  .reset-filters:focus-visible {
+    border-color: var(--black);
+    background: var(--black);
+    color: var(--white-pure);
+  }
+
+  .catalog-layout {
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: 34px;
+    padding-top: 30px;
+  }
+
+  .catalog-results h1 {
+    margin: 0 0 22px;
+    font-size: clamp(2rem, 3vw, 3.8rem);
+    font-weight: 400;
+    letter-spacing: -0.06em;
+    text-transform: uppercase;
+  }
+
+  .catalog-empty-page {
+    min-height: 420px;
+    display: grid;
+    place-content: center;
+    text-align: center;
+  }
+
+  .catalog-empty-page h1 {
+    margin: 0 0 12px;
+    font-size: clamp(2.4rem, 5vw, 5rem);
+    font-weight: 400;
+    letter-spacing: -0.06em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 900px) {
+    .catalog-toolbar,
+    .catalog-controls {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .catalog-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .catalog-nav-shell {
+      min-height: 70px;
+    }
+
+    .mobile-menu-button {
+      display: inline-grid;
+      padding: 10px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: transparent;
+      color: var(--white);
+      font: inherit;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .mobile-menu:not([hidden]) {
+      display: grid;
+      gap: 14px;
+      padding: 18px 24px 24px;
+      background: #111310;
+      color: var(--white);
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .catalog-hero,
+    .catalog-section {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+
+    .catalog-hero {
+      padding-top: 58px;
+    }
+  }
+</style>

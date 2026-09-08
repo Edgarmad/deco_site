@@ -1,0 +1,70 @@
+---
+import type { Product } from '../../types/products';
+import ProductCard from './ProductCard.astro';
+
+type Props = {
+  products: Product[];
+};
+
+const { products } = Astro.props;
+---
+
+<div class="catalog-grid" data-product-grid>
+  {products.map((product, index) => <ProductCard product={product} index={index} />)}
+</div>
+
+<div class="catalog-empty" data-empty-state hidden>
+  <h2>No encontramos productos para tu busqueda.</h2>
+  <p>Ajusta los filtros o vuelve a ver todo el catalogo.</p>
+</div>
+
+<style>
+  .catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0 22px;
+  }
+
+  .catalog-empty {
+    min-height: 260px;
+    display: grid;
+    place-content: center;
+    text-align: center;
+  }
+
+  .catalog-empty[hidden] {
+    display: none;
+  }
+
+  .catalog-empty h2 {
+    margin: 0 0 12px;
+    font-size: clamp(1.8rem, 3vw, 3rem);
+    font-weight: 400;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+  }
+
+  .catalog-empty p {
+    margin: 0;
+    color: #747a74;
+  }
+
+  @media (max-width: 1120px) {
+    .catalog-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 760px) {
+    .catalog-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 12px;
+    }
+  }
+
+  @media (max-width: 460px) {
+    .catalog-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

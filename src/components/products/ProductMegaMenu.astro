@@ -1,0 +1,158 @@
+---
+import type { ProductCategory, ProductMacroCategory } from '../../types/products';
+
+type Props = {
+  categories: ProductCategory[];
+  activeCategory?: string;
+};
+
+const { categories, activeCategory = '' } = Astro.props;
+const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
+  { label: 'Productos de interior', macroCategory: 'interior' },
+  { label: 'Productos de exterior', macroCategory: 'exterior' }
+];
+---
+
+<div class="product-mega-menu" data-product-mega-menu>
+  {groups.map((group) => {
+    const groupCategories = categories.filter((category) => category.macroCategory === group.macroCategory);
+    return (
+      <section class="mega-group" data-mega-group>
+        <button type="button" class="mega-trigger" aria-expanded="false">
+          {group.label}
+        </button>
+        <nav class="mega-panel" aria-label={group.label}>
+          {groupCategories.map((category) => (
+            <a class={activeCategory === category.slug ? 'active' : ''} href={`/productos?categoria=${category.slug}`} aria-current={activeCategory === category.slug ? 'page' : undefined}>
+              {category.name}
+            </a>
+          ))}
+        </nav>
+      </section>
+    );
+  })}
+</div>
+
+<script>
+  const groups = document.querySelectorAll('[data-mega-group]');
+
+  groups.forEach((group) => {
+    const trigger = group.querySelector('.mega-trigger');
+    if (!(trigger instanceof HTMLButtonElement)) return;
+
+    const setExpanded = (expanded) => {
+      group.classList.toggle('open', expanded);
+      trigger.setAttribute('aria-expanded', String(expanded));
+    };
+
+    group.addEventListener('mouseenter', () => setExpanded(true));
+    group.addEventListener('mouseleave', () => setExpanded(false));
+    group.addEventListener('focusin', () => setExpanded(true));
+    group.addEventListener('focusout', (event) => {
+      const nextTarget = event.relatedTarget;
+      if (nextTarget instanceof Node && group.contains(nextTarget)) return;
+      setExpanded(false);
+    });
+    trigger.addEventListener('click', () => setExpanded(trigger.getAttribute('aria-expanded') !== 'true'));
+  });
+</script>
+
+<style>
+  .product-mega-menu {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    background: #0b0d0b;
+    color: var(--white);
+    text-transform: uppercase;
+  }
+
+  .mega-group {
+    position: relative;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .mega-group + .mega-group {
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .mega-trigger {
+    width: 100%;
+    min-height: 54px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    cursor: pointer;
+  }
+
+  .mega-trigger:focus-visible {
+    outline: 1px solid var(--green);
+    outline-offset: -5px;
+  }
+
+  .mega-panel {
+    display: flex;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+    flex-wrap: wrap;
+    gap: 14px;
+    justify-content: center;
+    padding: 0 8vw;
+    background: #0b0d0b;
+    transform: translateY(-6px);
+    transition: max-height 500ms ease, opacity 500ms ease, padding 500ms ease, transform 500ms ease;
+  }
+
+  .mega-group.open .mega-panel,
+  .mega-group:hover .mega-panel,
+  .mega-group:focus-within .mega-panel {
+    max-height: 180px;
+    opacity: 1;
+    padding: 8px 8vw 28px;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .mega-panel a {
+    padding: 10px 16px;
+    border-radius: 999px;
+    color: #d8ded8;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+  }
+
+  .mega-panel a:hover,
+  .mega-panel a:focus-visible,
+  .mega-panel a.active {
+    background: #272a27;
+    color: var(--white-pure);
+  }
+
+  @media (max-width: 760px) {
+    .product-mega-menu {
+      grid-template-columns: 1fr;
+    }
+
+    .mega-group + .mega-group {
+      border-left: 0;
+    }
+
+    .mega-panel {
+      justify-content: flex-start;
+      padding: 0 20px;
+    }
+
+    .mega-group.open .mega-panel,
+    .mega-group:hover .mega-panel,
+    .mega-group:focus-within .mega-panel {
+      max-height: 260px;
+      padding: 0 20px 22px;
+    }
+  }
+</style>
