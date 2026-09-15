@@ -36,6 +36,7 @@ const searchText = [
       <h2>{product.name}</h2>
       {product.sku && <p>SKU: {product.sku}</p>}
       <small>{primaryColor?.name ?? product.variants[0]?.name ?? 'Acabado por confirmar'}</small>
+      <em>Ver ficha y variantes</em>
     </div>
   </a>
 </article>
@@ -90,7 +91,7 @@ const searchText = [
   .catalog-copy h2 {
     min-height: 44px;
     margin: 0;
-    color: #24303d;
+    color: var(--black);
     font-size: 0.92rem;
     font-weight: 700;
     line-height: 1.35;
@@ -98,7 +99,8 @@ const searchText = [
   }
 
   .catalog-copy p,
-  .catalog-copy small {
+  .catalog-copy small,
+  .catalog-copy em {
     display: block;
     margin: 8px 0 0;
     color: #8b908b;
@@ -106,5 +108,54 @@ const searchText = [
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+  }
+
+  .catalog-copy em {
+    color: var(--blue);
+    font-style: normal;
+  }
+
+  @media (max-width: 640px) {
+    .catalog-card {
+      min-height: 210px;
+      border: 1px solid #e0e2dc;
+      border-radius: 7px;
+      background: var(--white-pure);
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .catalog-card a {
+      grid-template-rows: 118px 1fr;
+      gap: 8px;
+      padding: 8px;
+    }
+
+    .catalog-visual {
+      border-radius: 5px;
+      background: #f2f2ed;
+    }
+
+    .catalog-visual span {
+      width: 68%;
+      height: 78%;
+      transform: none;
+      border-radius: 2px;
+      box-shadow: none;
+    }
+
+    .catalog-copy h2 {
+      min-height: auto;
+      font-size: 0.68rem;
+      line-height: 1.2;
+    }
+
+    .catalog-copy p,
+    .catalog-copy small,
+    .catalog-copy em {
+      margin-top: 4px;
+      font-size: 0.5rem;
+      letter-spacing: 0.04em;
+    }
   }
 </style>

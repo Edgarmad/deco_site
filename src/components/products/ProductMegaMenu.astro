@@ -1,5 +1,6 @@
 ---
 import type { ProductCategory, ProductMacroCategory } from '../../types/products';
+import { getProducts } from '../../services/productService';
 
 type Props = {
   categories: ProductCategory[];
@@ -7,10 +8,16 @@ type Props = {
 };
 
 const { categories, activeCategory = '' } = Astro.props;
+const products = await getProducts();
 const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
   { label: 'Productos de interior', macroCategory: 'interior' },
   { label: 'Productos de exterior', macroCategory: 'exterior' }
 ];
+
+const getCategoryHref = (categorySlug: string) => {
+  const protagonist = products.find((product) => product.categorySlug === categorySlug);
+  return protagonist ? `/productos/${protagonist.slug}` : `/productos?categoria=${categorySlug}`;
+};
 ---
 
 <div class="product-mega-menu" data-product-mega-menu>
@@ -23,7 +30,7 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
         </button>
         <nav class="mega-panel" aria-label={group.label}>
           {groupCategories.map((category) => (
-            <a class={activeCategory === category.slug ? 'active' : ''} href={`/productos?categoria=${category.slug}`} aria-current={activeCategory === category.slug ? 'page' : undefined}>
+            <a class={activeCategory === category.slug ? 'active' : ''} href={getCategoryHref(category.slug)} aria-current={activeCategory === category.slug ? 'page' : undefined}>
               {category.name}
             </a>
           ))}
@@ -61,7 +68,7 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
   .product-mega-menu {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    background: #0b0d0b;
+    background: var(--black-deep);
     color: var(--white);
     text-transform: uppercase;
   }
@@ -89,7 +96,7 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
   }
 
   .mega-trigger:focus-visible {
-    outline: 1px solid var(--green);
+    outline: 1px solid var(--blue);
     outline-offset: -5px;
   }
 
@@ -103,7 +110,7 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
     gap: 14px;
     justify-content: center;
     padding: 0 8vw;
-    background: #0b0d0b;
+    background: var(--black-deep);
     transform: translateY(-6px);
     transition: max-height 500ms ease, opacity 500ms ease, padding 500ms ease, transform 500ms ease;
   }
@@ -130,13 +137,14 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
   .mega-panel a:hover,
   .mega-panel a:focus-visible,
   .mega-panel a.active {
-    background: #272a27;
+    background: var(--blue);
     color: var(--white-pure);
   }
 
   @media (max-width: 760px) {
     .product-mega-menu {
       grid-template-columns: 1fr;
+      display: none;
     }
 
     .mega-group + .mega-group {

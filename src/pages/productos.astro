@@ -4,16 +4,9 @@ import ProductFilters from '../components/products/ProductFilters.astro';
 import ProductGrid from '../components/products/ProductGrid.astro';
 import ProductMegaMenu from '../components/products/ProductMegaMenu.astro';
 import ProductPagination from '../components/products/ProductPagination.astro';
+import SiteHeader from '../components/layout/SiteHeader.astro';
 import { getProductCategories, getProducts } from '../services/productService';
 import type { ProductMacroCategory } from '../types/products';
-
-const navItems = [
-  { label: 'Inicio', href: '/' },
-  { label: 'Productos', href: '/productos' },
-  { label: 'Proyectos', href: '/proyectos' },
-  { label: 'Ubicaciones', href: '/ubicaciones' },
-  { label: 'Contacto', href: '/contacto' }
-];
 
 const products = await getProducts();
 const categories = await getProductCategories();
@@ -32,29 +25,18 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
     <title>Productos | Deco</title>
   </head>
   <body>
-    <!-- Seccion: Header / Navegacion principal -->
-    <header class="site-header">
-      <div class="nav-shell catalog-nav-shell">
-        <a class="brand" href="/" aria-label="Deco inicio">
-          <span>DECO</span>
-          <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
-          <span>ABC</span>
-        </a>
-        <nav class="desktop-nav" aria-label="Navegacion principal">
-          {navItems.map((item) => <a class={item.href === '/productos' ? 'active' : ''} href={item.href} aria-current={item.href === '/productos' ? 'page' : undefined}>{item.label}</a>)}
-        </nav>
-        <button class="mobile-menu-button" type="button" data-mobile-menu-button aria-expanded="false">Menu</button>
-      </div>
-      <nav class="mobile-menu" data-mobile-menu hidden aria-label="Navegacion movil">
-        {navItems.map((item) => <a href={item.href}>{item.label}</a>)}
-      </nav>
-      <ProductMegaMenu categories={categories} />
-    </header>
+    <SiteHeader currentPath="/productos" />
+    <ProductMegaMenu categories={categories} />
 
     <main>
 
       <!-- Seccion: Catalogo de productos -->
       <section class="catalog-section" aria-labelledby="catalog-title">
+        <div class="mobile-catalog-head" aria-hidden="true">
+          <p>Productos</p>
+          <h1>Catalogo</h1>
+          <span>{products.length} productos</span>
+        </div>
         <div class="catalog-toolbar">
           <div class="catalog-tabs" role="tablist" aria-label="Filtro rapido por categoria">
             {tabItems.map((tab) => (
@@ -94,17 +76,6 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
 
     <!-- Seccion: Interacciones de catalogo -->
     <script>
-      const menuButton = document.querySelector('[data-mobile-menu-button]');
-      const mobileMenu = document.querySelector('[data-mobile-menu]');
-
-      if (menuButton instanceof HTMLButtonElement && mobileMenu instanceof HTMLElement) {
-        menuButton.addEventListener('click', () => {
-          const isOpen = menuButton.getAttribute('aria-expanded') === 'true';
-          menuButton.setAttribute('aria-expanded', String(!isOpen));
-          mobileMenu.hidden = isOpen;
-        });
-      }
-
       const cards = Array.from(document.querySelectorAll('[data-product-card]')).filter((card): card is HTMLElement => card instanceof HTMLElement);
       const tabs = Array.from(document.querySelectorAll('[data-macro-tab]')).filter((tab): tab is HTMLButtonElement => tab instanceof HTMLButtonElement);
       const categoryFilters = Array.from(document.querySelectorAll('[data-category-filter]')).filter((input): input is HTMLInputElement => input instanceof HTMLInputElement);
@@ -123,6 +94,12 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
       const perPage = pagination instanceof HTMLElement ? Number(pagination.dataset.perPage ?? 12) : 12;
       let currentMacro = 'todo';
       let currentPage = 1;
+
+      if (window.matchMedia('(max-width: 640px)').matches && filterToggle instanceof HTMLButtonElement && filterBody instanceof HTMLElement) {
+        filterBody.classList.add('hidden');
+        filterToggle.setAttribute('aria-expanded', 'false');
+        filterToggle.textContent = 'Filtrar';
+      }
 
       const updateUrl = () => {
         const params = new URLSearchParams();
@@ -236,7 +213,7 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
         filterToggle.addEventListener('click', () => {
           const isHidden = filterBody.classList.toggle('hidden');
           filterToggle.setAttribute('aria-expanded', String(!isHidden));
-          filterToggle.textContent = isHidden ? 'Mostrar filtros' : 'Ocultar filtros';
+          filterToggle.textContent = isHidden ? 'Filtrar' : 'Ocultar filtros';
         });
       }
 
@@ -268,19 +245,6 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
 </html>
 
 <style>
-  .desktop-nav a.active {
-    color: var(--white-pure);
-    text-decoration: underline;
-    text-decoration-color: var(--green);
-    text-underline-offset: 12px;
-    text-decoration-thickness: 3px;
-  }
-
-  .mobile-menu-button,
-  .mobile-menu {
-    display: none;
-  }
-
   .catalog-hero {
     padding: 82px 8vw 58px;
     background: var(--black-soft);
@@ -289,7 +253,7 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
 
   .catalog-hero p {
     margin: 0 0 18px;
-    color: var(--green-soft);
+    color: var(--green);
     font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 0.28em;
@@ -309,6 +273,10 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
   .catalog-section {
     padding: 0 6.6vw;
     background: var(--white-pure);
+  }
+
+  .mobile-catalog-head {
+    display: none;
   }
 
   .catalog-toolbar {
@@ -331,7 +299,7 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
     border: 1px solid #d5d8d2;
     border-radius: 999px;
     background: transparent;
-    color: #303530;
+    color: var(--black);
     font: inherit;
     font-size: 0.72rem;
     font-weight: 800;
@@ -341,8 +309,8 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
   }
 
   .catalog-tabs button[aria-pressed='true'] {
-    background: var(--black);
-    border-color: var(--black);
+    background: var(--blue);
+    border-color: var(--blue);
     color: var(--white-pure);
   }
 
@@ -382,8 +350,8 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
 
   .reset-filters:hover,
   .reset-filters:focus-visible {
-    border-color: var(--black);
-    background: var(--black);
+    border-color: var(--blue);
+    background: var(--blue);
     color: var(--white-pure);
   }
 
@@ -430,42 +398,95 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
   }
 
   @media (max-width: 640px) {
-    .catalog-nav-shell {
-      min-height: 70px;
-    }
-
-    .mobile-menu-button {
-      display: inline-grid;
-      padding: 10px 14px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: transparent;
-      color: var(--white);
-      font: inherit;
-      font-size: 0.72rem;
-      font-weight: 800;
-      text-transform: uppercase;
-    }
-
-    .mobile-menu:not([hidden]) {
-      display: grid;
-      gap: 14px;
-      padding: 18px 24px 24px;
-      background: #111310;
-      color: var(--white);
-      font-size: 0.8rem;
-      font-weight: 800;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-    }
-
     .catalog-hero,
     .catalog-section {
-      padding-left: 20px;
-      padding-right: 20px;
+      padding-left: 14px;
+      padding-right: 14px;
     }
 
     .catalog-hero {
       padding-top: 58px;
+    }
+
+    .catalog-section {
+      padding-top: 18px;
+      padding-bottom: 28px;
+      background: #f4f4ef;
+    }
+
+    .mobile-catalog-head {
+      display: block;
+      margin-bottom: 14px;
+    }
+
+    .mobile-catalog-head p {
+      margin: 0 0 12px;
+      color: var(--green-text);
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .mobile-catalog-head h1 {
+      margin: 0;
+      font-size: 2rem;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .mobile-catalog-head span {
+      color: #8b908b;
+      font-size: 0.68rem;
+    }
+
+    .catalog-toolbar {
+      gap: 12px;
+      padding: 0 0 12px;
+      border-bottom: 0;
+    }
+
+    .catalog-tabs {
+      display: none;
+    }
+
+    .catalog-controls {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      font-size: 0;
+    }
+
+    .catalog-controls label,
+    .reset-filters {
+      width: 100%;
+      min-height: 42px;
+      justify-content: center;
+      border-radius: 5px;
+      background: var(--white-pure);
+      font-size: 0.62rem;
+    }
+
+    .catalog-controls span {
+      display: none;
+    }
+
+    .catalog-controls select {
+      width: 100%;
+      border-radius: 5px;
+      font-size: 0.62rem;
+    }
+
+    .catalog-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-top: 0;
+    }
+
+    .catalog-results h1 {
+      display: none;
     }
   }
 </style>

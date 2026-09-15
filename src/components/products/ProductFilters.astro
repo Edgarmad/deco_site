@@ -82,14 +82,14 @@ const { categories } = Astro.props;
     display: flex;
     align-items: center;
     gap: 10px;
-    color: #333832;
+    color: var(--black);
     font-size: 0.86rem;
   }
 
   input[type='checkbox'] {
     width: 16px;
     height: 16px;
-    accent-color: var(--black);
+    accent-color: var(--blue);
   }
 
   input[type='search'] {
@@ -107,6 +107,54 @@ const { categories } = Astro.props;
       border-right: 0;
       border-bottom: 1px solid var(--paper-line);
       padding-bottom: 18px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .product-filters {
+      display: grid;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 0;
+    }
+
+    .filter-toggle {
+      width: auto;
+      margin: 0;
+      padding: 12px 18px;
+      border-radius: 5px;
+      background: var(--white-pure);
+      text-align: center;
+    }
+
+    .filter-body {
+      display: grid;
+      gap: 14px;
+      padding: 14px;
+      border: 1px solid #dedfd9;
+      border-radius: 8px;
+      background: var(--white-pure);
+    }
+
+    fieldset {
+      gap: 9px;
+      margin-bottom: 0;
+    }
+
+    legend,
+    .search-label {
+      margin-bottom: 8px;
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+    }
+
+    label {
+      font-size: 0.72rem;
+    }
+
+    input[type='search'] {
+      margin-top: 0;
+      border-radius: 6px;
     }
   }
 </style>

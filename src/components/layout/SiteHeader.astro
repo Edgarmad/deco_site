@@ -1,0 +1,95 @@
+---
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = '/' } = Astro.props;
+const navItems = [
+  { label: 'Inicio', href: '/' },
+  { label: 'Productos', href: '/productos' },
+  { label: 'Proyectos', href: '/proyectos' },
+  { label: 'Ubicaciones', href: '/ubicaciones' },
+  { label: 'Contacto', href: '/contacto' }
+];
+
+const isActive = (href: string) => currentPath === href;
+---
+
+<!-- Seccion: Header / Navegacion principal -->
+<header class="site-header">
+  <div class="nav-shell catalog-nav-shell">
+    <a class="brand" href="/" aria-label="Deco inicio">
+      <img src="/assets/photos/deco_abc_logo.png" alt="Deco ABC" />
+    </a>
+    <nav class="desktop-nav" aria-label="Navegacion principal">
+      {navItems.map((item) => (
+        <a class={isActive(item.href) ? 'active' : ''} href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+          {item.label}
+        </a>
+      ))}
+    </nav>
+    <button class="mobile-menu-button" type="button" data-mobile-menu-button aria-expanded="false">Menu</button>
+  </div>
+  <nav class="mobile-menu" data-mobile-menu hidden aria-label="Navegacion movil">
+    {navItems.map((item) => <a class={isActive(item.href) ? 'active' : ''} href={item.href}>{item.label}</a>)}
+  </nav>
+</header>
+
+<script>
+  const menuButton = document.querySelector('[data-mobile-menu-button]');
+  const mobileMenu = document.querySelector('[data-mobile-menu]');
+
+  if (menuButton instanceof HTMLButtonElement && mobileMenu instanceof HTMLElement) {
+    menuButton.addEventListener('click', () => {
+      const isOpen = menuButton.getAttribute('aria-expanded') === 'true';
+      menuButton.setAttribute('aria-expanded', String(!isOpen));
+      mobileMenu.hidden = isOpen;
+    });
+  }
+</script>
+
+<style>
+  .desktop-nav a.active,
+  .mobile-menu a.active {
+    color: var(--white-pure);
+    text-decoration: underline;
+    text-decoration-color: var(--blue);
+    text-underline-offset: 12px;
+    text-decoration-thickness: 3px;
+  }
+
+  .mobile-menu-button,
+  .mobile-menu {
+    display: none;
+  }
+
+  @media (max-width: 640px) {
+    .catalog-nav-shell {
+      min-height: 70px;
+    }
+
+    .mobile-menu-button {
+      display: inline-grid;
+      padding: 10px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: transparent;
+      color: var(--white);
+      font: inherit;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .mobile-menu:not([hidden]) {
+      display: grid;
+      gap: 14px;
+      padding: 18px 24px 24px;
+      background: var(--black-deep);
+      color: var(--white);
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+  }
+</style>

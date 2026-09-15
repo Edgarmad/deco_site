@@ -53,8 +53,15 @@ const pageCount = Math.max(1, Math.ceil(total / perPage));
   }
 
   .pagination-buttons span {
-    background: var(--black);
+    background: var(--blue);
+    border-color: var(--blue);
     color: var(--white-pure);
+  }
+
+  .pagination-buttons button:not(:disabled):hover,
+  .pagination-buttons button:not(:disabled):focus-visible {
+    border-color: var(--green);
+    color: var(--green-text);
   }
 
   .pagination-buttons button:not(:disabled) {
