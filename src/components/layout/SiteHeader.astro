@@ -51,7 +51,7 @@ const isActive = (href: string) => currentPath === href;
 <style>
   .desktop-nav a.active,
   .mobile-menu a.active {
-    color: var(--white-pure);
+    color: var(--black);
     text-decoration: underline;
     text-decoration-color: var(--blue);
     text-underline-offset: 12px;
@@ -71,9 +71,9 @@ const isActive = (href: string) => currentPath === href;
     .mobile-menu-button {
       display: inline-grid;
       padding: 10px 14px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(20, 21, 18, 0.2);
       background: transparent;
-      color: var(--white);
+      color: var(--black);
       font: inherit;
       font-size: 0.72rem;
       font-weight: 800;
@@ -84,8 +84,8 @@ const isActive = (href: string) => currentPath === href;
       display: grid;
       gap: 14px;
       padding: 18px 24px 24px;
-      background: var(--black-deep);
-      color: var(--white);
+      background: var(--white);
+      color: var(--black);
       font-size: 0.8rem;
       font-weight: 800;
       letter-spacing: 0.18em;

@@ -42,8 +42,8 @@ a {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: var(--black-soft);
-  color: var(--white);
+  background: var(--white);
+  color: var(--black);
   text-transform: uppercase;
 }
 
@@ -54,7 +54,7 @@ a {
   justify-content: space-between;
   gap: 32px;
   padding: 0 6.6vw;
-  background: var(--black-soft);
+  background: var(--white);
 }
 
 .brand {
@@ -81,7 +81,7 @@ a {
 .desktop-nav a + a::before {
   content: '|';
   margin-right: 22px;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(20, 21, 18, 0.8);
 }
 
 .calculator-strip {
