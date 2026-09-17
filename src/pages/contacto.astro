@@ -1,0 +1,27 @@
+---
+import '../styles/global.css';
+import ContactPage from '../components/contact/ContactPage.astro';
+import SiteFooter from '../components/layout/SiteFooter.astro';
+import SiteHeader from '../components/layout/SiteHeader.astro';
+
+const channels = [
+  { label: 'WhatsApp', value: 'Respuesta rápida y cotizaciones' },
+  { label: 'Correo', value: 'hola@decoabc.mx' },
+  { label: 'Horario', value: 'Lun-Vie · 9:00-18:00' }
+];
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Contacta a Deco ABC para solicitar información de materiales, disponibilidad y cantidades para tu proyecto." />
+    <link rel="icon" href="/assets/favicon.ico" />
+    <title>Contacto | Deco ABC</title>
+  </head>
+  <body>
+    <SiteHeader currentPath="/contacto" />
+    <ContactPage channels={channels} />
+    <SiteFooter />
+  </body>
+</html>

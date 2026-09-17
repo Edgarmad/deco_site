@@ -1,0 +1,32 @@
+---
+import type { ProjectVisual } from '../../types/projects';
+
+type Props = {
+  visual: ProjectVisual;
+  alt: string;
+  class?: string;
+};
+
+const { visual, alt, class: className = '' } = Astro.props;
+---
+
+<div class={`project-visual project-visual-${visual} ${className}`} role="img" aria-label={alt}></div>
+
+<style>
+  .project-visual {
+    min-height: 145px;
+    background-color: var(--wood);
+  }
+
+  .project-visual-wood-stripes {
+    background-image: repeating-linear-gradient(90deg, #c89155 0 16px, #644225 16px 25px, #231b16 25px 34px, #d5a15f 34px 50px);
+  }
+
+  .project-visual-paper-lines {
+    background-image: repeating-linear-gradient(176deg, #d9d4c8 0 10px, #bab4a8 10px 12px, #eee9dd 12px 30px);
+  }
+
+  .project-visual-dark-diagonal {
+    background-image: repeating-linear-gradient(48deg, #263332 0 28px, #6f7e7a 28px 34px, #172120 34px 54px);
+  }
+</style>

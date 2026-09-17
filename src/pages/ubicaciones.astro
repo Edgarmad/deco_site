@@ -1,0 +1,40 @@
+---
+import '../styles/global.css';
+import LocationsPage from '../components/locations/LocationsPage.astro';
+import SiteFooter from '../components/layout/SiteFooter.astro';
+import SiteHeader from '../components/layout/SiteHeader.astro';
+
+const locations = [
+  {
+    number: '01',
+    city: 'Mérida',
+    type: 'Tienda',
+    address: 'Bodega 10, C. 6, Chichí Suárez, 97306',
+    schedule: 'Lun-Vie 9:00-18:00',
+    mapsUrl: 'https://maps.app.goo.gl/FG9PJTLZq6gDspWSA?g_st=ic'
+  },
+  {
+    number: '02',
+    city: 'Playa del Carmen',
+    type: 'Tienda',
+    address: 'Carretera Federal Mz 2 Lt 22, Bodega 7',
+    schedule: 'Lun-Sáb 9:00-17:00',
+    mapsUrl: 'https://maps.app.goo.gl/7WJnTuYAhmoqoA5QA?g_st=ic'
+  }
+];
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Ubicaciones Deco ABC en Mérida y Playa del Carmen para atención directa de proyectos." />
+    <link rel="icon" href="/assets/favicon.ico" />
+    <title>Ubicaciones | Deco ABC</title>
+  </head>
+  <body>
+    <SiteHeader currentPath="/ubicaciones" />
+    <LocationsPage locations={locations} whatsappUrl="https://wa.me/528123512953" />
+    <SiteFooter />
+  </body>
+</html>

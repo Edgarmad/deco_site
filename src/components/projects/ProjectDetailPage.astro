@@ -1,0 +1,223 @@
+---
+import ProjectVisual from './ProjectVisual.astro';
+import type { Project } from '../../types/projects';
+
+type Props = {
+  project: Project;
+};
+
+const { project } = Astro.props;
+---
+
+<main class="project-detail-page">
+  <!-- Seccion: Hero del proyecto -->
+  <section class="project-detail-hero" aria-labelledby="project-title">
+    <div>
+      <p>{project.category}</p>
+      <h1 id="project-title">{project.name}</h1>
+      <span>{project.description}</span>
+    </div>
+    <ProjectVisual visual={project.visual} alt={project.imageAlt} class="project-detail-visual" />
+  </section>
+
+  <!-- Seccion: Datos del proyecto -->
+  <section class="project-detail-meta" aria-label="Datos del proyecto">
+    <dl>
+      <div>
+        <dt>Ubicación</dt>
+        <dd>{project.location}</dd>
+      </div>
+      <div>
+        <dt>Año</dt>
+        <dd>{project.year}</dd>
+      </div>
+      <div>
+        <dt>Aplicación</dt>
+        <dd>{project.surface}</dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- Seccion: Desarrollo del proyecto -->
+  <section class="project-detail-content" aria-label="Desarrollo del proyecto">
+    <article>
+      <p>Reto</p>
+      <h2>{project.challenge}</h2>
+    </article>
+    <article>
+      <p>Resultado</p>
+      <h2>{project.result}</h2>
+    </article>
+    <aside>
+      <h2>Materiales utilizados</h2>
+      <ul>
+        {project.materials.map((material) => <li>{material}</li>)}
+      </ul>
+      <a href="/contacto">Cotizar materiales →</a>
+    </aside>
+  </section>
+</main>
+
+<style>
+  .project-detail-page {
+    background: var(--white);
+    color: var(--black);
+  }
+
+  .project-detail-hero {
+    display: grid;
+    grid-template-columns: minmax(360px, 0.9fr) minmax(0, 1.1fr);
+    gap: 48px;
+    align-items: end;
+    padding: 70px 6.6vw 54px;
+  }
+
+  .project-detail-hero p,
+  .project-detail-content p,
+  .project-detail-meta dt {
+    margin: 0;
+    color: var(--green-text);
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .project-detail-hero h1 {
+    margin: 24px 0;
+    font-size: clamp(3.4rem, 6vw, 7rem);
+    line-height: 0.92;
+    letter-spacing: -0.07em;
+    text-transform: uppercase;
+  }
+
+  .project-detail-hero span {
+    display: block;
+    max-width: 560px;
+    color: #656a63;
+    font-size: 1.08rem;
+    line-height: 1.5;
+  }
+
+  :global(.project-detail-visual) {
+    min-height: 430px;
+  }
+
+  .project-detail-meta {
+    padding: 0 6.6vw;
+  }
+
+  .project-detail-meta dl {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 0;
+    border-top: 1px solid var(--paper-line);
+    border-bottom: 1px solid var(--paper-line);
+  }
+
+  .project-detail-meta div {
+    padding: 26px 24px 26px 0;
+  }
+
+  .project-detail-meta dd {
+    margin: 12px 0 0;
+    font-size: 1.2rem;
+    font-weight: 800;
+  }
+
+  .project-detail-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+    gap: 54px;
+    padding: 56px 6.6vw 82px;
+  }
+
+  .project-detail-content article {
+    grid-column: 1;
+  }
+
+  .project-detail-content article + article {
+    padding-top: 24px;
+    border-top: 1px solid var(--paper-line);
+  }
+
+  .project-detail-content article h2 {
+    margin: 16px 0 0;
+    font-size: clamp(1.9rem, 3vw, 3.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.05em;
+  }
+
+  .project-detail-content aside {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: start;
+    padding: 28px;
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .project-detail-content aside h2 {
+    margin: 0 0 22px;
+    font-size: 1.4rem;
+  }
+
+  .project-detail-content ul {
+    display: grid;
+    gap: 12px;
+    margin: 0 0 34px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project-detail-content li {
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line);
+    color: #c9cec7;
+  }
+
+  .project-detail-content a {
+    display: inline-flex;
+    color: var(--green);
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 760px) {
+    .project-detail-hero,
+    .project-detail-content {
+      grid-template-columns: 1fr;
+      gap: 28px;
+      padding-inline: 14px;
+    }
+
+    .project-detail-hero {
+      padding-top: 36px;
+    }
+
+    .project-detail-hero h1 {
+      font-size: 2.6rem;
+      line-height: 1;
+    }
+
+    :global(.project-detail-visual) {
+      min-height: 260px;
+    }
+
+    .project-detail-meta {
+      padding-inline: 14px;
+    }
+
+    .project-detail-meta dl {
+      grid-template-columns: 1fr;
+    }
+
+    .project-detail-content article,
+    .project-detail-content aside {
+      grid-column: auto;
+      grid-row: auto;
+    }
+  }
+</style>

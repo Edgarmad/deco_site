@@ -1,0 +1,24 @@
+---
+import '../styles/global.css';
+import ProjectsPage from '../components/projects/ProjectsPage.astro';
+import SiteFooter from '../components/layout/SiteFooter.astro';
+import SiteHeader from '../components/layout/SiteHeader.astro';
+import { getProjects } from '../services/projectService';
+
+const projects = await getProjects();
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Proyectos Deco ABC con revestimientos para espacios residenciales, comerciales y de hospitalidad." />
+    <link rel="icon" href="/assets/favicon.ico" />
+    <title>Proyectos | Deco ABC</title>
+  </head>
+  <body>
+    <SiteHeader currentPath="/proyectos" />
+    <ProjectsPage projects={projects} />
+    <SiteFooter />
+  </body>
+</html>

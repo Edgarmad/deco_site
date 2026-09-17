@@ -1,0 +1,225 @@
+---
+type ContactChannel = {
+  label: string;
+  value: string;
+};
+
+type Props = {
+  channels: ContactChannel[];
+};
+
+const { channels } = Astro.props;
+---
+
+<main class="contact-page">
+  <!-- Seccion: Informacion de contacto -->
+  <section class="contact-intro" aria-labelledby="contact-title">
+    <p>Hablemos de tu proyecto</p>
+    <h1 id="contact-title">Construyamos el <span>siguiente espacio.</span></h1>
+    <strong>Cuéntanos qué quieres transformar. Nuestro equipo puede orientarte sobre materiales, disponibilidad y cantidades.</strong>
+    <dl>
+      {channels.map((channel) => (
+        <div>
+          <dt>{channel.label}</dt>
+          <dd>{channel.value}</dd>
+        </div>
+      ))}
+    </dl>
+  </section>
+
+  <!-- Seccion: Formulario de solicitud -->
+  <section class="contact-form-card" aria-labelledby="form-title">
+    <h2 id="form-title">Solicita información</h2>
+    <p>Todos los campos marcados son necesarios.</p>
+    <form name="contacto" method="post">
+      <label for="name">Nombre completo</label>
+      <input id="name" name="name" type="text" autocomplete="name" required />
+
+      <label for="email">Correo electrónico</label>
+      <input id="email" name="email" type="email" autocomplete="email" required />
+
+      <label for="phone">Teléfono</label>
+      <input id="phone" name="phone" type="tel" autocomplete="tel" required />
+
+      <label for="city">Ciudad</label>
+      <input id="city" name="city" type="text" autocomplete="address-level2" required />
+
+      <label for="message">¿Qué necesitas para tu proyecto?</label>
+      <textarea id="message" name="message" rows="5" required></textarea>
+
+      <button type="submit">Enviar solicitud →</button>
+    </form>
+  </section>
+</main>
+
+<style>
+  .contact-page {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: minmax(320px, 0.9fr) minmax(420px, 1fr);
+    gap: 7vw;
+    padding: 64px 6.6vw 74px;
+    background: var(--black);
+    color: var(--white);
+  }
+
+  .contact-intro p,
+  .contact-intro dt,
+  .contact-form-card label {
+    margin: 0;
+    color: var(--green);
+    font-size: 0.74rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .contact-intro h1 {
+    margin: 34px 0 28px;
+    font-size: clamp(3.4rem, 5.7vw, 6.2rem);
+    line-height: 0.95;
+    letter-spacing: -0.06em;
+  }
+
+  .contact-intro h1 span {
+    display: block;
+    color: var(--green);
+  }
+
+  .contact-intro strong {
+    display: block;
+    max-width: 560px;
+    color: #9da29c;
+    font-size: 1.08rem;
+    line-height: 1.45;
+  }
+
+  .contact-intro dl {
+    margin: 76px 0 0;
+  }
+
+  .contact-intro dl div {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 42px;
+    padding: 24px 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .contact-intro dd {
+    margin: 0;
+    color: #d3d6d1;
+  }
+
+  .contact-form-card {
+    align-self: start;
+    padding: clamp(28px, 4vw, 48px);
+    border-radius: 6px;
+    background: var(--white);
+    color: var(--black);
+  }
+
+  .contact-form-card h2 {
+    margin: 0 0 14px;
+    font-size: clamp(2rem, 3vw, 3.25rem);
+    line-height: 1;
+    letter-spacing: -0.05em;
+  }
+
+  .contact-form-card p {
+    margin: 0 0 34px;
+    color: #a2a19c;
+  }
+
+  .contact-form-card form {
+    display: grid;
+  }
+
+  .contact-form-card label {
+    color: var(--blue);
+    margin-bottom: 8px;
+  }
+
+  .contact-form-card input,
+  .contact-form-card textarea {
+    width: 100%;
+    margin-bottom: 12px;
+    padding: 14px 16px;
+    border: 1px solid #d2d2cc;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--black);
+    font: inherit;
+  }
+
+  .contact-form-card textarea {
+    resize: vertical;
+  }
+
+  .contact-form-card button {
+    min-height: 56px;
+    margin-top: 8px;
+    border: 0;
+    border-radius: 4px;
+    background: var(--green);
+    color: var(--white);
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  @media (max-width: 860px) {
+    .contact-page {
+      grid-template-columns: 1fr;
+      gap: 34px;
+      padding: 42px 14px 28px;
+    }
+
+    .contact-intro h1 {
+      margin: 24px 0 18px;
+      font-size: 2.35rem;
+      line-height: 1.08;
+    }
+
+    .contact-intro strong {
+      font-size: 0.9rem;
+    }
+
+    .contact-intro dl {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .contact-intro dl div {
+      display: block;
+      padding: 0;
+      border-top: 0;
+    }
+
+    .contact-intro dt,
+    .contact-intro dd {
+      display: inline;
+      font-size: 0.62rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    .contact-intro dd::after {
+      content: ' ·';
+      margin-left: 8px;
+    }
+
+    .contact-form-card {
+      padding: 22px 16px 16px;
+    }
+
+    .contact-form-card h2 {
+      font-size: 1.8rem;
+    }
+  }
+</style>

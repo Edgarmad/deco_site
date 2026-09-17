@@ -1,0 +1,228 @@
+---
+import ProjectVisual from './ProjectVisual.astro';
+import type { Project } from '../../types/projects';
+
+type Props = {
+  projects: Project[];
+};
+
+const { projects } = Astro.props;
+const featuredProject = projects.find((project) => project.featured) ?? projects[0];
+const latestProjects = projects.filter((project) => project.slug !== featuredProject?.slug);
+---
+
+<main>
+  <!-- Seccion: Hero de proyectos -->
+  <section class="projects-page" aria-labelledby="projects-title">
+    <p class="page-kicker">Proyectos / Blog</p>
+    <h1 id="projects-title">Espacios que cuentan <span>historias a través del material.</span></h1>
+
+    {featuredProject && (
+      <article class="featured-project">
+        <ProjectVisual visual={featuredProject.visual} alt={featuredProject.imageAlt} />
+        <div class="featured-project-copy">
+          <p>Proyecto destacado</p>
+          <h2>{featuredProject.name}</h2>
+          <span>{featuredProject.description}</span>
+          <a href={`/proyectos/${featuredProject.slug}`}>Ver proyecto →</a>
+        </div>
+      </article>
+    )}
+  </section>
+
+  <!-- Seccion: Ultimos proyectos -->
+  <section class="latest-projects" aria-labelledby="latest-projects-title">
+    <h2 id="latest-projects-title">Últimos proyectos</h2>
+    <div class="latest-project-grid">
+      {latestProjects.map((project) => (
+        <article class="latest-project-card">
+          <ProjectVisual visual={project.visual} alt={project.imageAlt} />
+          <div class="latest-project-copy">
+            <div>
+              <p>{project.category}</p>
+              <h3>{project.name}</h3>
+            </div>
+            <a href={`/proyectos/${project.slug}`} aria-label={`Ver proyecto ${project.name}`}>→</a>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</main>
+
+<style>
+  .projects-page,
+  .latest-projects {
+    padding-inline: 6.6vw;
+    background: var(--white);
+  }
+
+  .projects-page {
+    padding-top: 70px;
+  }
+
+  .page-kicker,
+  .featured-project-copy p,
+  .latest-project-card p {
+    margin: 0;
+    color: var(--green-text);
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    max-width: 760px;
+    margin: 26px 0 34px;
+    font-size: clamp(3rem, 5.3vw, 5.8rem);
+    line-height: 0.98;
+    letter-spacing: -0.06em;
+  }
+
+  h1 span {
+    display: block;
+    color: var(--blue);
+    font-weight: 400;
+  }
+
+  .featured-project {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
+    min-height: 290px;
+    background: var(--black);
+  }
+
+  .featured-project :global(.project-visual) {
+    min-height: 290px;
+  }
+
+  .featured-project-copy {
+    display: grid;
+    align-content: center;
+    gap: 22px;
+    padding: 48px;
+    color: var(--white);
+  }
+
+  .featured-project-copy h2 {
+    margin: 0;
+    font-size: clamp(2rem, 3.2vw, 3.35rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .featured-project-copy span {
+    max-width: 460px;
+    color: #9b9f99;
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  .featured-project-copy a,
+  .latest-project-card a {
+    color: inherit;
+    font-size: 0.76rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .latest-projects {
+    padding-top: 54px;
+    padding-bottom: 76px;
+  }
+
+  .latest-projects h2 {
+    margin: 0 0 22px;
+    font-size: clamp(1.8rem, 2.5vw, 3rem);
+    letter-spacing: -0.04em;
+  }
+
+  .latest-project-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 36px;
+  }
+
+  .latest-project-copy {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 18px;
+  }
+
+  .latest-project-card h3 {
+    margin: 10px 0 0;
+    font-size: 1.2rem;
+  }
+
+  .latest-project-card a {
+    color: var(--blue);
+    font-size: 1.1rem;
+  }
+
+  @media (max-width: 760px) {
+    .projects-page,
+    .latest-projects {
+      padding-inline: 14px;
+    }
+
+    .projects-page {
+      padding-top: 36px;
+    }
+
+    h1 {
+      margin: 18px 0;
+      font-size: 2.15rem;
+      line-height: 1.08;
+    }
+
+    .featured-project,
+    .latest-project-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .featured-project-copy {
+      padding: 22px;
+      gap: 10px;
+    }
+
+    .featured-project-copy h2 {
+      font-size: 1.65rem;
+    }
+
+    .featured-project-copy span {
+      font-size: 0.82rem;
+    }
+
+    .latest-projects {
+      padding-top: 34px;
+      padding-bottom: 44px;
+    }
+
+    .latest-project-card {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .latest-project-card :global(.project-visual) {
+      min-height: 92px;
+    }
+
+    .latest-project-copy {
+      padding-top: 0;
+    }
+
+    .latest-project-card p {
+      font-size: 0.52rem;
+    }
+
+    .latest-project-card h3 {
+      font-size: 0.95rem;
+    }
+  }
+</style>
