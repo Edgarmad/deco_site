@@ -1,0 +1,34 @@
+---
+const popularProducts = [
+  { name: 'Deck para piso', slug: 'deck-para-piso' },
+  { name: 'Esquinero exterior', slug: 'esquinero-exterior' },
+  { name: 'Esquinero laminado', slug: 'esquinero-laminado' },
+  { name: 'Tablero premium', slug: 'tablero-premium' }
+];
+---
+
+<!-- Seccion: Footer / Enlaces de apoyo -->
+<footer class="site-footer">
+  <div class="footer-title">Innovative <em>ideas,</em><br /> inspired <em>living</em></div>
+  <div class="footer-grid">
+    <nav aria-label="Explora">
+      <h2>/Explora</h2>
+      <a href="/ubicaciones">Ubicaciones</a>
+      <a href="/productos">Catálogo</a>
+      <a href="/contacto">Contacto</a>
+    </nav>
+    <nav aria-label="Productos populares">
+      <h2>/Productos populares</h2>
+      {popularProducts.map((product) => <a href={`/productos/${product.slug}`}>{product.name}</a>)}
+    </nav>
+    <div>
+      <h2>/Asistencia</h2>
+      <a href="/contacto">Contacto</a>
+      <p>Teléfono: (81) 2351 2953</p>
+      <form class="feedback-form">
+        <label for="feedback">¿Quejas o sugerencias?</label>
+        <input id="feedback" type="email" placeholder="atencion@decotech.mx" />
+      </form>
+    </div>
+  </div>
+</footer>

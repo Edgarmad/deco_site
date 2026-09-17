@@ -1,0 +1,31 @@
+---
+type PopularProduct = {
+  name: string;
+  slug: string;
+  category: string;
+};
+
+type Props = {
+  products: PopularProduct[];
+};
+
+const { products } = Astro.props;
+---
+
+<!-- Seccion: Productos populares -->
+<section class="section popular-section" aria-labelledby="popular-title">
+  <div class="mobile-popular-head">
+    <p>Revestimientos</p>
+    <h2 id="popular-title">Diseño que transforma</h2>
+    <span>Los mas populares</span>
+  </div>
+  <div class="product-strip" aria-label="Productos populares">
+    {products.map((product, index) => (
+      <a class="product-card" href={`/productos/${product.slug}`}>
+        <div class={`product-form product-form-${index + 1}`} aria-hidden="true"></div>
+        <span>{product.category}</span>
+        <h3>{product.name}</h3>
+      </a>
+    ))}
+  </div>
+</section>

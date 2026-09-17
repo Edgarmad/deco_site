@@ -1,0 +1,125 @@
+---
+type ProjectItem = {
+  name: string;
+  slug: string;
+  type: string;
+  location: string;
+  imageAlt: string;
+  visual: string;
+  chips: string[];
+};
+
+type Props = {
+  projectItems: ProjectItem[];
+};
+
+const { projectItems } = Astro.props;
+const initialProject = projectItems[0];
+---
+
+<!-- Seccion: Archivo de proyectos -->
+<section id="proyectos" class="dark-section projects-section archive">
+  <div class="archive-head">
+    <div class="archive-label">Archivo de proyectos</div>
+    <div class="archive-controls" aria-label="Navegación de proyectos">
+      <span class="archive-count"><strong data-project-current>01</strong> / {String(projectItems.length).padStart(2, '0')}</span>
+      <button type="button" data-project-control="previous" aria-label="Proyecto anterior">‹</button>
+      <button type="button" data-project-control="next" aria-label="Proyecto siguiente">›</button>
+    </div>
+  </div>
+  <div class="projects-layout">
+    <aside class="project-index" aria-label="Lista de proyectos">
+      {projectItems.map((project, index) => (
+        <button
+          class={index === 0 ? 'active' : ''}
+          type="button"
+          data-project-index={index}
+          aria-pressed={index === 0 ? 'true' : 'false'}
+        >
+          <span>{String(index + 1).padStart(2, '0')}</span>{project.name}
+        </button>
+      ))}
+    </aside>
+    {initialProject && (
+      <article class="project-feature" data-project-feature>
+        <div
+          class={`project-image project-image-${initialProject.visual}`}
+          data-project-image
+          role="img"
+          aria-label={initialProject.imageAlt}
+        ></div>
+        <div class="project-card">
+          <span data-project-type>{initialProject.type}</span>
+          <h2 data-project-name>{initialProject.name}</h2>
+          <p data-project-location>{initialProject.location}</p>
+          <div class="chips" data-project-chips>
+            {initialProject.chips.map((chip) => <small>{chip}</small>)}
+          </div>
+          <a data-project-link href={`/proyectos/${initialProject.slug}`}>Ver proyecto →</a>
+        </div>
+      </article>
+    )}
+  </div>
+</section>
+
+<!-- Seccion: Interacciones de proyectos -->
+<script define:vars={{ projectItems }}>
+  const projectButtons = document.querySelectorAll('[data-project-index]');
+  const projectFeature = document.querySelector('[data-project-feature]');
+  const projectImage = document.querySelector('[data-project-image]');
+  const projectType = document.querySelector('[data-project-type]');
+  const projectName = document.querySelector('[data-project-name]');
+  const projectLocation = document.querySelector('[data-project-location]');
+  const projectChips = document.querySelector('[data-project-chips]');
+  const projectLink = document.querySelector('[data-project-link]');
+  const projectCurrent = document.querySelector('[data-project-current]');
+  const projectControls = document.querySelectorAll('[data-project-control]');
+  let activeProjectIndex = 0;
+
+  const setActiveProject = (activeIndex) => {
+    const project = projectItems[activeIndex];
+
+    if (!project || !projectFeature || !projectImage || !projectType || !projectName || !projectLocation || !projectChips || !projectLink || !projectCurrent) {
+      return;
+    }
+
+    activeProjectIndex = activeIndex;
+    projectFeature.classList.add('is-changing');
+
+    projectButtons.forEach((button, index) => {
+      const isActive = index === activeIndex;
+      button.classList.toggle('active', isActive);
+      button.setAttribute('aria-pressed', String(isActive));
+    });
+
+    projectImage.className = `project-image project-image-${project.visual}`;
+    projectImage.setAttribute('aria-label', project.imageAlt);
+    projectType.textContent = project.type;
+    projectName.textContent = project.name;
+    projectLocation.textContent = project.location;
+    projectLink.href = `/proyectos/${project.slug}`;
+    projectCurrent.textContent = String(activeIndex + 1).padStart(2, '0');
+    projectChips.replaceChildren(...project.chips.map((chip) => {
+      const chipElement = document.createElement('small');
+      chipElement.textContent = chip;
+      return chipElement;
+    }));
+
+    void projectFeature.offsetWidth;
+    projectFeature.classList.remove('is-changing');
+  };
+
+  projectButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      setActiveProject(Number(button.dataset.projectIndex));
+    });
+  });
+
+  projectControls.forEach((button) => {
+    button.addEventListener('click', () => {
+      const direction = button.dataset.projectControl === 'next' ? 1 : -1;
+      const nextProjectIndex = (activeProjectIndex + direction + projectItems.length) % projectItems.length;
+      setActiveProject(nextProjectIndex);
+    });
+  });
+</script>

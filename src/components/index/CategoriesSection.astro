@@ -1,0 +1,36 @@
+---
+type Category = {
+  number: string;
+  name: string;
+  slug: string;
+  count: string;
+  description: string;
+};
+
+type Props = {
+  categories: Category[];
+};
+
+const { categories } = Astro.props;
+---
+
+<!-- Seccion: Compra por categoria -->
+<section id="productos" class="section categories-section">
+  <div class="section-head">
+    <a href="/productos">Compra por categoría</a>
+    <span>30 productos en línea</span>
+  </div>
+  <div class="category-list">
+    {categories.map((category) => (
+      <article class="category-row">
+        <span class="row-number">{category.number}</span>
+        <h2>{category.name}</h2>
+        <div class="row-meta">
+          <strong>{category.count}</strong>
+          <p>{category.description}</p>
+        </div>
+        <a class="round-button" href={`/productos?categoria=${category.slug}`} aria-label={`Ver ${category.name}`}>→</a>
+      </article>
+    ))}
+  </div>
+</section>
