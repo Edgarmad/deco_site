@@ -3,6 +3,7 @@ type PopularProduct = {
   name: string;
   slug: string;
   category: string;
+  image?: string;
 };
 
 type Props = {
@@ -10,27 +11,25 @@ type Props = {
 };
 
 const { products } = Astro.props;
+const marqueeProducts = [...products, ...products];
 ---
 
 <!-- Seccion: Productos populares -->
 <section class="section popular-section" data-reveal-group aria-labelledby="popular-title">
-  <div class="mobile-popular-head" data-reveal>
-    <p>Revestimientos</p>
-    <h2 id="popular-title">Diseño que transforma</h2>
-    <span>Los mas populares</span>
-  </div>
-  <div class="product-strip" aria-label="Productos populares">
-    {products.map((product, index) => (
-      <a class="product-card motion-card" data-reveal href={`/productos/${product.slug}`}>
-        <div class={`product-form product-form-${index + 1} motion-card__media`} aria-hidden="true"></div>
-        <span>{product.category}</span>
-        <h3>{product.name}</h3>
-      </a>
-    ))}
-  </div>
-  <div class="popular-marquee motion-marquee" aria-hidden="true">
+  <h2 id="popular-title" class="visually-hidden">Productos populares</h2>
+  <div class="popular-marquee motion-marquee">
     <div class="motion-marquee__track">
-      {[...products, ...products].map((product) => <span>{product.name}</span>)}
+      {marqueeProducts.map((product, index) => {
+        const isDuplicate = index >= products.length;
+        return (
+          <a class="popular-product-card" href={`/productos/${product.slug}`} aria-hidden={isDuplicate ? 'true' : undefined} tabindex={isDuplicate ? '-1' : undefined}>
+            <div class={`popular-product-visual popular-product-visual-${(index % 7) + 1}`}>
+              {product.image ? <img src={product.image} alt="" loading="lazy" /> : <span></span>}
+            </div>
+            <span>{product.name}</span>
+          </a>
+        );
+      })}
     </div>
   </div>
 </section>

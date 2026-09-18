@@ -7,6 +7,9 @@ import PopularProductsSection from '../components/index/PopularProductsSection.a
 import ProjectsArchiveSection from '../components/index/ProjectsArchiveSection.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
 import SiteHeader from '../components/layout/SiteHeader.astro';
+import { getProducts } from '../services/productService';
+
+const products = await getProducts();
 
 const categories = [
   {
@@ -25,15 +28,20 @@ const categories = [
   }
 ];
 
-const popularProducts = [
-  { name: 'Deck para piso', slug: 'deck-para-piso', category: 'Exterior' },
-  { name: 'Esquinero exterior', slug: 'esquinero-exterior', category: 'Exterior' },
-  { name: 'Esquinero laminado', slug: 'esquinero-laminado', category: 'Interior' },
-  { name: 'Tablero premium', slug: 'tablero-premium', category: 'Interior' },
-  { name: 'Lambrín coextruido', slug: 'lambrin-coextruido', category: 'Exterior' },
-  { name: 'Lambrín extruido', slug: 'lambrin-extruido', category: 'Exterior' },
-  { name: 'Louver tech', slug: 'louver-tech', category: 'Interior' }
-];
+const popularProducts = Array.from(
+  products.reduce((items, product) => {
+    const key = product.categorySlug || product.slug;
+    if (!items.has(key)) {
+      items.set(key, {
+        name: product.categoryName ?? product.name,
+        slug: product.slug,
+        category: product.macroCategory === 'exterior' ? 'Exterior' : 'Interior',
+        image: product.image
+      });
+    }
+    return items;
+  }, new Map<string, { name: string; slug: string; category: string; image?: string }>()).values()
+).slice(0, 7);
 
 const locations: [string, string, string, string][] = [
   ['01', 'Mérida', 'Tienda', 'Bodega 10, C. 6, Chichí Suárez, 97306'],
