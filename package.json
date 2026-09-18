@@ -6,14 +6,19 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "supabase:push": "supabase db push",
+    "supabase:seed:inventory": "node scripts/seed-supabase-inventory.mjs",
+    "supabase:upload:product-images": "node scripts/upload-product-images-to-supabase.mjs"
   },
   "dependencies": {
     "@astrojs/check": "0.9.4",
+    "@astrojs/vercel": "^7.8.2",
+    "@supabase/supabase-js": "^2.116.0",
     "astro": "4.16.18",
+    "sharp": "^0.35.4",
     "typescript": "5.6.3"
   },
-  "devDependencies": {},
   "allowScripts": {
     "esbuild@0.21.5": true,
     "sharp@0.33.5": true

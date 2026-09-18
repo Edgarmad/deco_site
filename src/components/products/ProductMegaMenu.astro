@@ -47,7 +47,7 @@ const getCategoryHref = (categorySlug: string) => {
     const trigger = group.querySelector('.mega-trigger');
     if (!(trigger instanceof HTMLButtonElement)) return;
 
-    const setExpanded = (expanded) => {
+    const setExpanded = (expanded: boolean) => {
       group.classList.toggle('open', expanded);
       trigger.setAttribute('aria-expanded', String(expanded));
     };
@@ -56,6 +56,7 @@ const getCategoryHref = (categorySlug: string) => {
     group.addEventListener('mouseleave', () => setExpanded(false));
     group.addEventListener('focusin', () => setExpanded(true));
     group.addEventListener('focusout', (event) => {
+      if (!(event instanceof FocusEvent)) return;
       const nextTarget = event.relatedTarget;
       if (nextTarget instanceof Node && group.contains(nextTarget)) return;
       setExpanded(false);

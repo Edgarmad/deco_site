@@ -7,6 +7,7 @@ export type Project = {
   description: string;
   visual: ProjectVisual;
   imageAlt: string;
+  image?: string;
   featured?: boolean;
   location: string;
   year: string;

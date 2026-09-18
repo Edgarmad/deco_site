@@ -1,61 +1,83 @@
 import { projectPlaceholders } from '../data/projects';
 import type { Project } from '../types/projects';
+import { getPublicStorageUrl, supabase } from '../lib/supabase';
 
-type WpRendered = { rendered?: string };
-type WpProject = {
+type SupabaseProject = {
+  id: string;
+  title: string;
   slug: string;
-  title?: WpRendered;
-  excerpt?: WpRendered;
-  project_details?: Partial<Project>;
-  main_image_url?: string;
+  summary: string | null;
+  content: string | null;
+  category: string | null;
+  location: string | null;
+  year: string | null;
+  surface: string | null;
+  materials: string[] | null;
+  challenge: string | null;
+  result: string | null;
+  featured: boolean | null;
+  project_images?: {
+    storage_bucket: string;
+    storage_path: string;
+    alt_text: string | null;
+    kind: 'main' | 'gallery' | 'before' | 'after';
+    sort_order: number | null;
+  }[];
 };
 
-const stripHtml = (value = '') => value.replace(/<[^>]*>/g, '').trim();
-
-const getWordPressApiUrl = () => {
-  const rawUrl = import.meta.env.WORDPRESS_API_URL;
-  return typeof rawUrl === 'string' && rawUrl.trim().length > 0 ? rawUrl.replace(/\/$/, '') : '';
-};
-
-const fetchJson = async <T>(url: string): Promise<T | null> => {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) return null;
-    return (await response.json()) as T;
-  } catch {
-    return null;
-  }
-};
-
-const normalizeWpProject = (project: WpProject): Project => {
-  const details = project.project_details ?? {};
+const normalizeProject = (project: SupabaseProject): Project => {
+  const images = (project.project_images ?? [])
+    .slice()
+    .sort((first, second) => (first.sort_order ?? 0) - (second.sort_order ?? 0));
+  const mainImage = images.find((image) => image.kind === 'main') ?? images[0];
 
   return {
-    name: details.name ?? stripHtml(project.title?.rendered) ?? project.slug,
+    name: project.title,
     slug: project.slug,
-    category: details.category ?? 'Proyecto',
-    description: details.description ?? stripHtml(project.excerpt?.rendered),
-    visual: details.visual ?? 'wood-stripes',
-    imageAlt: details.imageAlt ?? `Proyecto ${details.name ?? project.slug}`,
-    featured: details.featured,
-    location: details.location ?? 'Por definir',
-    year: details.year ?? 'Por definir',
-    surface: details.surface ?? 'Por definir',
-    materials: details.materials ?? [],
-    challenge: details.challenge ?? '',
-    result: details.result ?? ''
+    category: project.category ?? 'Proyecto',
+    description: project.summary ?? project.content ?? '',
+    visual: 'wood-stripes',
+    imageAlt: mainImage?.alt_text ?? `Proyecto ${project.title}`,
+    featured: project.featured ?? false,
+    location: project.location ?? 'Por definir',
+    year: project.year ?? 'Por definir',
+    surface: project.surface ?? 'Por definir',
+    materials: project.materials ?? [],
+    challenge: project.challenge ?? '',
+    result: project.result ?? '',
+    image: getPublicStorageUrl(mainImage?.storage_bucket ?? '', mainImage?.storage_path)
   };
 };
 
-export const getProjects = async (): Promise<Project[]> => {
-  const apiUrl = getWordPressApiUrl();
-  if (!apiUrl) return projectPlaceholders;
+const projectSelect = `
+  id,title,slug,summary,content,category,location,year,surface,materials,challenge,result,featured,
+  project_images(storage_bucket,storage_path,alt_text,kind,sort_order)
+`;
 
-  const wpProjects = await fetchJson<WpProject[]>(`${apiUrl}/wp-json/wp/v2/projects?_embed`);
-  return wpProjects?.map(normalizeWpProject) ?? projectPlaceholders;
+export const getProjects = async (): Promise<Project[]> => {
+  if (!supabase) return projectPlaceholders;
+
+  const { data, error } = await supabase
+    .from('projects')
+    .select(projectSelect)
+    .eq('status', 'published')
+    .order('featured', { ascending: false })
+    .order('sort_order', { ascending: true });
+
+  if (error || !data?.length) return projectPlaceholders;
+  return (data as unknown as SupabaseProject[]).map(normalizeProject);
 };
 
 export const getProjectBySlug = async (slug: string): Promise<Project | undefined> => {
-  const projects = await getProjects();
-  return projects.find((project) => project.slug === slug);
+  if (!supabase) return projectPlaceholders.find((project) => project.slug === slug);
+
+  const { data, error } = await supabase
+    .from('projects')
+    .select(projectSelect)
+    .eq('status', 'published')
+    .eq('slug', slug)
+    .maybeSingle();
+
+  if (error || !data) return undefined;
+  return normalizeProject(data as unknown as SupabaseProject);
 };

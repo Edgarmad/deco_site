@@ -1,0 +1,3322 @@
+{
+  "metadata": {
+    "version": "local-normalized",
+    "source": "src/types/CATALOGO_DECO",
+    "generatedAt": "2026-09-18",
+    "hierarchy": "categories > products > variants > colors > images",
+    "imageSlots": [
+      "main",
+      "secondary",
+      "extras"
+    ],
+    "totals": {
+      "categories": 2,
+      "products": 14,
+      "variants": 19,
+      "colors": 112,
+      "imageFiles": 256
+    }
+  },
+  "categories": [
+    {
+      "name": "Productos Exteriores",
+      "slug": "exterior",
+      "products": [
+        {
+          "name": "Deck",
+          "slug": "deck",
+          "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/Deck",
+          "variants": [
+            {
+              "name": "General",
+              "slug": "general",
+              "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/Deck",
+              "colors": [
+                {
+                  "name": "Caoba",
+                  "slug": "caoba",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/Deck/CAOBA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "CAOBA 2 DECK.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/Deck/CAOBA/Imagen Principal/CAOBA 2 DECK.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1719365
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Caoba Deck.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/Deck/CAOBA/Imagen Secundaria/Caoba Deck.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2547656
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Gris Antique",
+                  "slug": "gris-antique",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/Deck/GRIS ANTIQUE",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "GRIS ANTIQUE DECK.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/Deck/GRIS ANTIQUE/Imagen Principal/GRIS ANTIQUE DECK.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1481642
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Gris ATIQUE Deck.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/Deck/GRIS ANTIQUE/Imagen Secundaria/Gris ATIQUE Deck.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2685847
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Mapple",
+                  "slug": "mapple",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/Deck/MAPPLE",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "MAPLE DECK.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/Deck/MAPPLE/Imagen Principal/MAPLE DECK.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1710433
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Maple Deck.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/Deck/MAPPLE/Imagen Secundaria/Maple Deck.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2708648
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Nuez",
+                  "slug": "nuez",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/Deck/NUEZ",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "NUEZ DECK.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/Deck/NUEZ/Imagen Principal/NUEZ DECK.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1609332
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Nuez Deck.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/Deck/NUEZ/Imagen Secundaria/Nuez Deck.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2638418
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Redwood",
+                  "slug": "redwood",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/Deck/REDWOOD",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "REDWOOD DECK.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/Deck/REDWOOD/Imagen Principal/REDWOOD DECK.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1481834
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Reedwood Deck.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/Deck/REDWOOD/Imagen Secundaria/Reedwood Deck.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2712743
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Teca",
+                  "slug": "teca",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/Deck/TECA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "TECA DECK.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/Deck/TECA/Imagen Principal/TECA DECK.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1163476
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Teca Deck.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/Deck/TECA/Imagen Secundaria/Teca Deck.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2783246
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            }
+          ],
+          "status": "complete"
+        },
+        {
+          "name": "Lambrin Exterior",
+          "slug": "lambrin-exterior",
+          "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR",
+          "variants": [
+            {
+              "name": "Cepillado",
+              "slug": "cepillado",
+              "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/CEPILLADO",
+              "colors": [
+                {
+                  "name": "Negro",
+                  "slug": "negro",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/CEPILLADO/NEGRO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "NEGRO CEPILLADO.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/CEPILLADO/NEGRO/Imagen Principal/NEGRO CEPILLADO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 606325
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Negro Cepillado.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/CEPILLADO/NEGRO/Imagen Secundaria/Negro Cepillado.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1892591
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Nuez",
+                  "slug": "nuez",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/CEPILLADO/NUEZ",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "NUEZ CEPILLADO.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/CEPILLADO/NUEZ/Imagen Principal/NUEZ CEPILLADO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 616099
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Nuez Cepillado.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/CEPILLADO/NUEZ/Imagen Secundaria/Nuez Cepillado.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1974864
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Roble",
+                  "slug": "roble",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/CEPILLADO/ROBLE",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "ROBLE CEPILLADO.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/CEPILLADO/ROBLE/Imagen Principal/ROBLE CEPILLADO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 287836
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Roble Cepillado.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/CEPILLADO/ROBLE/Imagen Secundaria/Roble Cepillado.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2098037
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Teca",
+                  "slug": "teca",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/CEPILLADO/TECA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "TECA CEPILLADO.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/CEPILLADO/TECA/Imagen Principal/TECA CEPILLADO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 315450
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Teca Cepillado.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/CEPILLADO/TECA/Imagen Secundaria/Teca Cepillado.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2070641
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            },
+            {
+              "name": "Veteado",
+              "slug": "veteado",
+              "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/VETEADO",
+              "colors": [
+                {
+                  "name": "Negro",
+                  "slug": "negro",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/VETEADO/NEGRO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "NEGRO VETEADO.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/VETEADO/NEGRO/Imagen Principal/NEGRO VETEADO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 768866
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Negro Veteado.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/VETEADO/NEGRO/Imagen Secundaria/Negro Veteado.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2041572
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Nuez",
+                  "slug": "nuez",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/VETEADO/NUEZ",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "NUEZ VETEADO.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/VETEADO/NUEZ/Imagen Principal/NUEZ VETEADO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 746533
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Nuez Veteado.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/VETEADO/NUEZ/Imagen Secundaria/Nuez Veteado.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2089397
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Roble",
+                  "slug": "roble",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/VETEADO/ROBLE",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "ROBLE VETEADO.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/VETEADO/ROBLE/Imagen Principal/ROBLE VETEADO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 616242
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Roble Veteado.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/VETEADO/ROBLE/Imagen Secundaria/Roble Veteado.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2144075
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Teca",
+                  "slug": "teca",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/VETEADO/TECA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "TECA VETEADO.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/VETEADO/TECA/Imagen Principal/TECA VETEADO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 712548
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Teca Veteado.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/LAMBRIN EXTERIOR/VETEADO/TECA/Imagen Secundaria/Teca Veteado.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2144812
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            }
+          ],
+          "status": "complete"
+        },
+        {
+          "name": "Viga Exterior",
+          "slug": "viga-exterior",
+          "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/Viga Exterior",
+          "variants": [
+            {
+              "name": "General",
+              "slug": "general",
+              "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/Viga Exterior",
+              "colors": [
+                {
+                  "name": "Nuez",
+                  "slug": "nuez",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/Viga Exterior/NUEZ",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "NUEZ VIGA EXTERIOR.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/Viga Exterior/NUEZ/Imagen Principal/NUEZ VIGA EXTERIOR.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 582184
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Nuez Viga Exterior.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/Viga Exterior/NUEZ/Imagen Secundaria/Nuez Viga Exterior.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2336168
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Teca",
+                  "slug": "teca",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/Viga Exterior/TECA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "TECA VIGA EXTERIOR.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/Viga Exterior/TECA/Imagen Principal/TECA VIGA EXTERIOR.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1598582
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Teca Viga Exterior.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/Viga Exterior/TECA/Imagen Secundaria/Teca Viga Exterior.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2367616
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            }
+          ],
+          "status": "complete"
+        },
+        {
+          "name": "Wallcladding",
+          "slug": "wallcladding",
+          "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/WallCladding",
+          "variants": [
+            {
+              "name": "General",
+              "slug": "general",
+              "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/WallCladding",
+              "colors": [
+                {
+                  "name": "Nuez Cepillado",
+                  "slug": "nuez-cepillado",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/WallCladding/NUEZ CEPILLADO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "CEPILLADO NUEZ WALL CLADDING.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/WallCladding/NUEZ CEPILLADO/Imagen Principal/CEPILLADO NUEZ WALL CLADDING.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 580292
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Cepillado Nuez WallCladding.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/WallCladding/NUEZ CEPILLADO/Imagen Secundaria/Cepillado Nuez WallCladding.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2139853
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Nuez Veteado",
+                  "slug": "nuez-veteado",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/WallCladding/NUEZ VETEADO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "VETEADO NUEZ WALL CLADDING.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/WallCladding/NUEZ VETEADO/Imagen Principal/VETEADO NUEZ WALL CLADDING.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 716507
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Veteado Nuez WallCladding.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/WallCladding/NUEZ VETEADO/Imagen Secundaria/Veteado Nuez WallCladding.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2418277
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Teca Cepillado",
+                  "slug": "teca-cepillado",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/WallCladding/TECA CEPILLADO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "CEPILLADO TECA VETEADO NUEZ WALL CLADDING.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/WallCladding/TECA CEPILLADO/Imagen Principal/CEPILLADO TECA VETEADO NUEZ WALL CLADDING.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 859396
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Cepillado Teca WallCladding.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/WallCladding/TECA CEPILLADO/Imagen Secundaria/Cepillado Teca WallCladding.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2307766
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Teca Veteado",
+                  "slug": "teca-veteado",
+                  "sourcePath": "src/types/CATALOGO_DECO/EXTERIOR/WallCladding/TECA VETEADO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "VETEADO TECA VETEADO NUEZ WALL CLADDING.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/WallCladding/TECA VETEADO/Imagen Principal/VETEADO TECA VETEADO NUEZ WALL CLADDING.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 938111
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Veteado Teca WallCladding.png",
+                        "path": "src/types/CATALOGO_DECO/EXTERIOR/WallCladding/TECA VETEADO/Imagen Secundaria/Veteado Teca WallCladding.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2415598
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            }
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "name": "Productos Interiores",
+      "slug": "interior",
+      "products": [
+        {
+          "name": "Cristal Carbono",
+          "slug": "cristal-carbono",
+          "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono",
+          "variants": [
+            {
+              "name": "General",
+              "slug": "general",
+              "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono",
+              "colors": [
+                {
+                  "name": "Drops Golden",
+                  "slug": "drops-golden",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/DROPS GOLDEN",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "DROPS GOLDEN Cristal de Carbono.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/DROPS GOLDEN/Imagen Principal/DROPS GOLDEN Cristal de Carbono.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1185281
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Drops Golden Cristal.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/DROPS GOLDEN/Imagen Secundaria/Drops Golden Cristal.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2485770
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Drops Silver",
+                  "slug": "drops-silver",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/DROPS SILVER",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "DROPS SILVER Cristal de Carbono.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/DROPS SILVER/Imagen Principal/DROPS SILVER Cristal de Carbono.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 791759
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Drops Silver Cristal.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/DROPS SILVER/Imagen Secundaria/Drops Silver Cristal.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2765921
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Metalica Rose",
+                  "slug": "metalica-rose",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/METALICA ROSE",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "METALICA ROSE GOLD Cristal de Carbono.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/METALICA ROSE/Imagen Principal/METALICA ROSE GOLD Cristal de Carbono.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 367266
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Metálica Rose Gold Cristal.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/METALICA ROSE/Imagen Secundaria/Metálica Rose Gold Cristal.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1957429
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Plata",
+                  "slug": "plata",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/PLATA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PLATA Cristal de Carbono.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/PLATA/Imagen Principal/PLATA Cristal de Carbono.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 306867
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Plata Cristal.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/PLATA/Imagen Secundaria/Plata Cristal.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1718016
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Plata Esmeril",
+                  "slug": "plata-esmeril",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/PLATA ESMERIL",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PLATA ESMERIL Cristal de Carbono.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/PLATA ESMERIL/Imagen Principal/PLATA ESMERIL Cristal de Carbono.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 722901
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Plata Esmeril Cristal.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/PLATA ESMERIL/Imagen Secundaria/Plata Esmeril Cristal.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2635152
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Rose Gold",
+                  "slug": "rose-gold",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/ROSE GOLD",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "ROSE GOLD Cristal de Carbono.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/ROSE GOLD/Imagen Principal/ROSE GOLD Cristal de Carbono.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 171433
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Rose Gold Cristal.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/ROSE GOLD/Imagen Secundaria/Rose Gold Cristal.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1997982
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Titanio",
+                  "slug": "titanio",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/TITANIO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "TITANIO Cristal de Carbono.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/TITANIO/Imagen Principal/TITANIO Cristal de Carbono.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 322912
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Titanio Cristal.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Cristal Carbono/TITANIO/Imagen Secundaria/Titanio Cristal.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1935342
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            }
+          ],
+          "status": "complete"
+        },
+        {
+          "name": "Panel Lambrin Wpc",
+          "slug": "panel-lambrin-wpc",
+          "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-",
+          "variants": [
+            {
+              "name": "Lambrin Irregular",
+              "slug": "lambrin-irregular",
+              "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-",
+              "colors": [
+                {
+                  "name": "Gold Rio",
+                  "slug": "gold-rio",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/GOLD RIO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "GOLD RIO Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/GOLD RIO/Imagen Principal/GOLD RIO Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1380534
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "GOLD RIO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/GOLD RIO/Imagen Secundaria/GOLD RIO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1765926
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Gold Rio.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/GOLD RIO/Extras/Gold Rio.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2243064
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Gold Rio Fondo Negro",
+                  "slug": "gold-rio-fondo-negro",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/GOLD RIO FONDO NEGRO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "GOLD RIO FONDO NEGRO Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/GOLD RIO FONDO NEGRO/Imagen Principal/GOLD RIO FONDO NEGRO Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1591425
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "GOLD RIO FONDO NEGRO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/GOLD RIO FONDO NEGRO/Imagen Secundaria/GOLD RIO FONDO NEGRO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1233130
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Gold Rio Fondo Negro.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/GOLD RIO FONDO NEGRO/Extras/Gold Rio Fondo Negro.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1949949
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Nuez Fondo Negro",
+                  "slug": "nuez-fondo-negro",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/NUEZ FONDO NEGRO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "NUEZ FONDO NEGRO Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/NUEZ FONDO NEGRO/Imagen Principal/NUEZ FONDO NEGRO Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1481576
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "NUEZ FONDO NEGRO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/NUEZ FONDO NEGRO/Imagen Secundaria/NUEZ FONDO NEGRO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1538526
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Nuez Fondo Negro.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/NUEZ FONDO NEGRO/Extras/Nuez Fondo Negro.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2030642
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Roble Dorado",
+                  "slug": "roble-dorado",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/ROBLE DORADO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "ROBLE DORADO Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/ROBLE DORADO/Imagen Principal/ROBLE DORADO Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1121383
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "ROBLE DORADO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/ROBLE DORADO/Imagen Secundaria/ROBLE DORADO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1245881
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Roble Dorado.jpg",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/ROBLE DORADO/Extras/Roble Dorado.jpg",
+                        "mimeType": "image/jpeg",
+                        "sizeBytes": 833299
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Sirope",
+                  "slug": "sirope",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/SIROPE",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "SIROPE Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/SIROPE/Imagen Principal/SIROPE Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1545590
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "SIROPE.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/SIROPE/Imagen Secundaria/SIROPE.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1910390
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Sirope.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/SIROPE/Extras/Sirope.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1947998
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Sirope Fondo Negro",
+                  "slug": "sirope-fondo-negro",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/SIROPE FONDO NEGRO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "SIROPE FONDO NEGRO Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/SIROPE FONDO NEGRO/Imagen Principal/SIROPE FONDO NEGRO Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1134515
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "SIROPE FONDO NEGRO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/SIROPE FONDO NEGRO/Imagen Secundaria/SIROPE FONDO NEGRO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1191443
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Sirope Fondo Negro.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Irregular-/SIROPE FONDO NEGRO/Extras/Sirope Fondo Negro.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2116131
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            },
+            {
+              "name": "Lambrin Premium 3 Max",
+              "slug": "lambrin-premium-3-max",
+              "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium 3 Max-",
+              "colors": [
+                {
+                  "name": "Gold Rio",
+                  "slug": "gold-rio",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium 3 Max-/GOLD RIO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "GOLD RIO MAX 3 Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium 3 Max-/GOLD RIO/Imagen Principal/GOLD RIO MAX 3 Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1905244
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "GOLD RIO MAX 3.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium 3 Max-/GOLD RIO/Imagen Secundaria/GOLD RIO MAX 3.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2580048
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Gold Rio LP3.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium 3 Max-/GOLD RIO/Extras/Gold Rio LP3.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2150661
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Roble Dorado",
+                  "slug": "roble-dorado",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium 3 Max-/ROBLE DORADO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "ROBLE DORADO Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium 3 Max-/ROBLE DORADO/Imagen Principal/ROBLE DORADO Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1555618
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "ROBLE DORADO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium 3 Max-/ROBLE DORADO/Imagen Secundaria/ROBLE DORADO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1764373
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Roble Dorado LP3.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium 3 Max-/ROBLE DORADO/Extras/Roble Dorado LP3.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2167524
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Roble Esterlina",
+                  "slug": "roble-esterlina",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium 3 Max-/ROBLE ESTERLINA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "ROBLE ESTERLINA Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium 3 Max-/ROBLE ESTERLINA/Imagen Principal/ROBLE ESTERLINA Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1721365
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "ROBLE ESTERLINA.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium 3 Max-/ROBLE ESTERLINA/Imagen Secundaria/ROBLE ESTERLINA.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2173459
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Roble Esterlina LP3.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium 3 Max-/ROBLE ESTERLINA/Extras/Roble Esterlina LP3.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2132943
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            },
+            {
+              "name": "Lambrin Premium Wpc",
+              "slug": "lambrin-premium-wpc",
+              "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-",
+              "colors": [
+                {
+                  "name": "Barely Beige",
+                  "slug": "barely-beige",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/BARELY BEIGE",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "BARELI BEIGE Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/BARELY BEIGE/Imagen Principal/BARELI BEIGE Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 919523
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "BARELI BEIGE.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/BARELY BEIGE/Imagen Secundaria/BARELI BEIGE.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1328503
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Barely Beige LP4.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/BARELY BEIGE/Extras/Barely Beige LP4.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2011350
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Black And Gold",
+                  "slug": "black-and-gold",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/BLACK AND GOLD",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "BLACK AND GOL Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/BLACK AND GOLD/Imagen Principal/BLACK AND GOL Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1349441
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "BLACK AND GOLD.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/BLACK AND GOLD/Imagen Secundaria/BLACK AND GOLD.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1299722
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Black & Gold LP4.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/BLACK AND GOLD/Extras/Black & Gold LP4.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1727705
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Brasilia",
+                  "slug": "brasilia",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/BRASILIA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "BRASILLIA Vertcal.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/BRASILIA/Imagen Principal/BRASILLIA Vertcal.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1530401
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "BRASILLIA.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/BRASILIA/Imagen Secundaria/BRASILLIA.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1621388
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Brasilia LP4.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/BRASILIA/Extras/Brasilia LP4.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1795060
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Brushed Black",
+                  "slug": "brushed-black",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/BRUSHED BLACK",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "BRUSHED BLACK Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/BRUSHED BLACK/Imagen Principal/BRUSHED BLACK Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 787072
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "BRUSHED BLACK.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/BRUSHED BLACK/Imagen Secundaria/BRUSHED BLACK.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 994818
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Brushed Black LP4.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/BRUSHED BLACK/Extras/Brushed Black LP4.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1963592
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Carob",
+                  "slug": "carob",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/CAROB",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "CAROB Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/CAROB/Imagen Principal/CAROB Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1135792
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "CAROB.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/CAROB/Imagen Secundaria/CAROB.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1511751
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Carob LP4.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/CAROB/Extras/Carob LP4.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1728793
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Chocolate",
+                  "slug": "chocolate",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/CHOCOLATE",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "CHOCOLATE Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/CHOCOLATE/Imagen Principal/CHOCOLATE Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 882421
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "CHOCOLATE.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/CHOCOLATE/Imagen Secundaria/CHOCOLATE.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1424479
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Chocolate LP4.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/CHOCOLATE/Extras/Chocolate LP4.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1894701
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Gold Rio",
+                  "slug": "gold-rio",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/GOLD RIO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "GOLD RIO Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/GOLD RIO/Imagen Principal/GOLD RIO Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1663332
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "GOLD RIO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/GOLD RIO/Imagen Secundaria/GOLD RIO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2154518
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Gold Río LO4.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/GOLD RIO/Extras/Gold Río LO4.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1788446
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Lauren Black",
+                  "slug": "lauren-black",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/LAUREN BLACK",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "LAUREN BLACK Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/LAUREN BLACK/Imagen Principal/LAUREN BLACK Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1000544
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "LAUREN BLACK.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/LAUREN BLACK/Imagen Secundaria/LAUREN BLACK.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1397990
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Lauren Black Gold LP4.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/LAUREN BLACK/Extras/Lauren Black Gold LP4.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2045106
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Marmol Blanco",
+                  "slug": "marmol-blanco",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/MARMOL BLANCO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "MARMOL BLANCO Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/MARMOL BLANCO/Imagen Principal/MARMOL BLANCO Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 741483
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "MARMOL BLANCO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/MARMOL BLANCO/Imagen Secundaria/MARMOL BLANCO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1124129
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Mármol Blanco LP4.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/MARMOL BLANCO/Extras/Mármol Blanco LP4.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1751165
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Nogal Fondo Negro",
+                  "slug": "nogal-fondo-negro",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/NOGAL FONDO NEGRO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "NOGAL FONDO NEGRO Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/NOGAL FONDO NEGRO/Imagen Principal/NOGAL FONDO NEGRO Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1037942
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "NOGAL FONDO NEGRO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/NOGAL FONDO NEGRO/Imagen Secundaria/NOGAL FONDO NEGRO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1703895
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Nogal Fondo Negro LP4.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/NOGAL FONDO NEGRO/Extras/Nogal Fondo Negro LP4.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1706907
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Nuez",
+                  "slug": "nuez",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/NUEZ",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "NUEZ Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/NUEZ/Imagen Principal/NUEZ Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1139375
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "NUEZ.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/NUEZ/Imagen Secundaria/NUEZ.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1708876
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Nuez LP4.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/NUEZ/Extras/Nuez LP4.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1762838
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Nuez Dorada",
+                  "slug": "nuez-dorada",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/NUEZ DORADA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "NUEZ DORADA Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/NUEZ DORADA/Imagen Principal/NUEZ DORADA Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1033984
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "NUEZ DORADA.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/NUEZ DORADA/Imagen Secundaria/NUEZ DORADA.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1732848
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Nuez Dorada LP4.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/NUEZ DORADA/Extras/Nuez Dorada LP4.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1726267
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Nuez Fondo Negro",
+                  "slug": "nuez-fondo-negro",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/NUEZ FONDO NEGRO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "NUEZ FONDO NEGRO Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/NUEZ FONDO NEGRO/Imagen Principal/NUEZ FONDO NEGRO Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 981148
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "NUEZ FONDO NEGRO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/NUEZ FONDO NEGRO/Imagen Secundaria/NUEZ FONDO NEGRO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1719148
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Nuez Fondo Negro LP4.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/NUEZ FONDO NEGRO/Extras/Nuez Fondo Negro LP4.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1744262
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Roble Dorado",
+                  "slug": "roble-dorado",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/ROBLE DORADO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "ROBLE DORADO Verical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/ROBLE DORADO/Imagen Principal/ROBLE DORADO Verical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1323514
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "ROBLE DORADO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/ROBLE DORADO/Imagen Secundaria/ROBLE DORADO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2195052
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Roble Dorado LP4.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/ROBLE DORADO/Extras/Roble Dorado LP4.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1821932
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Roble Esterlina",
+                  "slug": "roble-esterlina",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/ROBLE ESTERLINA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "ROBLE ESTERLINA Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/ROBLE ESTERLINA/Imagen Principal/ROBLE ESTERLINA Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1373729
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "ROBLE ESTERLINA.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/ROBLE ESTERLINA/Imagen Secundaria/ROBLE ESTERLINA.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1903454
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Roble Esterlina LP4.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/ROBLE ESTERLINA/Extras/Roble Esterlina LP4.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1881427
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Roble Natural",
+                  "slug": "roble-natural",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/ROBLE NATURAL",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "ROBLE NATURAL Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/ROBLE NATURAL/Imagen Principal/ROBLE NATURAL Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1097996
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "ROBLE NATURAL.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/ROBLE NATURAL/Imagen Secundaria/ROBLE NATURAL.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2094439
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Roble Narural LP4.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/ROBLE NATURAL/Extras/Roble Narural LP4.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1838879
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Sirope",
+                  "slug": "sirope",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/SIROPE",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "SIROPE Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/SIROPE/Imagen Principal/SIROPE Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1381066
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "SIROPE.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/SIROPE/Imagen Secundaria/SIROPE.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1945560
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Sirope LP4.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/SIROPE/Extras/Sirope LP4.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1725239
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Tela Beige",
+                  "slug": "tela-beige",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/TELA BEIGE",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "TELA BEIGE Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/TELA BEIGE/Imagen Principal/TELA BEIGE Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1119197
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "TELA BEIGE.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/TELA BEIGE/Imagen Secundaria/TELA BEIGE.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1809696
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Tela Beige LP4.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Premium WPC-/TELA BEIGE/Extras/Tela Beige LP4.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1977450
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            },
+            {
+              "name": "Lambrin Wavy Max",
+              "slug": "lambrin-wavy-max",
+              "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max",
+              "colors": [
+                {
+                  "name": "Brasilia",
+                  "slug": "brasilia",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/BRASILIA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "BRASILIA Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/BRASILIA/Imagen Principal/BRASILIA Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 521900
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "BRASILIA.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/BRASILIA/Imagen Secundaria/BRASILIA.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 695639
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Brasilia LW.jpg",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/BRASILIA/Extras/Brasilia LW.jpg",
+                        "mimeType": "image/jpeg",
+                        "sizeBytes": 446306
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Gold Rio",
+                  "slug": "gold-rio",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/GOLD RIO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "BRASILIA Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/GOLD RIO/Imagen Principal/BRASILIA Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 6296322
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Gold Rio Wavy.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/GOLD RIO/Imagen Secundaria/Gold Rio Wavy.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 691116
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Gold Rio LW.jpg",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/GOLD RIO/Extras/Gold Rio LW.jpg",
+                        "mimeType": "image/jpeg",
+                        "sizeBytes": 424626
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Nuez",
+                  "slug": "nuez",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/NUEZ",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "NUEZ Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/NUEZ/Imagen Principal/NUEZ Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 507844
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "NUEZ.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/NUEZ/Imagen Secundaria/NUEZ.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 674847
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Nuez LW.jpg",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/NUEZ/Extras/Nuez LW.jpg",
+                        "mimeType": "image/jpeg",
+                        "sizeBytes": 424999
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Roble Dorado",
+                  "slug": "roble-dorado",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/ROBLE DORADO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "ROBLE DORADO Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/ROBLE DORADO/Imagen Principal/ROBLE DORADO Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 457820
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "ROBLE DORADO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/ROBLE DORADO/Imagen Secundaria/ROBLE DORADO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 619121
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Roble Dorado LW.jpg",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/ROBLE DORADO/Extras/Roble Dorado LW.jpg",
+                        "mimeType": "image/jpeg",
+                        "sizeBytes": 439295
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Sirope",
+                  "slug": "sirope",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/SIROPE",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "SIROPE Vertical.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/SIROPE/Imagen Principal/SIROPE Vertical.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 491676
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "SIROPE.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/SIROPE/Imagen Secundaria/SIROPE.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 714555
+                      }
+                    ],
+                    "extras": [
+                      {
+                        "title": "Sirope LW.jpg",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Lambrin WPC-/Lambrin Wavy Max/SIROPE/Extras/Sirope LW.jpg",
+                        "mimeType": "image/jpeg",
+                        "sizeBytes": 452264
+                      }
+                    ]
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            }
+          ],
+          "status": "complete"
+        },
+        {
+          "name": "Panel Reforzado 400",
+          "slug": "panel-reforzado-400",
+          "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400",
+          "variants": [
+            {
+              "name": "General",
+              "slug": "general",
+              "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400",
+              "colors": [
+                {
+                  "name": "Brasilia",
+                  "slug": "brasilia",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/BRASILIA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PANEL 400 BRASILIA.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/BRASILIA/Imagen Principal/PANEL 400 BRASILIA.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1366711
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Brasilia Panel 400.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/BRASILIA/Imagen Secundaria/Brasilia Panel 400.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2146986
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Carob",
+                  "slug": "carob",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/CAROB",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PANEL 400 CAROB.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/CAROB/Imagen Principal/PANEL 400 CAROB.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1130491
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Carob Panel 400.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/CAROB/Imagen Secundaria/Carob Panel 400.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2098352
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Gold Rio",
+                  "slug": "gold-rio",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/GOLD RIO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PANEL 400 GOLD RIO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/GOLD RIO/Imagen Principal/PANEL 400 GOLD RIO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1833936
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Gold Rio Panel 400.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/GOLD RIO/Imagen Secundaria/Gold Rio Panel 400.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2054765
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Hueso",
+                  "slug": "hueso",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/HUESO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PANEL 400 HUESO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/HUESO/Imagen Principal/PANEL 400 HUESO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 226398
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Panel Hueso Panel 400.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/HUESO/Imagen Secundaria/Panel Hueso Panel 400.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1840934
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Nogal",
+                  "slug": "nogal",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/NOGAL",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PANEL 400 NOGAL.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/NOGAL/Imagen Principal/PANEL 400 NOGAL.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1097551
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Nogal Panel 400.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/NOGAL/Imagen Secundaria/Nogal Panel 400.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2092840
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Nuez",
+                  "slug": "nuez",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/NUEZ",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PANEL 400 NUEZ.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/NUEZ/Imagen Principal/PANEL 400 NUEZ.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 930187
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Nuez Panel 400.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/NUEZ/Imagen Secundaria/Nuez Panel 400.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2108473
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Roble Dorado",
+                  "slug": "roble-dorado",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/ROBLE DORADO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PANEL 400 ROBLE DORADO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/ROBLE DORADO/Imagen Principal/PANEL 400 ROBLE DORADO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1394635
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Roble Dorado Panel 400.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/ROBLE DORADO/Imagen Secundaria/Roble Dorado Panel 400.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1953607
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Roble Esterlina",
+                  "slug": "roble-esterlina",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/ROBLE ESTERLINA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PANEL 400 ROBLE ESTERLINA.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/ROBLE ESTERLINA/Imagen Principal/PANEL 400 ROBLE ESTERLINA.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1194854
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Roble Esterlina Panel 400.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/ROBLE ESTERLINA/Imagen Secundaria/Roble Esterlina Panel 400.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2225220
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Roble Natural",
+                  "slug": "roble-natural",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/ROBLE NATURAL",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PANEL 400 ROBLE NATURAL.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/ROBLE NATURAL/Imagen Principal/PANEL 400 ROBLE NATURAL.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 962465
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Roble Natural Panel 400.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/ROBLE NATURAL/Imagen Secundaria/Roble Natural Panel 400.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1983273
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Sirope",
+                  "slug": "sirope",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/SIROPE",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PANEL 400 SIROPE.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/SIROPE/Imagen Principal/PANEL 400 SIROPE.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1635973
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Sirope Panel 400.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Reforzado 400/SIROPE/Imagen Secundaria/Sirope Panel 400.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2068498
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            }
+          ],
+          "status": "complete"
+        },
+        {
+          "name": "Panel Techo Spc 3m-6m",
+          "slug": "panel-techo-spc-3m-6m",
+          "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M",
+          "variants": [
+            {
+              "name": "General",
+              "slug": "general",
+              "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M",
+              "colors": [
+                {
+                  "name": "Brasilia",
+                  "slug": "brasilia",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M/BRASILIA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PANEL 6M  BRASILIA.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M/BRASILIA/Imagen Principal/PANEL 6M  BRASILIA.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1965266
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Brasilia Panel SPC.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M/BRASILIA/Imagen Secundaria/Brasilia Panel SPC.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2333900
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Gold Rio",
+                  "slug": "gold-rio",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M/GOLD RIO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PANEL 6M GOLD RIO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M/GOLD RIO/Imagen Principal/PANEL 6M GOLD RIO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2099146
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Gold Rio Panel SPC.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M/GOLD RIO/Imagen Secundaria/Gold Rio Panel SPC.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2108744
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Nuez",
+                  "slug": "nuez",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M/NUEZ",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PANEL 6M NUEZ.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M/NUEZ/Imagen Principal/PANEL 6M NUEZ.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1173610
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Nuez Panel SPC.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M/NUEZ/Imagen Secundaria/Nuez Panel SPC.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2022022
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Roble Dorado",
+                  "slug": "roble-dorado",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M/ROBLE DORADO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PANEL 6M ROBLE DORADO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M/ROBLE DORADO/Imagen Principal/PANEL 6M ROBLE DORADO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1652427
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Roble Dorado Panel SPC.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M/ROBLE DORADO/Imagen Secundaria/Roble Dorado Panel SPC.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2221876
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Roble Esterlina",
+                  "slug": "roble-esterlina",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M/ROBLE ESTERLINA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PANEL 6M ROBLE ESTERLINA.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M/ROBLE ESTERLINA/Imagen Principal/PANEL 6M ROBLE ESTERLINA.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1094830
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Roble Esterlina Panel SPC.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M/ROBLE ESTERLINA/Imagen Secundaria/Roble Esterlina Panel SPC.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2248159
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Sirope",
+                  "slug": "sirope",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M/SIROPE",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PANEL 6M SIROPE.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M/SIROPE/Imagen Principal/PANEL 6M SIROPE.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1315742
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Sirope Panel SPC.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Panel Techo SPC 3M-6M/SIROPE/Imagen Secundaria/Sirope Panel SPC.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2309079
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            }
+          ],
+          "status": "complete"
+        },
+        {
+          "name": "Piedra Flexible",
+          "slug": "piedra-flexible",
+          "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Piedra Flexible",
+          "variants": [
+            {
+              "name": "General",
+              "slug": "general",
+              "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Piedra Flexible",
+              "colors": [
+                {
+                  "name": "Concreto Blanco",
+                  "slug": "concreto-blanco",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Piedra Flexible/CONCRETO BLANCO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "CONCRETO BLANCO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Piedra Flexible/CONCRETO BLANCO/Imagen Principal/CONCRETO BLANCO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 549241
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Concreto Blanco.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Piedra Flexible/CONCRETO BLANCO/Imagen Secundaria/Concreto Blanco.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2664663
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Concreto Gris",
+                  "slug": "concreto-gris",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Piedra Flexible/CONCRETO GRIS",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "CONCRETO GRIS.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Piedra Flexible/CONCRETO GRIS/Imagen Principal/CONCRETO GRIS.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1365444
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Concreto Gris.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Piedra Flexible/CONCRETO GRIS/Imagen Secundaria/Concreto Gris.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2584676
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Concreto Negro",
+                  "slug": "concreto-negro",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Piedra Flexible/CONCRETO NEGRO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "CONCRETO NEGRO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Piedra Flexible/CONCRETO NEGRO/Imagen Principal/CONCRETO NEGRO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1022454
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Concreto Negro.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Piedra Flexible/CONCRETO NEGRO/Imagen Secundaria/Concreto Negro.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2222599
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            }
+          ],
+          "status": "complete"
+        },
+        {
+          "name": "Piedra Pu",
+          "slug": "piedra-pu",
+          "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Piedra PU",
+          "variants": [
+            {
+              "name": "General",
+              "slug": "general",
+              "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Piedra PU",
+              "colors": [
+                {
+                  "name": "Peel Blanca",
+                  "slug": "peel-blanca",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Piedra PU/PEEL BLANCA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PEEL BLANCA.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Piedra PU/PEEL BLANCA/Imagen Principal/PEEL BLANCA.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1900693
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Peel Blanco Piedra PU.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Piedra PU/PEEL BLANCA/Imagen Secundaria/Peel Blanco Piedra PU.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2643088
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Peel Khaki",
+                  "slug": "peel-khaki",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Piedra PU/PEEL KHAKI",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PEEL KHAKI.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Piedra PU/PEEL KHAKI/Imagen Principal/PEEL KHAKI.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1164855
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "PEEL KHAKI piedra PU.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Piedra PU/PEEL KHAKI/Imagen Secundaria/PEEL KHAKI piedra PU.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2625023
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Peel Negra",
+                  "slug": "peel-negra",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Piedra PU/PEEL NEGRA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "PEEL NEGRA.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Piedra PU/PEEL NEGRA/Imagen Principal/PEEL NEGRA.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1206750
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Peel Negro Piedra PU.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Piedra PU/PEEL NEGRA/Imagen Secundaria/Peel Negro Piedra PU.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2445624
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Rustica Negra",
+                  "slug": "rustica-negra",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Piedra PU/RUSTICA NEGRA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "RUSTICA NEGRA.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Piedra PU/RUSTICA NEGRA/Imagen Principal/RUSTICA NEGRA.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1025519
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Negra Rústica Piedra PU.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Piedra PU/RUSTICA NEGRA/Imagen Secundaria/Negra Rústica Piedra PU.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2582243
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            }
+          ],
+          "status": "complete"
+        },
+        {
+          "name": "Pisos Spc",
+          "slug": "pisos-spc",
+          "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC",
+          "variants": [
+            {
+              "name": "Granito",
+              "slug": "granito",
+              "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/GRANITO",
+              "colors": [
+                {
+                  "name": "Bruma",
+                  "slug": "bruma",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/GRANITO/BRUMA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Piso BRUMA.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/GRANITO/BRUMA/Imagen Principal/Piso BRUMA.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1380641
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Bruma.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/GRANITO/BRUMA/Imagen Secundaria/Bruma.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2618188
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Caliza",
+                  "slug": "caliza",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/GRANITO/CALIZA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Piso CALIZA.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/GRANITO/CALIZA/Imagen Principal/Piso CALIZA.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 710322
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Caliza.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/GRANITO/CALIZA/Imagen Secundaria/Caliza.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2334975
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Griven",
+                  "slug": "griven",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/GRANITO/GRIVEN",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Piso GRIVEN.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/GRANITO/GRIVEN/Imagen Principal/Piso GRIVEN.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 834177
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Griven .png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/GRANITO/GRIVEN/Imagen Secundaria/Griven .png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2542859
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Luna",
+                  "slug": "luna",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/GRANITO/LUNA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Piso LUNA.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/GRANITO/LUNA/Imagen Principal/Piso LUNA.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1532702
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Luna.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/GRANITO/LUNA/Imagen Secundaria/Luna.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2511571
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            },
+            {
+              "name": "Madera",
+              "slug": "madera",
+              "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/MADERA",
+              "colors": [
+                {
+                  "name": "Avellana",
+                  "slug": "avellana",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/MADERA/AVELLANA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Piso AVELLANA.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/MADERA/AVELLANA/Imagen Principal/Piso AVELLANA.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1258147
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Avellana.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/MADERA/AVELLANA/Imagen Secundaria/Avellana.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2379960
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Caramelo",
+                  "slug": "caramelo",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/MADERA/CARAMELO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Piso CARAMELO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/MADERA/CARAMELO/Imagen Principal/Piso CARAMELO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1232625
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Caramelo.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/MADERA/CARAMELO/Imagen Secundaria/Caramelo.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2463401
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Cenizo",
+                  "slug": "cenizo",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/MADERA/CENIZO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Piso CENIZO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/MADERA/CENIZO/Imagen Principal/Piso CENIZO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1891142
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Cenizo.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/MADERA/CENIZO/Imagen Secundaria/Cenizo.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2461363
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Humo",
+                  "slug": "humo",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/MADERA/HUMO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Piso HUMO.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/MADERA/HUMO/Imagen Principal/Piso HUMO.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1356396
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Humo.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/MADERA/HUMO/Imagen Secundaria/Humo.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2566217
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Sepia",
+                  "slug": "sepia",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/MADERA/SEPIA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Piso SEPIA.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/MADERA/SEPIA/Imagen Principal/Piso SEPIA.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1679999
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Sepia.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Pisos SPC/MADERA/SEPIA/Imagen Secundaria/Sepia.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2557950
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            }
+          ],
+          "status": "complete"
+        },
+        {
+          "name": "Placas Mármol Destellos",
+          "slug": "placas-marmol-destellos",
+          "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos",
+          "variants": [
+            {
+              "name": "General",
+              "slug": "general",
+              "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos",
+              "colors": [
+                {
+                  "name": "Calacatta",
+                  "slug": "calacatta",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/CALACATTA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Calacatta Gold DESTELLOS.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/CALACATTA/Imagen Principal/Calacatta Gold DESTELLOS.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1052994
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Calacatta Gold.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/CALACATTA/Imagen Secundaria/Calacatta Gold.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2148628
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Dramma Gold",
+                  "slug": "dramma-gold",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/DRAMMA GOLD",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Dramma Gold DESTELLOS.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/DRAMMA GOLD/Imagen Principal/Dramma Gold DESTELLOS.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 933585
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Dramma Gold.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/DRAMMA GOLD/Imagen Secundaria/Dramma Gold.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2723514
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Gilded Mohe Stone",
+                  "slug": "gilded-mohe-stone",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/GILDED MOHE STONE",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Gilded Mohe Stone DESTELLOS.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/GILDED MOHE STONE/Imagen Principal/Gilded Mohe Stone DESTELLOS.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 700056
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Gilded Mohe STONE.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/GILDED MOHE STONE/Imagen Secundaria/Gilded Mohe STONE.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2367428
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Lauren Black",
+                  "slug": "lauren-black",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/LAUREN BLACK",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Lauren Black DESTELLOS.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/LAUREN BLACK/Imagen Principal/Lauren Black DESTELLOS.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 318406
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Lauren Black.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/LAUREN BLACK/Imagen Secundaria/Lauren Black.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2319086
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Quarzo Gold",
+                  "slug": "quarzo-gold",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/QUARZO GOLD",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Quarzo Gold DESTELLOS.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/QUARZO GOLD/Imagen Principal/Quarzo Gold DESTELLOS.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 604283
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Quarzo Gold.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/QUARZO GOLD/Imagen Secundaria/Quarzo Gold.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2022834
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Sahara",
+                  "slug": "sahara",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/SAHARA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Sahara DESTELLOS.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/SAHARA/Imagen Principal/Sahara DESTELLOS.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 818019
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Sahara.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/SAHARA/Imagen Secundaria/Sahara.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1999117
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Stella",
+                  "slug": "stella",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/STELLA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Stella DESTELLOS.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/STELLA/Imagen Principal/Stella DESTELLOS.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 617948
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Stella.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/STELLA/Imagen Secundaria/Stella.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2375689
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Versalles Gold",
+                  "slug": "versalles-gold",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/VERSALLES GOLD",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Versalles Gold DESTELLOS.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/VERSALLES GOLD/Imagen Principal/Versalles Gold DESTELLOS.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 745582
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Versalles Gold.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/VERSALLES GOLD/Imagen Secundaria/Versalles Gold.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2227611
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Zebra Gold",
+                  "slug": "zebra-gold",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/ZEBRA GOLD",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Zebra Gold DESTELLOS.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/ZEBRA GOLD/Imagen Principal/Zebra Gold DESTELLOS.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1167156
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Zebra Gold.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Mármol Destellos/ZEBRA GOLD/Imagen Secundaria/Zebra Gold.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2387884
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            }
+          ],
+          "status": "complete"
+        },
+        {
+          "name": "Placas Tipo Mármol",
+          "slug": "placas-tipo-marmol",
+          "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol",
+          "variants": [
+            {
+              "name": "General",
+              "slug": "general",
+              "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol",
+              "colors": [
+                {
+                  "name": "Blanc Dore",
+                  "slug": "blanc-dore",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/BLANC DORE",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Blanc Dore.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/BLANC DORE/Imagen Principal/Blanc Dore.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 826387
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Blanc Dore.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/BLANC DORE/Imagen Secundaria/Blanc Dore.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2016315
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Bruma Gris",
+                  "slug": "bruma-gris",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/BRUMA GRIS",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Bruma Gris.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/BRUMA GRIS/Imagen Principal/Bruma Gris.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 839430
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Bruma Gris.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/BRUMA GRIS/Imagen Secundaria/Bruma Gris.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2538664
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Marfil Y Oro",
+                  "slug": "marfil-y-oro",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/MARFIL Y ORO",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Marfil y Oro.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/MARFIL Y ORO/Imagen Principal/Marfil y Oro.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1055271
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Mármol y Oro.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/MARFIL Y ORO/Imagen Secundaria/Mármol y Oro.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1992437
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Marmol Venna",
+                  "slug": "marmol-venna",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/MARMOL VENNA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Marmol Venna.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/MARMOL VENNA/Imagen Principal/Marmol Venna.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 537423
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Mármol Venna.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/MARMOL VENNA/Imagen Secundaria/Mármol Venna.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2289785
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Midnight Stone",
+                  "slug": "midnight-stone",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/MIDNIGHT STONE",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Midnight Stone.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/MIDNIGHT STONE/Imagen Principal/Midnight Stone.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 337803
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Midnight STONE.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/MIDNIGHT STONE/Imagen Secundaria/Midnight STONE.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2159172
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Pandora",
+                  "slug": "pandora",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/PANDORA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Pandora.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/PANDORA/Imagen Principal/Pandora.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 985157
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Pandora.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/PANDORA/Imagen Secundaria/Pandora.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2399649
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Polka",
+                  "slug": "polka",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/POLKA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Polka.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/POLKA/Imagen Principal/Polka.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 385513
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Polka.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/POLKA/Imagen Secundaria/Polka.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1973111
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Storm Grey",
+                  "slug": "storm-grey",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/STORM GREY",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Storm Grey.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/STORM GREY/Imagen Principal/Storm Grey.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 866956
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Storm Grey.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/STORM GREY/Imagen Secundaria/Storm Grey.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2649481
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Zimbali Gold",
+                  "slug": "zimbali-gold",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/ZIMBALI GOLD",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "Zimbali Gold.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/ZIMBALI GOLD/Imagen Principal/Zimbali Gold.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1036450
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Zimbali Gold.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Placas Tipo Mármol/ZIMBALI GOLD/Imagen Secundaria/Zimbali Gold.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 2777013
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            }
+          ],
+          "status": "complete"
+        },
+        {
+          "name": "Vigas Interior",
+          "slug": "vigas-interior",
+          "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Vigas Interior",
+          "variants": [
+            {
+              "name": "General",
+              "slug": "general",
+              "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Vigas Interior",
+              "colors": [
+                {
+                  "name": "Nogal",
+                  "slug": "nogal",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Vigas Interior/NOGAL",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "NOGAL VIGA INTERIOR.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Vigas Interior/NOGAL/Imagen Principal/NOGAL VIGA INTERIOR.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1171040
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Nogal Viga Interior.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Vigas Interior/NOGAL/Imagen Secundaria/Nogal Viga Interior.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1979439
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Roble Esterlina",
+                  "slug": "roble-esterlina",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Vigas Interior/ROBLE ESTERLINA",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "ROBLE ESTERLINA VIGA INTERIOR.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Vigas Interior/ROBLE ESTERLINA/Imagen Principal/ROBLE ESTERLINA VIGA INTERIOR.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1193499
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Roble Esterlina Viga Interior.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Vigas Interior/ROBLE ESTERLINA/Imagen Secundaria/Roble Esterlina Viga Interior.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1968913
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                },
+                {
+                  "name": "Sirope",
+                  "slug": "sirope",
+                  "sourcePath": "src/types/CATALOGO_DECO/INTERIOR/Vigas Interior/SIROPE",
+                  "images": {
+                    "main": [
+                      {
+                        "title": "SIROPE VIGA INTERIOR.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Vigas Interior/SIROPE/Imagen Principal/SIROPE VIGA INTERIOR.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1672239
+                      }
+                    ],
+                    "secondary": [
+                      {
+                        "title": "Sirope Viga Interior.png",
+                        "path": "src/types/CATALOGO_DECO/INTERIOR/Vigas Interior/SIROPE/Imagen Secundaria/Sirope Viga Interior.png",
+                        "mimeType": "image/png",
+                        "sizeBytes": 1931345
+                      }
+                    ],
+                    "extras": []
+                  },
+                  "status": "complete"
+                }
+              ],
+              "status": "complete"
+            }
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ]
+}

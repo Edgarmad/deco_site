@@ -3,14 +3,13 @@ import '../../styles/global.css';
 import ProjectDetailPage from '../../components/projects/ProjectDetailPage.astro';
 import SiteFooter from '../../components/layout/SiteFooter.astro';
 import SiteHeader from '../../components/layout/SiteHeader.astro';
-import { getProjects } from '../../services/projectService';
+import { getProjectBySlug } from '../../services/projectService';
 
-export async function getStaticPaths() {
-  const projects = await getProjects();
-  return projects.map((project) => ({ params: { slug: project.slug }, props: { project } }));
-}
+export const prerender = false;
 
-const { project } = Astro.props;
+const { slug } = Astro.params;
+const project = slug ? await getProjectBySlug(slug) : undefined;
+if (!project) return new Response(null, { status: 404 });
 ---
 
 <html lang="es">

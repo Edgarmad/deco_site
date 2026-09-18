@@ -14,6 +14,7 @@ export type ProductCategory = {
 };
 
 export type ProductColor = {
+  id?: string;
   name: string;
   slug: string;
   sku?: string;
@@ -23,21 +24,32 @@ export type ProductColor = {
 };
 
 export type ProductVariant = {
+  id?: string;
   name: string;
   slug: string;
   colors: ProductColor[];
 };
 
 export type Product = {
+  id?: string;
   name: string;
   slug: string;
   categorySlug: string;
   macroCategory: ProductMacroCategory;
   summary?: string;
+  description?: string;
   sku?: string;
   image?: string;
   gallery?: string[];
   variants: ProductVariant[];
   featured?: boolean;
   status?: ProductPublicationStatus;
+  seoTitle?: string;
+  seoDescription?: string;
+  dimensions?: string;
+  thickness?: string;
+  material?: string;
+  usage?: string;
+  installationNotes?: string;
+  careNotes?: string;
 };

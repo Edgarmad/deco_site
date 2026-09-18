@@ -1,12 +1,5 @@
 ---
-type LocationItem = {
-  number: string;
-  city: string;
-  type: string;
-  address: string;
-  schedule: string;
-  mapsUrl: string;
-};
+import type { Location as LocationItem } from '../../types/locations';
 
 type Props = {
   locations: LocationItem[];

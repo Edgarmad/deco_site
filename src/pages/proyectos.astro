@@ -5,6 +5,8 @@ import SiteFooter from '../components/layout/SiteFooter.astro';
 import SiteHeader from '../components/layout/SiteHeader.astro';
 import { getProjects } from '../services/projectService';
 
+export const prerender = false;
+
 const projects = await getProjects();
 ---
 

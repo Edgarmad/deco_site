@@ -1,80 +1,164 @@
 import { productCategories, productPlaceholders } from '../data/products';
 import type { Product, ProductCategory, ProductMacroCategory } from '../types/products';
+import { getPublicStorageUrl, supabase } from '../lib/supabase';
 
-type WpRendered = { rendered?: string };
-type WpTerm = {
-  id: number;
+type SupabaseCategory = {
+  id: string;
   name: string;
   slug: string;
-  count?: number;
-  category_details?: { macroCategory?: ProductMacroCategory; description?: string };
+  description: string | null;
+  products?: { count: number }[];
 };
-type WpProduct = {
+
+type ProductImageRow = {
+  storage_bucket: string;
+  storage_path: string;
+  kind: 'main' | 'secondary' | 'gallery' | 'extra' | 'technical';
+  sort_order: number | null;
+};
+
+type ProductOptionRow = {
+  id: string;
+  name: string;
   slug: string;
-  title?: WpRendered;
-  excerpt?: WpRendered;
-  product_details?: Partial<Product>;
-  main_image_url?: string;
-  gallery_urls?: string[];
+  sku: string | null;
+  summary: string | null;
+  description: string | null;
+  dimensions: string | null;
+  thickness: string | null;
+  material: string | null;
+  usage: string | null;
+  installation_notes: string | null;
+  care_notes: string | null;
+  featured: boolean | null;
+  status: 'draft' | 'published';
+  seo_title: string | null;
+  seo_description: string | null;
+  product_images?: ProductImageRow[];
+  product_variants: {
+    id: string;
+    name: string;
+    slug: string;
+    products: {
+      id: string;
+      name: string;
+      slug: string;
+      categories: {
+        id: string;
+        name: string;
+        slug: ProductMacroCategory;
+      } | null;
+    } | null;
+  } | null;
 };
 
-const stripHtml = (value = '') => value.replace(/<[^>]*>/g, '').trim();
-
-const getWordPressApiUrl = () => {
-  const rawUrl = import.meta.env.WORDPRESS_API_URL;
-  return typeof rawUrl === 'string' && rawUrl.trim().length > 0 ? rawUrl.replace(/\/$/, '') : '';
-};
-
-const fetchJson = async <T>(url: string): Promise<T | null> => {
-  try {
-    const response = await fetch(url);
-    if (!response.ok) return null;
-    return (await response.json()) as T;
-  } catch {
-    return null;
-  }
-};
-
-const normalizeWpCategory = (category: WpTerm): ProductCategory => ({
-  id: String(category.id),
+const normalizeCategory = (category: SupabaseCategory): ProductCategory => ({
+  id: category.id,
   name: category.name,
   slug: category.slug,
-  macroCategory: category.category_details?.macroCategory ?? 'interior',
-  description: category.category_details?.description,
-  count: category.count
+  macroCategory: category.slug === 'exterior' ? 'exterior' : 'interior',
+  description: category.description ?? undefined,
+  count: category.products?.[0]?.count
 });
 
-const normalizeWpProduct = (product: WpProduct): Product => ({
-  name: product.product_details?.name ?? stripHtml(product.title?.rendered) ?? product.slug,
-  slug: product.slug,
-  categorySlug: product.product_details?.categorySlug ?? '',
-  macroCategory: product.product_details?.macroCategory ?? 'interior',
-  summary: product.product_details?.summary ?? stripHtml(product.excerpt?.rendered),
-  sku: product.product_details?.sku,
-  image: product.product_details?.image ?? product.main_image_url,
-  gallery: product.product_details?.gallery ?? product.gallery_urls,
-  variants: product.product_details?.variants ?? [],
-  featured: product.product_details?.featured,
-  status: product.product_details?.status ?? 'published'
-});
+const normalizeOption = (option: ProductOptionRow): Product | null => {
+  const variant = option.product_variants;
+  const product = variant?.products;
+  const category = product?.categories;
+  if (!variant || !product || !category) return null;
+
+  const images = (option.product_images ?? [])
+    .slice()
+    .sort((first, second) => (first.sort_order ?? 0) - (second.sort_order ?? 0));
+  const mainImage = images.find((image) => image.kind === 'main') ?? images[0];
+  const gallery = images
+    .filter((image) => image !== mainImage)
+    .map((image) => getPublicStorageUrl(image.storage_bucket, image.storage_path))
+    .filter((image): image is string => Boolean(image));
+
+  return {
+    id: option.id,
+    name: `${product.name} ${option.name}`.trim(),
+    slug: option.slug,
+    categorySlug: product.slug,
+    macroCategory: category.slug === 'exterior' ? 'exterior' : 'interior',
+    summary: option.summary ?? undefined,
+    description: option.description ?? undefined,
+    sku: option.sku ?? undefined,
+    image: getPublicStorageUrl(mainImage?.storage_bucket ?? '', mainImage?.storage_path),
+    gallery,
+    variants: [
+      {
+        id: variant.id,
+        name: variant.name,
+        slug: variant.slug,
+        colors: [
+          {
+            id: option.id,
+            name: option.name,
+            slug: option.slug,
+            sku: option.sku ?? undefined,
+            status: 'complete'
+          }
+        ]
+      }
+    ],
+    featured: option.featured ?? false,
+    status: option.status,
+    seoTitle: option.seo_title ?? undefined,
+    seoDescription: option.seo_description ?? undefined,
+    dimensions: option.dimensions ?? undefined,
+    thickness: option.thickness ?? undefined,
+    material: option.material ?? undefined,
+    usage: option.usage ?? undefined,
+    installationNotes: option.installation_notes ?? undefined,
+    careNotes: option.care_notes ?? undefined
+  };
+};
+
+const productOptionSelect = `
+  id,name,slug,sku,summary,description,dimensions,thickness,material,usage,installation_notes,care_notes,featured,status,seo_title,seo_description,
+  product_images(storage_bucket,storage_path,kind,sort_order),
+  product_variants(id,name,slug,products(id,name,slug,categories(id,name,slug)))
+`;
 
 export const getProducts = async (): Promise<Product[]> => {
-  const apiUrl = getWordPressApiUrl();
-  if (!apiUrl) return productPlaceholders;
+  if (!supabase) return productPlaceholders;
 
-  const wpProducts = await fetchJson<WpProduct[]>(`${apiUrl}/wp-json/wp/v2/products?_embed`);
-  return wpProducts?.map(normalizeWpProduct) ?? productPlaceholders;
+  const { data, error } = await supabase
+    .from('product_options')
+    .select(productOptionSelect)
+    .eq('status', 'published')
+    .order('featured', { ascending: false })
+    .order('sort_order', { ascending: true });
+
+  if (error || !data?.length) return productPlaceholders;
+  return (data as unknown as ProductOptionRow[]).map(normalizeOption).filter((product): product is Product => Boolean(product));
 };
 
 export const getProductCategories = async (): Promise<ProductCategory[]> => {
-  const apiUrl = getWordPressApiUrl();
-  if (!apiUrl) return productCategories;
+  if (!supabase) return productCategories;
 
-  const wpCategories = await fetchJson<WpTerm[]>(`${apiUrl}/wp-json/wp/v2/product_category?hide_empty=false`);
-  return wpCategories?.map(normalizeWpCategory) ?? productCategories;
+  const { data, error } = await supabase
+    .from('categories')
+    .select('id,name,slug,description,products(count)')
+    .eq('status', 'published')
+    .order('sort_order', { ascending: true });
+
+  if (error || !data?.length) return productCategories;
+  return (data as unknown as SupabaseCategory[]).map(normalizeCategory);
 };
 
 export const getProductBySlug = async (slug: string): Promise<Product | undefined> => {
-  const products = await getProducts();
-  return products.find((product) => product.slug === slug);
+  if (!supabase) return productPlaceholders.find((product) => product.slug === slug);
+
+  const { data, error } = await supabase
+    .from('product_options')
+    .select(productOptionSelect)
+    .eq('status', 'published')
+    .eq('slug', slug)
+    .maybeSingle();
+
+  if (error || !data) return undefined;
+  return normalizeOption(data as unknown as ProductOptionRow) ?? undefined;
 };

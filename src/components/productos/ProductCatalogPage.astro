@@ -99,7 +99,7 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
     history.replaceState(null, '', query ? `/productos?${query}` : '/productos');
   };
 
-  const sortCards = (items) => {
+  const sortCards = (items: HTMLElement[]) => {
     const sortValue = sortSelect instanceof HTMLSelectElement ? sortSelect.value : 'featured';
     return [...items].sort((firstCard, secondCard) => {
       if (sortValue === 'name') {
@@ -157,7 +157,7 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
     updateUrl();
   };
 
-  const setMacro = (macro) => {
+  const setMacro = (macro: string) => {
     currentMacro = macro;
     currentPage = 1;
     tabs.forEach((tab) => tab.setAttribute('aria-pressed', String(tab.dataset.macroTab === macro)));

@@ -6,6 +6,8 @@ import SiteHeader from '../components/layout/SiteHeader.astro';
 import ProductCatalogPage from '../components/productos/ProductCatalogPage.astro';
 import { getProductCategories, getProducts } from '../services/productService';
 
+export const prerender = false;
+
 const products = await getProducts();
 const categories = await getProductCategories();
 ---

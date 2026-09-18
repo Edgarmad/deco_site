@@ -3,14 +3,13 @@ import '../../styles/global.css';
 import SiteFooter from '../../components/layout/SiteFooter.astro';
 import SiteHeader from '../../components/layout/SiteHeader.astro';
 import ProductDetailPage from '../../components/productos/ProductDetailPage.astro';
-import { getProductCategories, getProducts } from '../../services/productService';
+import { getProductBySlug, getProductCategories, getProducts } from '../../services/productService';
 
-export const getStaticPaths = async () => {
-  const products = await getProducts();
-  return products.map((product) => ({ params: { slug: product.slug }, props: { product } }));
-};
+export const prerender = false;
 
-const { product } = Astro.props;
+const { slug } = Astro.params;
+const product = slug ? await getProductBySlug(slug) : undefined;
+if (!product) return new Response(null, { status: 404 });
 const categories = await getProductCategories();
 const products = await getProducts();
 ---
