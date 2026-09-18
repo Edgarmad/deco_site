@@ -9,12 +9,28 @@ type Props = {
   categories: ProductCategory[];
 };
 
-const { products, categories } = Astro.props;
+const { products } = Astro.props;
+const productTypes = Array.from(
+  products.reduce((types, product) => {
+    if (!types.has(product.categorySlug)) {
+      types.set(product.categorySlug, {
+        slug: product.categorySlug,
+        name: product.categoryName ?? product.categorySlug,
+        macroCategory: product.macroCategory
+      });
+    }
+    return types;
+  }, new Map<string, { slug: string; name: string; macroCategory: ProductMacroCategory }>()).values()
+).sort((first, second) => first.name.localeCompare(second.name, 'es'));
 const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
   { label: 'Todo', value: 'todo' },
   { label: 'Interior', value: 'interior' },
   { label: 'Exterior', value: 'exterior' }
 ];
+// Textos compartidos por la barra de acciones para mantener sincronizado el estado visual del panel.
+const filterLabels = {
+  hide: 'Ocultar filtros'
+};
 ---
 
 <main>
@@ -39,7 +55,7 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
             <option value="name">Nombre</option>
           </select>
         </label>
-        <button type="button" class="reset-filters motion-button" data-reset-filters>Limpiar filtros</button>
+        <button type="button" class="reset-filters motion-button" data-filter-toggle aria-expanded="true">{filterLabels.hide}</button>
         <span>Productos por pagina: 12</span>
       </div>
     </div>
@@ -51,7 +67,7 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
       </div>
     ) : (
       <div class="catalog-layout">
-        <ProductFilters categories={categories} />
+        <ProductFilters productTypes={productTypes} />
         <div class="catalog-results">
           <h1 id="catalog-title" data-reveal>Todos los productos</h1>
           <ProductGrid products={products} />
@@ -70,13 +86,14 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
   const colorFilters = Array.from(document.querySelectorAll('[data-color-filter]')).filter((input): input is HTMLInputElement => input instanceof HTMLInputElement);
   const searchInput = document.querySelector('[data-search-input]');
   const sortSelect = document.querySelector('[data-sort-select]');
-  const resetFilters = document.querySelector('[data-reset-filters]');
   const emptyState = document.querySelector('[data-empty-state]');
   const pagination = document.querySelector('[data-pagination]');
   const prevButton = document.querySelector('[data-page-prev]');
   const nextButton = document.querySelector('[data-page-next]');
+  const pageButtons = Array.from(document.querySelectorAll('[data-page-number]')).filter((button): button is HTMLButtonElement => button instanceof HTMLButtonElement);
   const currentPageLabel = document.querySelector('[data-page-current]');
   const summary = document.querySelector('[data-pagination-summary]');
+  const filterPanel = document.querySelector('[data-filter-panel]');
   const filterToggle = document.querySelector('[data-filter-toggle]');
   const filterBody = document.querySelector('[data-filter-body]');
   const productGrid = document.querySelector('[data-catalog-grid]');
@@ -152,6 +169,13 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
     if (prevButton instanceof HTMLButtonElement) prevButton.disabled = currentPage <= 1;
     if (nextButton instanceof HTMLButtonElement) nextButton.disabled = currentPage >= pageCount;
     if (currentPageLabel instanceof HTMLElement) currentPageLabel.textContent = String(currentPage);
+    pageButtons.forEach((button) => {
+      const page = Number(button.dataset.pageNumber);
+      const isActive = page === currentPage;
+      button.hidden = page > pageCount;
+      button.disabled = isActive;
+      button.setAttribute('aria-current', isActive ? 'page' : 'false');
+    });
     if (summary instanceof HTMLElement) {
       const visibleStart = filteredCards.length === 0 ? 0 : start + 1;
       const visibleEnd = Math.min(end, filteredCards.length);
@@ -201,14 +225,18 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
   colorFilters.forEach((input) => input.addEventListener('change', () => { currentPage = 1; renderCatalog(); }));
   if (searchInput instanceof HTMLInputElement) searchInput.addEventListener('input', () => { currentPage = 1; renderCatalog(); });
   if (sortSelect instanceof HTMLSelectElement) sortSelect.addEventListener('change', () => { currentPage = 1; renderCatalog(); });
-  if (resetFilters instanceof HTMLButtonElement) resetFilters.addEventListener('click', resetAllFilters);
   if (prevButton instanceof HTMLButtonElement) prevButton.addEventListener('click', () => { currentPage -= 1; renderCatalog(); });
   if (nextButton instanceof HTMLButtonElement) nextButton.addEventListener('click', () => { currentPage += 1; renderCatalog(); });
+  pageButtons.forEach((button) => button.addEventListener('click', () => {
+    currentPage = Number(button.dataset.pageNumber ?? 1);
+    renderCatalog();
+  }));
   if (filterToggle instanceof HTMLButtonElement && filterBody instanceof HTMLElement) {
     filterToggle.addEventListener('click', () => {
       const isHidden = filterBody.classList.toggle('hidden');
       filterToggle.setAttribute('aria-expanded', String(!isHidden));
       filterBody.dataset.open = String(!isHidden);
+      if (filterPanel instanceof HTMLElement) filterPanel.classList.toggle('is-collapsed', isHidden);
       filterToggle.textContent = isHidden ? 'Filtrar' : 'Ocultar filtros';
     });
   }
@@ -218,8 +246,8 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
 
 <style>
   .catalog-section {
-    padding: 0 6.6vw;
-    background: var(--white-pure);
+    padding: 0 5vw;
+    background: var(--white);
   }
 
   .mobile-catalog-head {
@@ -231,22 +259,21 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
     align-items: center;
     justify-content: space-between;
     gap: 20px;
-    padding: 28px 0;
+    padding: 24px 0 18px;
     border-bottom: 1px solid var(--paper-line);
   }
 
   .catalog-tabs {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 36px;
   }
 
   .catalog-tabs button {
-    padding: 10px 18px;
-    border: 1px solid #d5d8d2;
-    border-radius: 999px;
+    padding: 0;
+    border: 0;
     background: transparent;
-    color: var(--black);
+    color: #7b817b;
     font: inherit;
     font-size: 0.72rem;
     font-weight: 800;
@@ -256,9 +283,8 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
   }
 
   .catalog-tabs button[aria-pressed='true'] {
-    background: var(--blue);
-    border-color: var(--blue);
     color: var(--white-pure);
+    color: var(--blue);
   }
 
   .catalog-controls {
@@ -304,12 +330,33 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
 
   .catalog-layout {
     display: grid;
-    grid-template-columns: 250px minmax(0, 1fr);
-    gap: 34px;
-    padding-top: 30px;
+    grid-template-columns: 255px minmax(0, 1fr);
+    gap: 44px;
+    padding-top: 26px;
   }
 
   .catalog-results h1 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  :global(.product-filters.is-collapsed) {
+    padding-right: 0;
+    border-right: 0;
+  }
+
+  .catalog-layout:has(:global(.product-filters.is-collapsed)) {
+    grid-template-columns: 1fr;
+  }
+
+  .catalog-empty-page h1 {
     margin: 0 0 22px;
     font-size: clamp(2rem, 3vw, 3.8rem);
     font-weight: 400;
@@ -322,14 +369,6 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
     display: grid;
     place-content: center;
     text-align: center;
-  }
-
-  .catalog-empty-page h1 {
-    margin: 0 0 12px;
-    font-size: clamp(2.4rem, 5vw, 5rem);
-    font-weight: 400;
-    letter-spacing: -0.06em;
-    text-transform: uppercase;
   }
 
   @media (max-width: 900px) {
@@ -346,10 +385,10 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
 
   @media (max-width: 640px) {
     .catalog-section {
-      padding-left: 14px;
-      padding-right: 14px;
-      padding-top: 18px;
-      padding-bottom: 28px;
+      padding-left: 12px;
+      padding-right: 12px;
+      padding-top: 0;
+      padding-bottom: 0;
       background: #f4f4ef;
     }
 
@@ -380,31 +419,40 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
     }
 
     .catalog-toolbar {
-      gap: 12px;
-      padding: 0 0 12px;
-      border-bottom: 0;
+      gap: 10px;
+      padding: 10px 0 8px;
+      border-bottom: 1px solid var(--paper-line);
     }
 
     .catalog-tabs {
-      display: none;
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      text-align: left;
+    }
+
+    .catalog-tabs button {
+      min-height: 28px;
+      font-size: 0.58rem;
     }
 
     .catalog-controls {
       width: 100%;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 12px;
       font-size: 0;
     }
 
     .catalog-controls label,
     .reset-filters {
       width: 100%;
-      min-height: 42px;
+      min-height: 26px;
       justify-content: center;
-      border-radius: 5px;
+      border-radius: 0;
       background: var(--white-pure);
-      font-size: 0.62rem;
+      font-size: 0.58rem;
     }
 
     .catalog-controls span {
@@ -413,8 +461,9 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
 
     .catalog-controls select {
       width: 100%;
-      border-radius: 5px;
-      font-size: 0.62rem;
+      min-height: 26px;
+      border-radius: 0;
+      font-size: 0.58rem;
     }
 
     .catalog-layout {

@@ -35,6 +35,7 @@ export type Product = {
   name: string;
   slug: string;
   categorySlug: string;
+  categoryName?: string;
   macroCategory: ProductMacroCategory;
   summary?: string;
   description?: string;

@@ -1,22 +1,22 @@
 ---
-import type { ProductCategory } from '../../types/products';
+import type { ProductMacroCategory } from '../../types/products';
 
 type Props = {
-  categories: ProductCategory[];
+  productTypes: { slug: string; name: string; macroCategory: ProductMacroCategory }[];
 };
 
-const { categories } = Astro.props;
+const { productTypes } = Astro.props;
+// Los filtros se renderizan desde los tipos reales de producto para que coincidan con cada card.
 ---
 
 <aside class="product-filters motion-filterbar" data-filter-panel data-sticky-filter>
-  <button type="button" class="filter-toggle motion-button" data-filter-toggle aria-expanded="true">Ocultar filtros</button>
   <div class="filter-body motion-filter-panel" data-filter-body data-open="true">
     <fieldset>
       <legend>Tipo de producto</legend>
-      {categories.map((category) => (
+      {productTypes.map((productType) => (
         <label>
-          <input type="checkbox" value={category.slug} data-category-filter />
-          <span>{category.name}</span>
+          <input type="checkbox" value={productType.slug} data-category-filter />
+          <span>{productType.name}</span>
         </label>
       ))}
     </fieldset>
@@ -37,23 +37,9 @@ const { categories } = Astro.props;
 <style>
   .product-filters {
     align-self: start;
+    min-height: 100%;
     padding-right: 24px;
     border-right: 1px solid var(--paper-line);
-  }
-
-  .filter-toggle {
-    width: 100%;
-    margin-bottom: 24px;
-    padding: 12px 14px;
-    border: 1px solid #d4d8d2;
-    background: transparent;
-    color: var(--black);
-    font: inherit;
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    cursor: pointer;
   }
 
   .filter-body.hidden {
@@ -62,16 +48,16 @@ const { categories } = Astro.props;
 
   fieldset {
     display: grid;
-    gap: 12px;
-    margin: 0 0 30px;
+    gap: 10px;
+    margin: 0 0 28px;
     padding: 0;
     border: 0;
   }
 
   legend,
   .search-label {
-    margin-bottom: 14px;
-    color: #818781;
+    margin-bottom: 12px;
+    color: var(--black);
     font-size: 0.68rem;
     font-weight: 800;
     letter-spacing: 0.22em;
@@ -83,19 +69,20 @@ const { categories } = Astro.props;
     align-items: center;
     gap: 10px;
     color: var(--black);
-    font-size: 0.86rem;
+    font-size: 0.78rem;
+    line-height: 1.25;
   }
 
   input[type='checkbox'] {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
     accent-color: var(--blue);
   }
 
   input[type='search'] {
     width: 100%;
     margin-top: 10px;
-    padding: 13px 14px;
+    padding: 12px 13px;
     border: 1px solid #d4d8d2;
     background: var(--white-pure);
     color: var(--black);
@@ -114,25 +101,17 @@ const { categories } = Astro.props;
     .product-filters {
       display: grid;
       gap: 12px;
-      padding-bottom: 14px;
+      min-height: 0;
+      padding-bottom: 8px;
       border-bottom: 0;
-    }
-
-    .filter-toggle {
-      width: auto;
-      margin: 0;
-      padding: 12px 18px;
-      border-radius: 5px;
-      background: var(--white-pure);
-      text-align: center;
     }
 
     .filter-body {
       display: grid;
       gap: 14px;
-      padding: 14px;
+      padding: 12px;
       border: 1px solid #dedfd9;
-      border-radius: 8px;
+      border-radius: 0;
       background: var(--white-pure);
     }
 

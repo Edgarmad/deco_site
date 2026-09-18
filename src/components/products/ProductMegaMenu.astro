@@ -7,31 +7,39 @@ type Props = {
   activeCategory?: string;
 };
 
-const { categories, activeCategory = '' } = Astro.props;
+const { activeCategory = '' } = Astro.props;
 const products = await getProducts();
+const productTypes = Array.from(
+  products.reduce((types, product) => {
+    if (!types.has(product.categorySlug)) {
+      types.set(product.categorySlug, {
+        slug: product.categorySlug,
+        name: product.categoryName ?? product.categorySlug,
+        macroCategory: product.macroCategory,
+        href: `/productos?categoria=${product.categorySlug}`
+      });
+    }
+    return types;
+  }, new Map<string, { slug: string; name: string; macroCategory: ProductMacroCategory; href: string }>()).values()
+).sort((first, second) => first.name.localeCompare(second.name, 'es'));
 const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
   { label: 'Productos de interior', macroCategory: 'interior' },
   { label: 'Productos de exterior', macroCategory: 'exterior' }
 ];
-
-const getCategoryHref = (categorySlug: string) => {
-  const protagonist = products.find((product) => product.categorySlug === categorySlug);
-  return protagonist ? `/productos/${protagonist.slug}` : `/productos?categoria=${categorySlug}`;
-};
 ---
 
 <div class="product-mega-menu" data-product-mega-menu>
   {groups.map((group) => {
-    const groupCategories = categories.filter((category) => category.macroCategory === group.macroCategory);
+    const groupProductTypes = productTypes.filter((productType) => productType.macroCategory === group.macroCategory);
     return (
       <section class="mega-group" data-mega-group>
         <button type="button" class="mega-trigger" aria-expanded="false">
           {group.label}
         </button>
         <nav class="mega-panel" aria-label={group.label}>
-          {groupCategories.map((category) => (
-            <a class={activeCategory === category.slug ? 'active' : ''} href={getCategoryHref(category.slug)} aria-current={activeCategory === category.slug ? 'page' : undefined}>
-              {category.name}
+          {groupProductTypes.map((productType) => (
+            <a class={activeCategory === productType.slug ? 'active' : ''} href={productType.href} aria-current={activeCategory === productType.slug ? 'page' : undefined}>
+              {productType.name}
             </a>
           ))}
         </nav>
@@ -85,7 +93,7 @@ const getCategoryHref = (categorySlug: string) => {
 
   .mega-trigger {
     width: 100%;
-    min-height: 54px;
+    min-height: 42px;
     border: 0;
     background: transparent;
     color: inherit;
@@ -144,12 +152,18 @@ const getCategoryHref = (categorySlug: string) => {
 
   @media (max-width: 760px) {
     .product-mega-menu {
-      grid-template-columns: 1fr;
-      display: none;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      display: grid;
+    }
+
+    .mega-trigger {
+      min-height: 26px;
+      font-size: 0.54rem;
+      letter-spacing: 0.24em;
     }
 
     .mega-group + .mega-group {
-      border-left: 0;
+      border-left: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .mega-panel {

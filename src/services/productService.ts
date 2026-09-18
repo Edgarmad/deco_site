@@ -81,6 +81,7 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
     name: `${product.name} ${option.name}`.trim(),
     slug: option.slug,
     categorySlug: product.slug,
+    categoryName: product.name,
     macroCategory: category.slug === 'exterior' ? 'exterior' : 'interior',
     summary: option.summary ?? undefined,
     description: option.description ?? undefined,

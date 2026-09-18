@@ -6,13 +6,20 @@ type Props = {
 
 const { total, perPage = 12 } = Astro.props;
 const pageCount = Math.max(1, Math.ceil(total / perPage));
+// Se limita el set inicial para evitar una paginacion larga; el script oculta botones fuera del resultado filtrado.
+const visiblePages = Array.from({ length: Math.min(pageCount, 5) }, (_, index) => index + 1);
 ---
 
 <nav class="product-pagination" aria-label="Paginacion de productos" data-pagination data-per-page={perPage}>
   <p data-pagination-summary>Mostrando 1-{Math.min(total, perPage)} de {total} productos</p>
   <div class="pagination-buttons">
     <button type="button" data-page-prev disabled>Anterior</button>
-    <span data-page-current aria-current="page">1</span>
+    {visiblePages.map((page) => (
+      <button type="button" data-page-number={page} data-page-button disabled={page === 1} aria-current={page === 1 ? 'page' : 'false'}>{page}</button>
+    ))}
+    {pageCount > 6 && <span aria-hidden="true">...</span>}
+    {pageCount > 5 && <button type="button" data-page-number={pageCount} data-page-button>{pageCount}</button>}
+    <span class="current-page-label" data-page-current>1</span>
     <button type="button" data-page-next disabled={pageCount <= 1}>Siguiente</button>
   </div>
 </nav>
@@ -34,7 +41,7 @@ const pageCount = Math.max(1, Math.ceil(total / perPage));
   .pagination-buttons {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 7px;
   }
 
   .pagination-buttons button,
@@ -52,10 +59,14 @@ const pageCount = Math.max(1, Math.ceil(total / perPage));
     text-transform: uppercase;
   }
 
-  .pagination-buttons span {
+  .pagination-buttons button[aria-current='page'] {
     background: var(--blue);
     border-color: var(--blue);
     color: var(--white-pure);
+  }
+
+  .pagination-buttons .current-page-label {
+    display: none;
   }
 
   .pagination-buttons button:not(:disabled):hover,
@@ -70,5 +81,33 @@ const pageCount = Math.max(1, Math.ceil(total / perPage));
 
   .pagination-buttons button:disabled {
     color: #aeb3ae;
+  }
+
+  .pagination-buttons button[aria-current='page']:disabled {
+    color: var(--white-pure);
+  }
+
+  @media (max-width: 640px) {
+    .product-pagination {
+      gap: 8px;
+      padding: 12px 0 14px;
+    }
+
+    .product-pagination p {
+      font-size: 0.58rem;
+    }
+
+    .pagination-buttons {
+      width: 100%;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .pagination-buttons button,
+    .pagination-buttons span {
+      min-width: 30px;
+      height: 24px;
+      font-size: 0.56rem;
+    }
   }
 </style>

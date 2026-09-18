@@ -30,7 +30,7 @@ const faqItems = [
         {product.image ? <img class="motion-product-image" src={product.image} alt={product.name} /> : <span class="motion-product-image" aria-hidden="true"></span>}
       </div>
       <article class="detail-copy" data-reveal-group>
-        <p data-reveal>{category?.name ?? product.macroCategory}</p>
+        <p data-reveal>{product.categoryName ?? category?.name ?? product.macroCategory}</p>
         <h1 data-reveal>{product.name}</h1>
         {product.sku && <strong data-reveal>SKU: {product.sku}</strong>}
         <div class="summary" data-reveal>{product.summary ?? 'Producto Deco en preparacion para publicacion final.'}</div>
