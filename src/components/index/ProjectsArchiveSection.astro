@@ -18,7 +18,7 @@ const initialProject = projectItems[0];
 ---
 
 <!-- Seccion: Archivo de proyectos -->
-<section id="proyectos" class="dark-section projects-section archive">
+<section id="proyectos" class="dark-section projects-section archive" data-reveal="section">
   <div class="archive-head">
     <div class="archive-label">Archivo de proyectos</div>
     <div class="archive-controls" aria-label="Navegación de proyectos">
@@ -31,7 +31,7 @@ const initialProject = projectItems[0];
     <aside class="project-index" aria-label="Lista de proyectos">
       {projectItems.map((project, index) => (
         <button
-          class={index === 0 ? 'active' : ''}
+          class:list={[index === 0 && 'active', 'motion-project-item']}
           type="button"
           data-project-index={index}
           aria-pressed={index === 0 ? 'true' : 'false'}
@@ -43,19 +43,20 @@ const initialProject = projectItems[0];
     {initialProject && (
       <article class="project-feature" data-project-feature>
         <div
-          class={`project-image project-image-${initialProject.visual}`}
+          class={`project-image project-image-${initialProject.visual} motion-project-media`}
           data-project-image
+          data-project-media
           role="img"
           aria-label={initialProject.imageAlt}
         ></div>
-        <div class="project-card">
+        <div class="project-card motion-card">
           <span data-project-type>{initialProject.type}</span>
           <h2 data-project-name>{initialProject.name}</h2>
           <p data-project-location>{initialProject.location}</p>
           <div class="chips" data-project-chips>
             {initialProject.chips.map((chip) => <small>{chip}</small>)}
           </div>
-          <a data-project-link href={`/proyectos/${initialProject.slug}`}>Ver proyecto →</a>
+          <a class="motion-card__arrow" data-project-link href={`/proyectos/${initialProject.slug}`}>Ver proyecto →</a>
         </div>
       </article>
     )}
@@ -92,7 +93,7 @@ const initialProject = projectItems[0];
       button.setAttribute('aria-pressed', String(isActive));
     });
 
-    projectImage.className = `project-image project-image-${project.visual}`;
+    projectImage.className = `project-image project-image-${project.visual} motion-project-media`;
     projectImage.setAttribute('aria-label', project.imageAlt);
     projectType.textContent = project.type;
     projectName.textContent = project.name;

@@ -23,18 +23,18 @@ const faqItems = [
 
 <main>
   <!-- Seccion: Detalle de producto -->
-  <section class="product-detail">
+  <section class="product-detail" data-reveal-group>
     <a class="back-link" href="/productos">Volver al catalogo</a>
     <div class="detail-layout">
-      <div class="detail-media">
-        {product.image ? <img src={product.image} alt={product.name} /> : <span aria-hidden="true"></span>}
+      <div class="detail-media motion-card__media" data-product-gallery data-reveal="hero">
+        {product.image ? <img class="motion-product-image" src={product.image} alt={product.name} /> : <span class="motion-product-image" aria-hidden="true"></span>}
       </div>
-      <article class="detail-copy">
-        <p>{category?.name ?? product.macroCategory}</p>
-        <h1>{product.name}</h1>
-        {product.sku && <strong>SKU: {product.sku}</strong>}
-        <div class="summary">{product.summary ?? 'Producto Deco en preparacion para publicacion final.'}</div>
-        <div class="detail-block">
+      <article class="detail-copy" data-reveal-group>
+        <p data-reveal>{category?.name ?? product.macroCategory}</p>
+        <h1 data-reveal>{product.name}</h1>
+        {product.sku && <strong data-reveal>SKU: {product.sku}</strong>}
+        <div class="summary" data-reveal>{product.summary ?? 'Producto Deco en preparacion para publicacion final.'}</div>
+        <div class="detail-block" data-reveal>
           <h2>Variantes de la familia</h2>
           <div class="tone-selector" aria-label="Variantes disponibles">
             {variantItems.map((variantProduct, index) => (
@@ -45,7 +45,7 @@ const faqItems = [
             ))}
           </div>
         </div>
-        <div class="detail-block">
+        <div class="detail-block" data-reveal>
           <h2>Datos comerciales</h2>
           <div class="chips">
             <small>{activeTone?.name ?? 'Acabado por confirmar'}</small>
@@ -53,25 +53,25 @@ const faqItems = [
             <small>{product.variants[0]?.name ?? 'Presentacion por confirmar'}</small>
           </div>
         </div>
-        <a class="quote-link" href="/contacto">Solicitar cotizacion</a>
+        <a class="quote-link motion-button" data-reveal href="/contacto">Solicitar cotizacion</a>
       </article>
     </div>
   </section>
 
-  <section class="quote-calculator" aria-labelledby="calculator-title">
+  <section class="quote-calculator" data-reveal="section" aria-labelledby="calculator-title">
     <div>
       <p>Calcula cuanto material necesitas antes de proyecto</p>
       <h2 id="calculator-title">Estimador rapido</h2>
     </div>
     <form class="calculator-form">
-      <label>Area total m2<input type="number" value="0" min="0" /></label>
-      <label>Merma %<input type="number" value="10" min="0" /></label>
-      <label>Cajas estimadas<input type="number" value="0" min="0" /></label>
-      <a href="/contacto">Cotizar aqui</a>
+      <label>Area total m2<input class="motion-field" type="number" value="0" min="0" /></label>
+      <label>Merma %<input class="motion-field" type="number" value="10" min="0" /></label>
+      <label>Cajas estimadas<input class="motion-field" type="number" value="0" min="0" /></label>
+      <a class="motion-button" href="/contacto">Cotizar aqui</a>
     </form>
   </section>
 
-  <section class="technical-section" aria-labelledby="technical-title">
+  <section class="technical-section" data-reveal="section" aria-labelledby="technical-title">
     <div class="technical-copy">
       <p>Informacion tecnica</p>
       <h2 id="technical-title">Especificacion, cuidados y soporte</h2>
@@ -96,11 +96,11 @@ const faqItems = [
     </aside>
   </section>
 
-  <section class="faq-installation">
+  <section class="faq-installation" data-reveal-group>
     <div class="faq-list">
       <h2>Preguntas frecuentes</h2>
       {faqItems.map(([question, answer]) => (
-        <details>
+        <details class="motion-accordion" data-reveal>
           <summary>{question}</summary>
           <p>{answer}</p>
         </details>
@@ -109,17 +109,17 @@ const faqItems = [
     <div class="installation-list">
       <h2>Guia de instalacion</h2>
       {['Preparar superficie', 'Trazar modulacion', 'Cortar piezas', 'Aplicar fijacion', 'Instalar de abajo hacia arriba', 'Rematar bordes', 'Limpiar y revisar'].map((step, index) => (
-        <p><span>{String(index + 1).padStart(2, '0')}</span>{step}</p>
+        <p data-reveal><span>{String(index + 1).padStart(2, '0')}</span>{step}</p>
       ))}
     </div>
   </section>
 
   <!-- Seccion: Productos relacionados -->
-  <section class="related-section">
-    <h2>Relacionados</h2>
+  <section class="related-section" data-reveal-group>
+    <h2 data-reveal>Relacionados</h2>
     <div class="related-grid">
       {relatedProducts.length > 0 ? relatedProducts.map((item) => (
-        <a href={`/productos/${item.slug}`}>
+        <a class="motion-card" data-reveal href={`/productos/${item.slug}`}>
           <span>{item.macroCategory}</span>
           <strong>{item.name}</strong>
         </a>

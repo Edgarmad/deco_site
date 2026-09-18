@@ -11,17 +11,17 @@ const { project } = Astro.props;
 
 <main class="project-detail-page">
   <!-- Seccion: Hero del proyecto -->
-  <section class="project-detail-hero" aria-labelledby="project-title">
+  <section class="project-detail-hero" data-reveal-group aria-labelledby="project-title">
     <div>
-      <p>{project.category}</p>
-      <h1 id="project-title">{project.name}</h1>
-      <span>{project.description}</span>
+      <p data-reveal>{project.category}</p>
+      <h1 id="project-title" data-reveal>{project.name}</h1>
+      <span data-reveal>{project.description}</span>
     </div>
-    <ProjectVisual visual={project.visual} alt={project.imageAlt} class="project-detail-visual" />
+    <div class="motion-project-media" data-reveal data-parallax="0.025"><ProjectVisual visual={project.visual} alt={project.imageAlt} class="project-detail-visual" /></div>
   </section>
 
   <!-- Seccion: Datos del proyecto -->
-  <section class="project-detail-meta" aria-label="Datos del proyecto">
+  <section class="project-detail-meta" data-reveal="section" aria-label="Datos del proyecto">
     <dl>
       <div>
         <dt>Ubicación</dt>
@@ -39,21 +39,21 @@ const { project } = Astro.props;
   </section>
 
   <!-- Seccion: Desarrollo del proyecto -->
-  <section class="project-detail-content" aria-label="Desarrollo del proyecto">
-    <article>
+  <section class="project-detail-content" data-reveal-group aria-label="Desarrollo del proyecto">
+    <article data-reveal>
       <p>Reto</p>
       <h2>{project.challenge}</h2>
     </article>
-    <article>
+    <article data-reveal>
       <p>Resultado</p>
       <h2>{project.result}</h2>
     </article>
-    <aside>
+    <aside data-reveal>
       <h2>Materiales utilizados</h2>
       <ul>
         {project.materials.map((material) => <li>{material}</li>)}
       </ul>
-      <a href="/contacto">Cotizar materiales →</a>
+      <a class="motion-button" href="/contacto">Cotizar materiales →</a>
     </aside>
   </section>
 </main>

@@ -19,7 +19,8 @@ const searchText = [
 ---
 
 <article
-  class="catalog-card"
+  class="catalog-card motion-card"
+  data-reveal
   data-product-card
   data-macro={product.macroCategory}
   data-category={product.categorySlug}
@@ -29,14 +30,14 @@ const searchText = [
   data-index={index}
 >
   <a href={`/productos/${product.slug}`} aria-label={`Ver ${product.name}`}>
-    <div class={`catalog-visual catalog-visual-${(index % 6) + 1}`}>
+    <div class={`catalog-visual catalog-visual-${(index % 6) + 1} motion-card__media`}>
       {product.image ? <img src={product.image} alt={product.name} loading="lazy" /> : <span aria-hidden="true"></span>}
     </div>
     <div class="catalog-copy">
       <h2>{product.name}</h2>
       {product.sku && <p>SKU: {product.sku}</p>}
       <small>{primaryColor?.name ?? product.variants[0]?.name ?? 'Acabado por confirmar'}</small>
-      <em>Ver ficha y variantes</em>
+      <em class="motion-card__arrow">Ver ficha y variantes</em>
     </div>
   </a>
 </article>

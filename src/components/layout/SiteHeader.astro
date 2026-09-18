@@ -16,22 +16,22 @@ const isActive = (href: string) => currentPath === href;
 ---
 
 <!-- Seccion: Header / Navegacion principal -->
-<header class="site-header">
+<header class="site-header" data-motion-header>
   <div class="nav-shell catalog-nav-shell">
     <a class="brand" href="/" aria-label="Deco inicio">
       <img src="/assets/photos/deco_abc_logo.png" alt="Deco ABC" />
     </a>
     <nav class="desktop-nav" aria-label="Navegacion principal">
       {navItems.map((item) => (
-        <a class={isActive(item.href) ? 'active' : ''} href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+        <a class:list={[isActive(item.href) && 'active', 'motion-nav-link']} href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
           {item.label}
         </a>
       ))}
     </nav>
     <button class="mobile-menu-button" type="button" data-mobile-menu-button aria-expanded="false">Menu</button>
   </div>
-  <nav class="mobile-menu" data-mobile-menu hidden aria-label="Navegacion movil">
-    {navItems.map((item) => <a class={isActive(item.href) ? 'active' : ''} href={item.href}>{item.label}</a>)}
+  <nav class="mobile-menu" data-mobile-menu data-motion-menu hidden aria-label="Navegacion movil">
+    {navItems.map((item) => <a class:list={[isActive(item.href) && 'active', 'motion-nav-link']} data-motion-menu-item href={item.href}>{item.label}</a>)}
   </nav>
 </header>
 

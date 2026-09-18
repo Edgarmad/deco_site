@@ -9,7 +9,7 @@ type Props = {
 const { products } = Astro.props;
 ---
 
-<div class="catalog-grid" data-product-grid>
+<div class="catalog-grid" data-product-grid data-catalog-grid data-reveal-group>
   {products.map((product, index) => <ProductCard product={product} index={index} />)}
 </div>
 

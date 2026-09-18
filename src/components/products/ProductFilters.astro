@@ -8,9 +8,9 @@ type Props = {
 const { categories } = Astro.props;
 ---
 
-<aside class="product-filters" data-filter-panel>
-  <button type="button" class="filter-toggle" data-filter-toggle aria-expanded="true">Ocultar filtros</button>
-  <div class="filter-body" data-filter-body>
+<aside class="product-filters motion-filterbar" data-filter-panel data-sticky-filter>
+  <button type="button" class="filter-toggle motion-button" data-filter-toggle aria-expanded="true">Ocultar filtros</button>
+  <div class="filter-body motion-filter-panel" data-filter-body data-open="true">
     <fieldset>
       <legend>Tipo de producto</legend>
       {categories.map((category) => (
@@ -30,7 +30,7 @@ const { categories } = Astro.props;
       ))}
     </fieldset>
     <label class="search-label" for="product-search">Buscar</label>
-    <input id="product-search" type="search" placeholder="Nombre, SKU o color" data-search-input />
+    <input id="product-search" class="motion-field" type="search" placeholder="Nombre, SKU o color" data-search-input />
   </div>
 </aside>
 

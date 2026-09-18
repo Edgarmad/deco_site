@@ -15,21 +15,21 @@ const { categories } = Astro.props;
 ---
 
 <!-- Seccion: Compra por categoria -->
-<section id="productos" class="section categories-section">
-  <div class="section-head">
+<section id="productos" class="section categories-section" data-reveal-group>
+  <div class="section-head" data-reveal>
     <a href="/productos">Compra por categoría</a>
     <span>30 productos en línea</span>
   </div>
   <div class="category-list">
     {categories.map((category) => (
-      <article class="category-row">
+      <article class="category-row motion-row" data-reveal>
         <span class="row-number">{category.number}</span>
         <h2>{category.name}</h2>
         <div class="row-meta">
           <strong>{category.count}</strong>
           <p>{category.description}</p>
         </div>
-        <a class="round-button" href={`/productos?categoria=${category.slug}`} aria-label={`Ver ${category.name}`}>→</a>
+        <a class="round-button motion-row__arrow" href={`/productos?categoria=${category.slug}`} aria-label={`Ver ${category.name}`}>→</a>
       </article>
     ))}
   </div>

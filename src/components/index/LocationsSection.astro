@@ -9,15 +9,15 @@ const { locations } = Astro.props;
 ---
 
 <!-- Seccion: Ubicaciones destacadas -->
-<section id="ubicaciones" class="dark-section locations-section">
+<section id="ubicaciones" class="dark-section locations-section" data-reveal-group>
   <div class="location-list">
     {locations.map(([number, city, type, address]) => (
-      <article class="location-row">
+      <article class="location-row motion-row motion-location" data-reveal>
         <span class="row-number">{number}</span>
         <h2>{city}</h2>
         <strong class={type === 'Tienda' ? 'tag filled' : 'tag'}>{type}</strong>
         <p>{address}</p>
-        <a class="round-button dark" href="/ubicaciones" aria-label={`Ver ubicación ${city}`}>→</a>
+        <a class="round-button dark motion-row__arrow" href="/ubicaciones" aria-label={`Ver ubicación ${city}`}>→</a>
       </article>
     ))}
   </div>

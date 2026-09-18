@@ -11,16 +11,16 @@ const { locations, whatsappUrl } = Astro.props;
 
 <main class="locations-page">
   <!-- Seccion: Hero de ubicaciones -->
-  <section class="locations-hero" aria-labelledby="locations-title">
-    <p>Red Deco ABC</p>
-    <h1 id="locations-title">Visítanos cerca <span>de tu proyecto.</span></h1>
-    <small>{locations.length} ubicaciones · atención directa</small>
+  <section class="locations-hero" data-reveal-group aria-labelledby="locations-title">
+    <p data-reveal>Red Deco ABC</p>
+    <h1 id="locations-title" data-reveal>Visítanos cerca <span>de tu proyecto.</span></h1>
+    <small data-reveal>{locations.length} ubicaciones · atención directa</small>
   </section>
 
   <!-- Seccion: Lista de ubicaciones -->
-  <section class="locations-list" aria-label="Sucursales Deco ABC">
+  <section class="locations-list" data-reveal-group aria-label="Sucursales Deco ABC">
     {locations.map((location) => (
-      <article class="location-card">
+      <article class="location-card motion-row motion-location" data-reveal>
         <span>{location.number}</span>
         <h2>{location.city}</h2>
         <strong>{location.type}</strong>
@@ -28,15 +28,15 @@ const { locations, whatsappUrl } = Astro.props;
           <p>{location.address}</p>
           <small>{location.schedule}</small>
         </div>
-        <a href={location.mapsUrl} target="_blank" rel="noreferrer">Abrir en maps ↗</a>
+        <a class="motion-row__arrow" href={location.mapsUrl} target="_blank" rel="noreferrer">Abrir en maps ↗</a>
       </article>
     ))}
   </section>
 
   <!-- Seccion: Confirmacion por WhatsApp -->
-  <section class="locations-cta" aria-label="Confirmar existencias">
+  <section class="locations-cta" data-reveal="section" aria-label="Confirmar existencias">
     <h2>¿Necesitas confirmar existencias antes de visitarnos?</h2>
-    <a href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp →</a>
+    <a class="motion-button" href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp →</a>
   </section>
 </main>
 

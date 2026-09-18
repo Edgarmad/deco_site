@@ -13,11 +13,11 @@ const { channels } = Astro.props;
 
 <main class="contact-page">
   <!-- Seccion: Informacion de contacto -->
-  <section class="contact-intro" aria-labelledby="contact-title">
-    <p>Hablemos de tu proyecto</p>
-    <h1 id="contact-title">Construyamos el <span>siguiente espacio.</span></h1>
-    <strong>Cuéntanos qué quieres transformar. Nuestro equipo puede orientarte sobre materiales, disponibilidad y cantidades.</strong>
-    <dl>
+  <section class="contact-intro" data-reveal-group aria-labelledby="contact-title">
+    <p data-reveal>Hablemos de tu proyecto</p>
+    <h1 id="contact-title" data-reveal>Construyamos el <span>siguiente espacio.</span></h1>
+    <strong data-reveal>Cuéntanos qué quieres transformar. Nuestro equipo puede orientarte sobre materiales, disponibilidad y cantidades.</strong>
+    <dl data-reveal>
       {channels.map((channel) => (
         <div>
           <dt>{channel.label}</dt>
@@ -28,26 +28,26 @@ const { channels } = Astro.props;
   </section>
 
   <!-- Seccion: Formulario de solicitud -->
-  <section class="contact-form-card" aria-labelledby="form-title">
+  <section class="contact-form-card" data-reveal="form" aria-labelledby="form-title">
     <h2 id="form-title">Solicita información</h2>
     <p>Todos los campos marcados son necesarios.</p>
     <form name="contacto" method="post">
       <label for="name">Nombre completo</label>
-      <input id="name" name="name" type="text" autocomplete="name" required />
+      <input id="name" class="motion-field" name="name" type="text" autocomplete="name" required />
 
       <label for="email">Correo electrónico</label>
-      <input id="email" name="email" type="email" autocomplete="email" required />
+      <input id="email" class="motion-field" name="email" type="email" autocomplete="email" required />
 
       <label for="phone">Teléfono</label>
-      <input id="phone" name="phone" type="tel" autocomplete="tel" required />
+      <input id="phone" class="motion-field" name="phone" type="tel" autocomplete="tel" required />
 
       <label for="city">Ciudad</label>
-      <input id="city" name="city" type="text" autocomplete="address-level2" required />
+      <input id="city" class="motion-field" name="city" type="text" autocomplete="address-level2" required />
 
       <label for="message">¿Qué necesitas para tu proyecto?</label>
-      <textarea id="message" name="message" rows="5" required></textarea>
+      <textarea id="message" class="motion-field" name="message" rows="5" required></textarea>
 
-      <button type="submit">Enviar solicitud →</button>
+      <button class="motion-button" type="submit">Enviar solicitud →</button>
     </form>
   </section>
 </main>

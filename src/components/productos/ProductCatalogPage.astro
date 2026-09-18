@@ -19,27 +19,27 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
 
 <main>
   <!-- Seccion: Catalogo de productos -->
-  <section class="catalog-section" aria-labelledby="catalog-title">
-    <div class="mobile-catalog-head" aria-hidden="true">
+  <section class="catalog-section" data-reveal-group aria-labelledby="catalog-title">
+    <div class="mobile-catalog-head" data-reveal aria-hidden="true">
       <p>Productos</p>
       <h1>Catalogo</h1>
       <span>{products.length} productos</span>
     </div>
-    <div class="catalog-toolbar">
+    <div class="catalog-toolbar motion-filterbar" data-reveal data-sticky-filter>
       <div class="catalog-tabs" role="tablist" aria-label="Filtro rapido por categoria">
         {tabItems.map((tab) => (
-          <button type="button" data-macro-tab={tab.value} aria-pressed={tab.value === 'todo' ? 'true' : 'false'}>{tab.label}</button>
+          <button type="button" class="motion-button" data-macro-tab={tab.value} aria-pressed={tab.value === 'todo' ? 'true' : 'false'}>{tab.label}</button>
         ))}
       </div>
       <div class="catalog-controls">
         <label>
           Ordenar por
-          <select data-sort-select>
+          <select class="motion-field" data-sort-select>
             <option value="featured">Destacados</option>
             <option value="name">Nombre</option>
           </select>
         </label>
-        <button type="button" class="reset-filters" data-reset-filters>Limpiar filtros</button>
+        <button type="button" class="reset-filters motion-button" data-reset-filters>Limpiar filtros</button>
         <span>Productos por pagina: 12</span>
       </div>
     </div>
@@ -53,7 +53,7 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
       <div class="catalog-layout">
         <ProductFilters categories={categories} />
         <div class="catalog-results">
-          <h1 id="catalog-title">Todos los productos</h1>
+          <h1 id="catalog-title" data-reveal>Todos los productos</h1>
           <ProductGrid products={products} />
           <ProductPagination total={products.length} />
         </div>
@@ -79,12 +79,14 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
   const summary = document.querySelector('[data-pagination-summary]');
   const filterToggle = document.querySelector('[data-filter-toggle]');
   const filterBody = document.querySelector('[data-filter-body]');
+  const productGrid = document.querySelector('[data-catalog-grid]');
   const perPage = pagination instanceof HTMLElement ? Number(pagination.dataset.perPage ?? 12) : 12;
   let currentMacro = 'todo';
   let currentPage = 1;
 
   if (window.matchMedia('(max-width: 640px)').matches && filterToggle instanceof HTMLButtonElement && filterBody instanceof HTMLElement) {
     filterBody.classList.add('hidden');
+    filterBody.dataset.open = 'false';
     filterToggle.setAttribute('aria-expanded', 'false');
     filterToggle.textContent = 'Filtrar';
   }
@@ -130,6 +132,7 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
   };
 
   const renderCatalog = () => {
+    if (productGrid instanceof HTMLElement) productGrid.dataset.updating = 'true';
     const filteredCards = sortCards(getFilteredCards());
     const pageCount = Math.max(1, Math.ceil(filteredCards.length / perPage));
     currentPage = Math.min(currentPage, pageCount);
@@ -155,6 +158,10 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
       summary.textContent = `Mostrando ${visibleStart}-${visibleEnd} de ${filteredCards.length} productos`;
     }
     updateUrl();
+    requestAnimationFrame(() => {
+      if (productGrid instanceof HTMLElement) delete productGrid.dataset.updating;
+      (window as any).DecoMotion?.refresh();
+    });
   };
 
   const setMacro = (macro: string) => {
@@ -201,6 +208,7 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
     filterToggle.addEventListener('click', () => {
       const isHidden = filterBody.classList.toggle('hidden');
       filterToggle.setAttribute('aria-expanded', String(!isHidden));
+      filterBody.dataset.open = String(!isHidden);
       filterToggle.textContent = isHidden ? 'Filtrar' : 'Ocultar filtros';
     });
   }
