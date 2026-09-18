@@ -12,7 +12,8 @@
     "preview": "astro preview",
     "supabase:push": "supabase db push",
     "supabase:seed:inventory": "node scripts/seed-supabase-inventory.mjs",
-    "supabase:upload:product-images": "node scripts/upload-product-images-to-supabase.mjs"
+    "supabase:upload:product-images": "node scripts/upload-product-images-to-supabase.mjs",
+    "supabase:transparent:black": "node scripts/replace-black-background-product-images.mjs"
   },
   "dependencies": {
     "@astrojs/check": "0.9.4",

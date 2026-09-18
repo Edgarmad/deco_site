@@ -698,7 +698,7 @@ footer p {
   bottom: -0.35rem;
   left: 0;
   height: 1px;
-  background: currentColor;
+  background: var(--blue);
   transform: scaleX(0);
   transform-origin: right;
   transition: transform var(--motion-base) var(--motion-ease);

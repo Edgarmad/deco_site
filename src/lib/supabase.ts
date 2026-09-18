@@ -3,6 +3,7 @@ import WebSocket from 'ws';
 
 const supabaseUrl = import.meta.env.SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY;
+const storageAssetVersion = 'transparent-bg-20260918';
 
 export const hasSupabaseConfig = Boolean(supabaseUrl && supabaseAnonKey);
 
@@ -15,5 +16,8 @@ export const supabase = hasSupabaseConfig
 
 export const getPublicStorageUrl = (bucket: string, path?: string | null) => {
   if (!supabase || !path) return undefined;
-  return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+  const publicUrl = supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+  const url = new URL(publicUrl);
+  url.searchParams.set('v', storageAssetVersion);
+  return url.toString();
 };
