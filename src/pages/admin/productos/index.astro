@@ -1,0 +1,155 @@
+---
+import AdminLayout from '../../../layouts/AdminLayout.astro';
+import { getAdminSession } from '../../../lib/adminAuth';
+import { getPublicStorageUrl } from '../../../lib/supabase';
+import { createSupabaseServerClient } from '../../../lib/supabaseServer';
+
+export const prerender = false;
+
+type ProductOptionAdminRow = {
+  id: string;
+  name: string;
+  slug: string;
+  sku: string | null;
+  status: 'draft' | 'published';
+  updated_at: string;
+  product_images: {
+    storage_bucket: string;
+    storage_path: string;
+    alt_text: string | null;
+    kind: string;
+    sort_order: number;
+  }[];
+  product_variants: {
+    name: string;
+    products: {
+      name: string;
+      categories: {
+        name: string;
+      } | null;
+    } | null;
+  } | null;
+};
+
+const session = await getAdminSession(Astro.request, Astro.cookies);
+if (!session) return Astro.redirect('/admin/login');
+
+const supabase = createSupabaseServerClient(Astro.request, Astro.cookies);
+const search = Astro.url.searchParams.get('q')?.trim() ?? '';
+const status = Astro.url.searchParams.get('status') ?? 'all';
+const page = Math.max(Number(Astro.url.searchParams.get('page') ?? '1'), 1);
+const pageSize = 8;
+const from = (page - 1) * pageSize;
+const to = from + pageSize - 1;
+
+let query = supabase
+  .from('product_options')
+  .select('id,name,slug,sku,status,updated_at,product_images(storage_bucket,storage_path,alt_text,kind,sort_order),product_variants(name,products(name,categories(name)))', { count: 'exact' })
+  .order('updated_at', { ascending: false })
+  .range(from, to);
+
+if (search) {
+  query = query.or(`name.ilike.%${search}%,slug.ilike.%${search}%,sku.ilike.%${search}%`);
+}
+
+if (status === 'draft' || status === 'published') {
+  query = query.eq('status', status);
+}
+
+const { data, error, count } = await query;
+const products = (data ?? []) as unknown as ProductOptionAdminRow[];
+const total = count ?? 0;
+const totalPages = Math.max(Math.ceil(total / pageSize), 1);
+const previousUrl = `/admin/productos?${new URLSearchParams({ q: search, status, page: String(Math.max(page - 1, 1)) })}`;
+const nextUrl = `/admin/productos?${new URLSearchParams({ q: search, status, page: String(Math.min(page + 1, totalPages)) })}`;
+---
+
+<AdminLayout title="Productos" currentPath="/admin/productos" userEmail={session.user.email}>
+  <header class="admin-page-head compact">
+    <div>
+      <p class="admin-kicker">Catalogo CMS</p>
+      <h1>Productos</h1>
+      <p class="admin-note">{total} productos en el catalogo.</p>
+    </div>
+  </header>
+
+  <form class="admin-filters admin-panel" method="get">
+    <input name="q" value={search} placeholder="Buscar por nombre, slug o SKU" />
+    <button class="admin-button secondary" type="submit">Buscar</button>
+    <select name="status" aria-label="Estado">
+      <option value="all" selected={status === 'all'}>Todos los estados</option>
+      <option value="published" selected={status === 'published'}>Publicado</option>
+      <option value="draft" selected={status === 'draft'}>Borrador</option>
+    </select>
+  </form>
+
+  {error && <p class="admin-error">No se pudo cargar el catalogo: {error.message}</p>}
+
+  <section class="admin-panel admin-products-panel">
+    <table class="admin-table admin-products-table">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Familia</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {products.map((product) => {
+          const image = product.product_images?.slice().sort((first, second) => first.sort_order - second.sort_order).find((item) => item.kind === 'main') ?? product.product_images?.[0];
+          const title = `${product.product_variants?.products?.name ?? ''} ${product.name}`.trim();
+          return (
+            <tr>
+              <td>
+                <div class="admin-product-cell">
+                  {image && <img src={getPublicStorageUrl(image.storage_bucket, image.storage_path)} alt={image.alt_text ?? title} />}
+                  <div>
+                    <a href={`/admin/productos/${product.id}`}>{title}</a>
+                    <br />
+                    <span class="admin-note">/{product.slug}</span>
+                  </div>
+                </div>
+              </td>
+              <td>{product.product_variants?.products?.categories?.name ?? 'Sin categoria'} · {product.product_variants?.name}</td>
+              <td><span class:list={['admin-status', product.status]}>{product.status === 'published' ? 'Publicado' : 'Borrador'}</span></td>
+              <td><a href={`/admin/productos/${product.id}`}>Editar -></a></td>
+            </tr>
+          );
+        })}
+        {!products.length && (
+          <tr>
+            <td colspan="4">No hay productos para mostrar.</td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+
+    <div class="admin-products-list">
+      <h2>{total} productos</h2>
+      {products.map((product) => {
+        const image = product.product_images?.slice().sort((first, second) => first.sort_order - second.sort_order).find((item) => item.kind === 'main') ?? product.product_images?.[0];
+        const title = `${product.product_variants?.products?.name ?? ''} ${product.name}`.trim();
+        return (
+          <article class="admin-product-card">
+            {image && <img src={getPublicStorageUrl(image.storage_bucket, image.storage_path)} alt={image.alt_text ?? title} />}
+            <div>
+              <h3>{title}</h3>
+              <span class:list={['admin-status', product.status]}>{product.status === 'published' ? 'Publicado' : 'Borrador'}</span>
+              <p>{product.product_variants?.products?.categories?.name ?? 'Sin categoria'} · {product.product_variants?.name}</p>
+              <a href={`/admin/productos/${product.id}`}>Editar producto -></a>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+
+    <footer class="admin-pagination">
+      <p class="admin-note">Mostrando {products.length ? from + 1 : 0}-{Math.min(to + 1, total)} de {total} productos</p>
+      <div>
+        <a class:list={['admin-link-button', 'secondary', page <= 1 && 'disabled']} href={previousUrl}>Anterior</a>
+        <a class:list={['admin-link-button', 'secondary', page >= totalPages && 'disabled']} href={nextUrl}>Siguiente</a>
+      </div>
+    </footer>
+  </section>
+</AdminLayout>

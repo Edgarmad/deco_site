@@ -1,0 +1,72 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getAdminSession } from '../../lib/adminAuth';
+import { getCsrfToken } from '../../lib/adminSecurity';
+import { createSupabaseServerClient } from '../../lib/supabaseServer';
+
+export const prerender = false;
+
+const session = await getAdminSession(Astro.request, Astro.cookies);
+if (!session) return Astro.redirect('/admin/login');
+
+const supabase = createSupabaseServerClient(Astro.request, Astro.cookies);
+const csrfToken = getCsrfToken(Astro.cookies);
+const [{ count: productCount }, { count: publishedCount }, { count: imageCount }] = await Promise.all([
+  supabase.from('product_options').select('id', { count: 'exact', head: true }),
+  supabase.from('product_options').select('id', { count: 'exact', head: true }).eq('status', 'published'),
+  supabase.from('product_images').select('id', { count: 'exact', head: true })
+]);
+---
+
+<AdminLayout title="Panel" currentPath="/admin" userEmail={session.user.email}>
+  <header class="admin-page-head">
+    <div>
+      <p class="admin-kicker">Panel administrativo</p>
+      <h1>Contenido</h1>
+      <p class="admin-note">Gestiona el catalogo de DECO ABC.</p>
+    </div>
+    <div class="admin-actions">
+      <a class="admin-link-button" href="/admin/productos">Ver productos</a>
+    </div>
+  </header>
+
+  <section class="admin-grid">
+    <a class="admin-card" href="/admin/productos">
+      <strong>{productCount ?? 0}</strong>
+      <span>Productos editables</span>
+      <p>Opciones/acabados publicados o en borrador.</p>
+    </a>
+    <div class="admin-card">
+      <strong>{publishedCount ?? 0}</strong>
+      <span>Publicados</span>
+      <p>Entradas visibles en el catalogo publico.</p>
+    </div>
+    <div class="admin-card">
+      <strong>{imageCount ?? 0}</strong>
+      <span>Imagenes</span>
+      <p>Registros asociados en el almacenamiento.</p>
+    </div>
+  </section>
+
+  <section class="admin-dashboard-grid admin-section-spaced">
+    <div class="admin-panel pad">
+      <h2>Acceso rapido</h2>
+      <p class="admin-note">Acciones frecuentes del catalogo</p>
+      <div class="admin-split-actions">
+        <a class="admin-link-button secondary" href="/admin/productos">Editar productos -></a>
+        <a class="admin-link-button secondary" href="/productos" target="_blank" rel="noreferrer">Ver catalogo publico -></a>
+      </div>
+    </div>
+
+    <div class="admin-panel pad admin-session-card">
+      <h2>Tu sesion</h2>
+      <hr />
+      <p class="admin-note">Cuenta</p>
+      <p>{session.user.email}</p>
+      <form method="post" action="/admin/logout">
+        <input type="hidden" name="csrf_token" value={csrfToken} />
+        <button class="admin-link-button ghost" type="submit">Cerrar sesion -></button>
+      </form>
+    </div>
+  </section>
+</AdminLayout>

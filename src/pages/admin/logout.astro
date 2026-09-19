@@ -1,0 +1,19 @@
+---
+import { createSupabaseServerClient } from '../../lib/supabaseServer';
+import { validateCsrfToken } from '../../lib/adminSecurity';
+
+export const prerender = false;
+
+if (Astro.request.method !== 'POST') {
+  return Astro.redirect('/admin');
+}
+
+const formData = await Astro.request.formData();
+if (!validateCsrfToken(Astro.cookies, formData)) {
+  return new Response('Forbidden', { status: 403 });
+}
+
+const supabase = createSupabaseServerClient(Astro.request, Astro.cookies);
+await supabase.auth.signOut();
+return Astro.redirect('/admin/login');
+---

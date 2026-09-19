@@ -1,0 +1,64 @@
+---
+import '../styles/admin.css';
+import { getCsrfToken } from '../lib/adminSecurity';
+
+interface Props {
+  title: string;
+  currentPath?: string;
+  userEmail?: string;
+}
+
+const { title, currentPath = '/admin', userEmail } = Astro.props;
+const csrfToken = getCsrfToken(Astro.cookies);
+const navItems = [
+  { label: 'Resumen', href: '/admin' },
+  { label: 'Productos', href: '/admin/productos' }
+];
+const initials = userEmail?.slice(0, 2).toUpperCase() ?? 'AD';
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>{title} | Admin Deco ABC</title>
+  </head>
+  <body>
+    <div class="admin-shell" id="admin-top">
+      <aside class="admin-sidebar" id="admin-menu">
+        <a class="admin-brand" href="/admin">
+          <img src="/assets/photos/deco_abc_logo.png" alt="Deco ABC" />
+        </a>
+
+        <p class="admin-nav-title">Administracion</p>
+        <nav class="admin-nav" aria-label="Admin">
+          {navItems.map((item) => (
+            <a href={item.href} class:list={[currentPath === item.href && 'active']}>{item.label}</a>
+          ))}
+        </nav>
+
+        <div class="admin-sidebar-footer">
+          {userEmail && <span>{userEmail}</span>}
+          <form method="post" action="/admin/logout">
+            <input type="hidden" name="csrf_token" value={csrfToken} />
+            <button class="admin-link-button ghost" type="submit">Cerrar sesion -></button>
+          </form>
+          <a href="/" target="_blank" rel="noreferrer">Ver sitio publico -></a>
+        </div>
+      </aside>
+
+      <main class="admin-main">
+        <header class="admin-header">
+          <a class="admin-mobile-brand" href="/admin">
+            <img src="/assets/photos/deco_abc_logo.png" alt="Deco ABC" />
+          </a>
+          <p class="admin-breadcrumb">Deco ABC / CMS</p>
+          <a class="admin-menu-toggle" href="#admin-menu" aria-label="Abrir menu"><span></span><span></span><span></span></a>
+          <span class="admin-avatar" aria-label={userEmail ?? 'Admin'}>{initials}</span>
+        </header>
+        <slot />
+      </main>
+    </div>
+  </body>
+</html>

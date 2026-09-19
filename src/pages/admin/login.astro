@@ -1,0 +1,77 @@
+---
+import '../../styles/admin.css';
+import { getAdminSession } from '../../lib/adminAuth';
+import { getCsrfToken, getSafeAdminRedirectPath, validateCsrfToken } from '../../lib/adminSecurity';
+import { createSupabaseServerClient } from '../../lib/supabaseServer';
+
+export const prerender = false;
+
+let errorMessage = '';
+const redirectTo = getSafeAdminRedirectPath(Astro.url.searchParams.get('redirectTo'));
+const csrfToken = getCsrfToken(Astro.cookies);
+const existingSession = await getAdminSession(Astro.request, Astro.cookies);
+
+if (existingSession && Astro.request.method === 'GET') {
+  return Astro.redirect(redirectTo);
+}
+
+if (Astro.request.method === 'POST') {
+  const formData = await Astro.request.formData();
+  const email = String(formData.get('email') ?? '').trim();
+  const password = String(formData.get('password') ?? '');
+  const supabase = createSupabaseServerClient(Astro.request, Astro.cookies);
+
+  const { error } = validateCsrfToken(Astro.cookies, formData)
+    ? await supabase.auth.signInWithPassword({ email, password })
+    : { error: new Error('Invalid CSRF token') };
+
+  if (error) {
+    errorMessage = 'Correo o contrasena incorrectos.';
+  } else {
+    const { data: userData } = await supabase.auth.getUser();
+    const { data: profile } = userData.user
+      ? await supabase.from('profiles').select('role').eq('id', userData.user.id).maybeSingle()
+      : { data: null };
+
+    if (profile?.role !== 'admin') {
+      await supabase.auth.signOut();
+      errorMessage = 'Tu usuario no tiene permisos de administrador.';
+    } else {
+      return Astro.redirect(redirectTo);
+    }
+  }
+}
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Login | Admin Deco ABC</title>
+  </head>
+  <body>
+    <main class="admin-login-page">
+      <section class="admin-login-card">
+        <p class="admin-kicker">CMS privado</p>
+        <h1>Admin Deco ABC</h1>
+        <p class="admin-note">Ingresa con el usuario administrador creado en Supabase Auth.</p>
+        {errorMessage && <p class="admin-error">{errorMessage}</p>}
+
+        <form class="admin-form" method="post">
+          <input type="hidden" name="redirectTo" value={redirectTo} />
+          <input type="hidden" name="csrf_token" value={csrfToken} />
+          <div class="admin-field">
+            <label for="email">Correo</label>
+            <input id="email" name="email" type="email" autocomplete="email" required />
+          </div>
+          <div class="admin-field">
+            <label for="password">Contrasena</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required />
+          </div>
+          <button class="admin-button" type="submit">Entrar</button>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>
