@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "20.x"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "astro dev",
@@ -16,17 +16,17 @@
     "supabase:transparent:black": "node scripts/replace-black-background-product-images.mjs"
   },
   "dependencies": {
-    "@astrojs/check": "0.9.4",
-    "@astrojs/vercel": "^7.8.2",
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/vercel": "^11.0.10",
     "@supabase/supabase-js": "^2.116.0",
-    "astro": "4.16.18",
+    "astro": "^7.3.3",
     "sharp": "^0.35.4",
-    "typescript": "5.6.3",
+    "typescript": "^5.9.3",
     "ws": "^8.21.3"
   },
   "allowScripts": {
-    "esbuild@0.21.5": true,
-    "sharp@0.33.5": true
+    "esbuild@0.28.2": true,
+    "sharp@0.35.4": true
   },
   "devDependencies": {
     "@types/ws": "^8.18.1"
