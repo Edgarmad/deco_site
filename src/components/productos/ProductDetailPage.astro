@@ -15,6 +15,17 @@ const visibility = {
   ...product.sectionVisibility
 };
 const specs = product.technicalSpecs ?? {};
+const technicalRows = [
+  ['Dimensiones', product.dimensions ? `${product.dimensions}${product.thickness ? ` · Espesor: ${product.thickness}` : ''}` : undefined],
+  ['Material', product.material],
+  ['Uso recomendado', product.usage],
+  ['Peso', specs.weight],
+  ['Presentación', specs.presentation],
+  ['Piezas por caja', specs.pieces_per_box],
+  ['Cobertura', specs.coverage],
+  ['Resistencia al agua', specs.water_resistance],
+  ['Clasificación de fuego', specs.fire_classification]
+].filter(([, value]) => value != null && value !== '');
 const category = categories.find((item) => item.slug === product.categorySlug);
 const siblingProducts = products.filter((item) => item.categorySlug === product.categorySlug);
 const relatedProducts = siblingProducts.filter((item) => item.slug !== product.slug).slice(0, 3);
@@ -41,7 +52,7 @@ const faqItems = [
         <h1 data-reveal>{product.name}</h1>
         {product.sku && <strong data-reveal>SKU: {product.sku}</strong>}
         <div class="summary" data-reveal>{product.summary ?? 'Producto Deco en preparacion para publicacion final.'}</div>
-        <div class="detail-block" data-reveal>
+         <div class="detail-block" data-reveal>
           <h2>Variantes de la familia</h2>
           <div class="tone-selector" aria-label="Variantes disponibles">
             {variantItems.map((variantProduct, index) => (
@@ -62,8 +73,19 @@ const faqItems = [
              <small>{product.variants[0]?.name ?? 'Presentacion por confirmar'}</small>
              {product.price != null && <small>Precio: ${product.price.toFixed(2)}</small>}
            </div>
-        </div>
-        <a class="quote-link motion-button" data-reveal href="/contacto">Solicitar cotizacion</a>
+         </div>
+         {technicalRows.length > 0 && <div class="product-specs" data-reveal>
+           <p>Especificaciones del producto</p>
+           <dl>
+             {technicalRows.map(([label, value]) => (
+               <div class="product-spec-row">
+                 <dt>{label}</dt>
+                 <dd>{value}</dd>
+               </div>
+             ))}
+           </dl>
+         </div>}
+         <a class="quote-link motion-button" data-reveal href="/contacto">Solicitar cotizacion</a>
       </article>
     </div>
   </section>
@@ -85,9 +107,9 @@ const faqItems = [
      {visibility.technical && <div class="technical-copy">
       <p>Informacion tecnica</p>
       <h2 id="technical-title">Especificacion, cuidados y soporte</h2>
-      <details open>
-        <summary>Descripcion</summary>
-        <p>{product.summary ?? 'Revestimiento decorativo para proyectos residenciales y comerciales.'}</p>
+       <details open>
+         <summary>Descripcion</summary>
+         <p>{product.description ?? product.summary ?? 'Revestimiento decorativo para proyectos residenciales y comerciales.'}</p>
       </details>
        <details>
          <summary>Dimensiones</summary>
@@ -97,16 +119,6 @@ const faqItems = [
          <summary>Cuidados y garantia</summary>
          <p>{product.careNotes ?? 'Cuidados por confirmar.'}</p>
        </details>
-       <dl class="technical-specs">
-         {product.material && <><dt>Material</dt><dd>{product.material}</dd></>}
-         {product.usage && <><dt>Uso recomendado</dt><dd>{product.usage}</dd></>}
-         {specs.weight != null && <><dt>Peso</dt><dd>{specs.weight}</dd></>}
-         {specs.presentation != null && <><dt>Presentación</dt><dd>{specs.presentation}</dd></>}
-         {specs.pieces_per_box != null && <><dt>Piezas por caja</dt><dd>{specs.pieces_per_box}</dd></>}
-         {specs.coverage != null && <><dt>Cobertura</dt><dd>{specs.coverage}</dd></>}
-         {specs.water_resistance != null && <><dt>Resistencia al agua</dt><dd>{specs.water_resistance}</dd></>}
-         {specs.fire_classification != null && <><dt>Clasificación de fuego</dt><dd>{specs.fire_classification}</dd></>}
-       </dl>
      </div>}
      {visibility.support && <aside class="support-card">
       <h2>Material de apoyo</h2>
@@ -312,6 +324,49 @@ const faqItems = [
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+  }
+
+  .product-specs {
+    margin-top: 34px;
+  }
+
+  .product-specs > p {
+    margin: 0 0 12px;
+    color: var(--green-text);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .product-specs dl {
+    margin: 0;
+    border-top: 1px solid var(--black);
+  }
+
+  .product-spec-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+    gap: 20px;
+    align-items: baseline;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--paper-line);
+  }
+
+  .product-spec-row dt {
+    color: #737a73;
+    font-size: 0.66rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .product-spec-row dd {
+    margin: 0;
+    color: var(--black);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-align: right;
   }
 
   .quote-link {
@@ -637,6 +692,29 @@ const faqItems = [
       padding: 0;
       border: 0;
       font-size: 0.58rem;
+    }
+
+    .product-specs {
+      margin-top: 22px;
+    }
+
+    .product-specs > p {
+      font-size: 0.58rem;
+      letter-spacing: 0.12em;
+    }
+
+    .product-spec-row {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+      gap: 12px;
+      padding: 12px 0;
+    }
+
+    .product-spec-row dt {
+      font-size: 0.58rem;
+    }
+
+    .product-spec-row dd {
+      font-size: 0.72rem;
     }
 
     .quote-link {
