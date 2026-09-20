@@ -4,6 +4,7 @@ import SiteFooter from '../../components/layout/SiteFooter.astro';
 import SiteHeader from '../../components/layout/SiteHeader.astro';
 import ProductDetailPage from '../../components/productos/ProductDetailPage.astro';
 import { getProductBySlug, getProductCategories, getProducts } from '../../services/productService';
+import { getProductSectionVisibility } from '../../services/siteSettingsService';
 
 export const prerender = false;
 
@@ -12,6 +13,7 @@ const product = slug ? await getProductBySlug(slug) : undefined;
 if (!product) return new Response(null, { status: 404 });
 const categories = await getProductCategories();
 const products = await getProducts();
+const sectionVisibility = await getProductSectionVisibility();
 ---
 
 <html lang="es">
@@ -25,7 +27,7 @@ const products = await getProducts();
   </head>
   <body>
     <SiteHeader currentPath="/productos" />
-    <ProductDetailPage product={product} categories={categories} products={products} />
+    <ProductDetailPage product={product} categories={categories} products={products} sectionVisibility={sectionVisibility} />
 
     <SiteFooter />
   </body>

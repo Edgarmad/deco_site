@@ -1,13 +1,20 @@
 ---
 import type { Product, ProductCategory } from '../../types/products';
+import type { ProductSectionVisibility } from '../../services/siteSettingsService';
 
 type Props = {
   product: Product;
   categories: ProductCategory[];
   products: Product[];
+  sectionVisibility: ProductSectionVisibility;
 };
 
-const { product, categories, products } = Astro.props;
+const { product, categories, products, sectionVisibility } = Astro.props;
+const visibility = {
+  ...sectionVisibility,
+  ...product.sectionVisibility
+};
+const specs = product.technicalSpecs ?? {};
 const category = categories.find((item) => item.slug === product.categorySlug);
 const siblingProducts = products.filter((item) => item.categorySlug === product.categorySlug);
 const relatedProducts = siblingProducts.filter((item) => item.slug !== product.slug).slice(0, 3);
@@ -47,11 +54,12 @@ const faqItems = [
         </div>
         <div class="detail-block" data-reveal>
           <h2>Datos comerciales</h2>
-          <div class="chips">
-            <small>{activeTone?.name ?? 'Acabado por confirmar'}</small>
-            <small>{product.macroCategory}</small>
-            <small>{product.variants[0]?.name ?? 'Presentacion por confirmar'}</small>
-          </div>
+           <div class="chips">
+             <small>{activeTone?.name ?? 'Acabado por confirmar'}</small>
+             <small>{product.macroCategory}</small>
+             <small>{product.variants[0]?.name ?? 'Presentacion por confirmar'}</small>
+             {product.price != null && <small>Precio: ${product.price.toFixed(2)}</small>}
+           </div>
         </div>
         <a class="quote-link motion-button" data-reveal href="/contacto">Solicitar cotizacion</a>
       </article>
@@ -71,33 +79,43 @@ const faqItems = [
     </form>
   </section>
 
-  <section class="technical-section" data-reveal="section" aria-labelledby="technical-title">
-    <div class="technical-copy">
+   {(visibility.technical || visibility.support) && <section class="technical-section" data-reveal="section" aria-labelledby="technical-title">
+     {visibility.technical && <div class="technical-copy">
       <p>Informacion tecnica</p>
       <h2 id="technical-title">Especificacion, cuidados y soporte</h2>
       <details open>
         <summary>Descripcion</summary>
         <p>{product.summary ?? 'Revestimiento decorativo para proyectos residenciales y comerciales.'}</p>
       </details>
-      <details>
-        <summary>Dimensiones</summary>
-        <p>Medidas finales por confirmar en ficha tecnica. Valida formato, espesor y presentacion antes de compra.</p>
-      </details>
-      <details>
-        <summary>Cuidados y garantia</summary>
-        <p>Limpieza con pano suave, detergente neutro y revision periodica de fijaciones segun exposicion.</p>
-      </details>
-    </div>
-    <aside class="support-card">
+       <details>
+         <summary>Dimensiones</summary>
+         <p>{product.dimensions ?? 'Medidas por confirmar en ficha tecnica.'}{product.thickness ? ` · Espesor: ${product.thickness}` : ''}</p>
+       </details>
+       <details>
+         <summary>Cuidados y garantia</summary>
+         <p>{product.careNotes ?? 'Cuidados por confirmar.'}</p>
+       </details>
+       <dl class="technical-specs">
+         {product.material && <><dt>Material</dt><dd>{product.material}</dd></>}
+         {product.usage && <><dt>Uso recomendado</dt><dd>{product.usage}</dd></>}
+         {specs.weight != null && <><dt>Peso</dt><dd>{specs.weight}</dd></>}
+         {specs.presentation != null && <><dt>Presentación</dt><dd>{specs.presentation}</dd></>}
+         {specs.pieces_per_box != null && <><dt>Piezas por caja</dt><dd>{specs.pieces_per_box}</dd></>}
+         {specs.coverage != null && <><dt>Cobertura</dt><dd>{specs.coverage}</dd></>}
+         {specs.water_resistance != null && <><dt>Resistencia al agua</dt><dd>{specs.water_resistance}</dd></>}
+         {specs.fire_classification != null && <><dt>Clasificación de fuego</dt><dd>{specs.fire_classification}</dd></>}
+       </dl>
+     </div>}
+     {visibility.support && <aside class="support-card">
       <h2>Material de apoyo</h2>
-      <a href="/contacto">Descargar ficha tecnica</a>
-      <a href="/contacto">Guia de instalacion</a>
+       {visibility.support && product.technicalSheetUrl && <a href={product.technicalSheetUrl} target="_blank" rel="noreferrer">Descargar ficha tecnica</a>}
+       {visibility.support && product.installationGuideUrl && <a href={product.installationGuideUrl} target="_blank" rel="noreferrer">Guia de instalacion</a>}
       <div class="plan-preview" aria-label="Plano acotado de instalacion"></div>
-    </aside>
-  </section>
+     </aside>}
+   </section>}
 
-  <section class="faq-installation" data-reveal-group>
-    <div class="faq-list">
+   {(visibility.faq || visibility.installation) && <section class="faq-installation" data-reveal-group>
+     {visibility.faq && <div class="faq-list">
       <h2>Preguntas frecuentes</h2>
       {faqItems.map(([question, answer]) => (
         <details class="motion-accordion" data-reveal>
@@ -105,14 +123,14 @@ const faqItems = [
           <p>{answer}</p>
         </details>
       ))}
-    </div>
-    <div class="installation-list">
+     </div>}
+     {visibility.installation && <div class="installation-list">
       <h2>Guia de instalacion</h2>
       {['Preparar superficie', 'Trazar modulacion', 'Cortar piezas', 'Aplicar fijacion', 'Instalar de abajo hacia arriba', 'Rematar bordes', 'Limpiar y revisar'].map((step, index) => (
         <p data-reveal><span>{String(index + 1).padStart(2, '0')}</span>{step}</p>
       ))}
-    </div>
-  </section>
+     </div>}
+   </section>}
 
   <!-- Seccion: Productos relacionados -->
   <section class="related-section" data-reveal-group>

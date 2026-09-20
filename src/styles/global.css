@@ -357,22 +357,36 @@ footer h2,
 
 .popular-marquee {
   margin-top: 8px;
-  padding: 34px 0 44px;
+  padding: 34px 0 72px;
   border-top: 1px solid var(--paper-line);
   color: #8b908b;
 }
 
+.popular-marquee .motion-marquee__track {
+  gap: 28px;
+}
+
 .popular-product-card {
-  width: clamp(190px, 17vw, 270px);
+  width: clamp(230px, 21vw, 360px);
   flex: 0 0 auto;
-  display: grid;
-  gap: 20px;
-  padding-right: 46px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
   text-align: center;
 }
 
+.popular-product-media {
+  display: block;
+  flex: 0 0 auto;
+  border: 0;
+  outline: 0;
+  text-decoration: none;
+}
+
 .popular-product-visual {
-  height: clamp(150px, 15vw, 230px);
+  height: clamp(190px, 19vw, 320px);
+  flex: 0 0 clamp(190px, 19vw, 320px);
+  overflow: hidden;
   display: grid;
   place-items: center;
 }
@@ -382,6 +396,7 @@ footer h2,
   height: 100%;
   display: block;
   object-fit: contain;
+  clip-path: inset(0 0 2px);
 }
 
 .popular-product-visual span {
@@ -400,11 +415,26 @@ footer h2,
 .popular-product-visual-6 span { background: repeating-linear-gradient(90deg, #b46b21 0 25px, #e1a14f 25px 43px, #2c2118 43px 54px); }
 .popular-product-visual-7 span { background: linear-gradient(135deg, #6a391d, #b7753f 48%, #25150d); }
 
-.popular-product-card > span {
+.popular-product-copy {
+  display: block;
+  flex: 0 0 auto;
+  width: 100%;
+  min-height: 2.3em;
+  padding-top: 20px;
+  border: 0;
+  outline: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.popular-product-copy span {
   color: #303331;
+  display: block;
   font-size: 0.92rem;
   font-weight: 500;
   letter-spacing: normal;
+  line-height: 1.15;
+  text-decoration: none;
   text-transform: none;
 }
 
@@ -1230,18 +1260,24 @@ footer p {
 
   .popular-marquee {
     margin-top: 0;
-    padding: 18px 0 26px;
+    padding: 18px 0 34px;
     border-top: 0;
   }
 
   .popular-product-card {
     width: 124px;
     gap: 8px;
-    padding-right: 18px;
+    padding: 0 18px 0 0;
+    text-align: center;
+  }
+
+  .popular-marquee .motion-marquee__track {
+    gap: 0;
   }
 
   .popular-product-visual {
     height: 96px;
+    flex-basis: 96px;
   }
 
   .popular-product-visual span {
@@ -1252,7 +1288,14 @@ footer p {
     box-shadow: none;
   }
 
-  .popular-product-card > span {
+  .popular-product-copy {
+    width: auto;
+    min-height: 0;
+    padding-top: 8px;
+    background: transparent;
+  }
+
+  .popular-product-copy span {
     color: var(--black);
     font-size: 0.58rem;
     font-weight: 800;

@@ -22,6 +22,7 @@ type ProductOptionRow = {
   name: string;
   slug: string;
   sku: string | null;
+  price: number | null;
   summary: string | null;
   description: string | null;
   dimensions: string | null;
@@ -30,6 +31,10 @@ type ProductOptionRow = {
   usage: string | null;
   installation_notes: string | null;
   care_notes: string | null;
+  technical_specs: Record<string, string | number | null> | null;
+  technical_sheet_url: string | null;
+  installation_guide_url: string | null;
+  section_visibility: Record<string, boolean> | null;
   featured: boolean | null;
   status: 'draft' | 'published';
   seo_title: string | null;
@@ -87,6 +92,7 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
     summary: option.summary ?? undefined,
     description: option.description ?? undefined,
     sku: option.sku ?? undefined,
+    price: option.price ?? undefined,
     image: getPublicStorageUrl(mainImage?.storage_bucket ?? '', mainImage?.storage_path),
     secondaryImage: getPublicStorageUrl(secondaryImage?.storage_bucket ?? '', secondaryImage?.storage_path),
     gallery,
@@ -115,12 +121,16 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
     material: option.material ?? undefined,
     usage: option.usage ?? undefined,
     installationNotes: option.installation_notes ?? undefined,
-    careNotes: option.care_notes ?? undefined
+    careNotes: option.care_notes ?? undefined,
+    technicalSpecs: option.technical_specs ?? undefined,
+    technicalSheetUrl: option.technical_sheet_url ?? undefined,
+    installationGuideUrl: option.installation_guide_url ?? undefined,
+    sectionVisibility: option.section_visibility ?? undefined
   };
 };
 
 const productOptionSelect = `
-  id,name,slug,sku,summary,description,dimensions,thickness,material,usage,installation_notes,care_notes,featured,status,seo_title,seo_description,
+  id,name,slug,sku,price,summary,description,dimensions,thickness,material,usage,installation_notes,care_notes,technical_specs,technical_sheet_url,installation_guide_url,section_visibility,featured,status,seo_title,seo_description,
   product_images(storage_bucket,storage_path,kind,sort_order),
   product_variants(id,name,slug,products(id,name,slug,categories(id,name,slug)))
 `;

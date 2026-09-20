@@ -22,12 +22,16 @@ const marqueeProducts = [...products, ...products];
       {marqueeProducts.map((product, index) => {
         const isDuplicate = index >= products.length;
         return (
-          <a class="popular-product-card" href={`/productos/${product.slug}`} aria-hidden={isDuplicate ? 'true' : undefined} tabindex={isDuplicate ? '-1' : undefined}>
+          <article class="popular-product-card" aria-hidden={isDuplicate ? 'true' : undefined}>
+            <a class="popular-product-media" href={`/productos/${product.slug}`} tabindex={isDuplicate ? '-1' : undefined} aria-hidden={isDuplicate ? 'true' : undefined}>
             <div class={`popular-product-visual popular-product-visual-${(index % 7) + 1}`}>
               {product.image ? <img src={product.image} alt="" loading="lazy" /> : <span></span>}
             </div>
-            <span>{product.name}</span>
-          </a>
+            </a>
+            <a class="popular-product-copy" href={`/productos/${product.slug}`} tabindex={isDuplicate ? '-1' : undefined} aria-hidden={isDuplicate ? 'true' : undefined}>
+              <span>{product.name}</span>
+            </a>
+          </article>
         );
       })}
     </div>

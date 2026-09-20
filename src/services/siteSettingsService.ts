@@ -2,6 +2,40 @@ import { supabase } from '../lib/supabase';
 
 export const fallbackWhatsappNumber = '9931595909';
 
+export type ProductSectionVisibility = {
+  technical: boolean;
+  support: boolean;
+  faq: boolean;
+  installation: boolean;
+};
+
+export const defaultProductSectionVisibility: ProductSectionVisibility = {
+  technical: true,
+  support: true,
+  faq: true,
+  installation: true
+};
+
+export const getProductSectionVisibility = async (): Promise<ProductSectionVisibility> => {
+  if (!supabase) return defaultProductSectionVisibility;
+
+  const keys = {
+    technical: 'product_section_technical_enabled',
+    support: 'product_section_support_enabled',
+    faq: 'product_section_faq_enabled',
+    installation: 'product_section_installation_enabled'
+  } as const;
+  const { data } = await supabase.from('site_settings').select('key,value').in('key', Object.values(keys));
+  const values = new Map((data ?? []).map((item) => [item.key, item.value === 'true']));
+
+  return {
+    technical: values.get(keys.technical) ?? true,
+    support: values.get(keys.support) ?? true,
+    faq: values.get(keys.faq) ?? true,
+    installation: values.get(keys.installation) ?? true
+  };
+};
+
 const normalizeWhatsappNumber = (value: string) => value.replace(/\D/g, '');
 
 const getWhatsappInternationalNumber = (value: string) => {

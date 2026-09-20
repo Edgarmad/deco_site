@@ -22,6 +22,7 @@ type ProductOptionAdminDetail = {
   name: string;
   slug: string;
   sku: string | null;
+  price: number;
   summary: string | null;
   description: string | null;
   color_name: string | null;
@@ -34,6 +35,10 @@ type ProductOptionAdminDetail = {
   usage: string | null;
   installation_notes: string | null;
   care_notes: string | null;
+  technical_specs: Record<string, unknown> | null;
+  technical_sheet_url: string | null;
+  installation_guide_url: string | null;
+  section_visibility: Record<string, boolean> | null;
   status: 'draft' | 'published';
   featured: boolean;
   sort_order: number;
@@ -59,6 +64,15 @@ const textValue = (formData: FormData, key: string) => {
 const numberValue = (formData: FormData, key: string) => {
   const rawValue = String(formData.get(key) ?? '').trim();
   return rawValue ? Number(rawValue) : 0;
+};
+
+const jsonValue = (formData: FormData, key: string) => {
+  try {
+    const value = JSON.parse(String(formData.get(key) ?? '{}'));
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  } catch {
+    return {};
+  }
 };
 
 const session = await getAdminSession(Astro.request, Astro.cookies);
@@ -116,6 +130,7 @@ if (Astro.request.method === 'POST') {
         name: textValue(formData, 'name'),
         slug: textValue(formData, 'slug'),
         sku: textValue(formData, 'sku'),
+        price: Number(formData.get('price') ?? 1),
         summary: textValue(formData, 'summary'),
         description: textValue(formData, 'description'),
         color_name: textValue(formData, 'color_name'),
@@ -128,6 +143,15 @@ if (Astro.request.method === 'POST') {
         usage: textValue(formData, 'usage'),
         installation_notes: textValue(formData, 'installation_notes'),
         care_notes: textValue(formData, 'care_notes'),
+        technical_specs: jsonValue(formData, 'technical_specs'),
+        technical_sheet_url: textValue(formData, 'technical_sheet_url'),
+        installation_guide_url: textValue(formData, 'installation_guide_url'),
+        section_visibility: {
+          technical: formData.get('show_technical') === 'on',
+          support: formData.get('show_support') === 'on',
+          faq: formData.get('show_faq') === 'on',
+          installation: formData.get('show_installation') === 'on'
+        },
         status: String(formData.get('status') ?? 'draft'),
         featured: formData.get('featured') === 'on',
         sort_order: numberValue(formData, 'sort_order'),
@@ -145,7 +169,7 @@ if (Astro.request.method === 'POST') {
 const { data, error } = await supabase
   .from('product_options')
   .select(`
-    id,variant_id,name,slug,sku,summary,description,color_name,color_slug,color_hex,finish,dimensions,thickness,material,usage,installation_notes,care_notes,status,featured,sort_order,seo_title,seo_description,canonical_path,
+    id,variant_id,name,slug,sku,price,summary,description,color_name,color_slug,color_hex,finish,dimensions,thickness,material,usage,installation_notes,care_notes,technical_specs,technical_sheet_url,installation_guide_url,section_visibility,status,featured,sort_order,seo_title,seo_description,canonical_path,
     product_images(id,storage_bucket,storage_path,alt_text,kind,sort_order),
     product_variants(name,products(name,slug,categories(name)))
   `)
@@ -194,6 +218,10 @@ const images = (product.product_images ?? []).slice().sort((first, second) => fi
         <div class="admin-field">
           <label for="sku">SKU</label>
           <input id="sku" name="sku" value={product.sku ?? ''} />
+        </div>
+        <div class="admin-field">
+          <label for="price">Precio</label>
+          <input id="price" name="price" type="number" min="0" step="0.01" value={product.price ?? 1} />
         </div>
         <div class="admin-field">
           <label for="status">Estado</label>
@@ -258,6 +286,24 @@ const images = (product.product_images ?? []).slice().sort((first, second) => fi
           <label for="care_notes">Cuidados</label>
           <textarea id="care_notes" name="care_notes">{product.care_notes ?? ''}</textarea>
         </div>
+        <div class="admin-field full">
+          <label for="technical_specs">Datos técnicos adicionales (JSON)</label>
+          <textarea id="technical_specs" name="technical_specs">{JSON.stringify(product.technical_specs ?? {}, null, 2)}</textarea>
+        </div>
+        <div class="admin-field">
+          <label for="technical_sheet_url">Ficha técnica (Drive)</label>
+          <input id="technical_sheet_url" name="technical_sheet_url" type="url" value={product.technical_sheet_url ?? ''} />
+        </div>
+        <div class="admin-field">
+          <label for="installation_guide_url">Guía de instalación (Drive)</label>
+          <input id="installation_guide_url" name="installation_guide_url" type="url" value={product.installation_guide_url ?? ''} />
+        </div>
+        <fieldset class="admin-field full">
+          <legend>Visibilidad de secciones para este producto</legend>
+          {(['technical', 'support', 'faq', 'installation'] as const).map((section) => (
+            <label><input name={`show_${section}`} type="checkbox" checked={product.section_visibility?.[section] !== false} /> {section}</label>
+          ))}
+        </fieldset>
         <div class="admin-field">
           <label for="seo_title">SEO title</label>
           <input id="seo_title" name="seo_title" value={product.seo_title ?? ''} />

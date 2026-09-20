@@ -40,6 +40,7 @@ export type Product = {
   summary?: string;
   description?: string;
   sku?: string;
+  price?: number;
   image?: string;
   secondaryImage?: string;
   gallery?: string[];
@@ -54,4 +55,8 @@ export type Product = {
   usage?: string;
   installationNotes?: string;
   careNotes?: string;
+  technicalSpecs?: Record<string, string | number | null>;
+  technicalSheetUrl?: string;
+  installationGuideUrl?: string;
+  sectionVisibility?: Record<string, boolean>;
 };
