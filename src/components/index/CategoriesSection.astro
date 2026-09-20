@@ -1,6 +1,5 @@
 ---
 type Category = {
-  number: string;
   name: string;
   slug: string;
   count: string;
@@ -23,11 +22,12 @@ const { categories } = Astro.props;
   <div class="category-list">
     {categories.map((category) => (
       <article class="category-row motion-row" data-reveal>
-        <span class="row-number">{category.number}</span>
-        <h2>{category.name}</h2>
-        <div class="row-meta">
-          <strong>{category.count}</strong>
-          <p>{category.description}</p>
+        <div class="category-content">
+          <div class="row-meta">
+            <strong>{category.count}</strong>
+            <p>{category.description}</p>
+          </div>
+          <h2>{category.name}</h2>
         </div>
         <a class="round-button motion-row__arrow" href={`/productos?categoria=${category.slug}`} aria-label={`Ver ${category.name}`}>→</a>
       </article>

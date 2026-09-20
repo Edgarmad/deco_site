@@ -220,7 +220,22 @@ footer h2,
   text-transform: uppercase;
 }
 
-.category-row,
+.category-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  padding-top: 34px;
+}
+
+.category-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 48px;
+  align-items: end;
+  gap: 28px;
+  padding: 24px 28px;
+  border: 1px solid var(--paper-line);
+}
+
 .location-row {
   display: grid;
   grid-template-columns: 90px minmax(220px, 1fr) minmax(230px, 320px) 48px;
@@ -228,6 +243,11 @@ footer h2,
   gap: 34px;
   min-height: 145px;
   border-bottom: 1px solid var(--paper-line);
+}
+
+.category-content {
+  display: grid;
+  gap: 16px;
 }
 
 .row-number {
@@ -238,7 +258,14 @@ footer h2,
   font-weight: 700;
 }
 
-.category-row h2,
+.category-row h2 {
+  margin: 0;
+  font-size: clamp(2.5rem, 4.2vw, 4.4rem);
+  font-weight: 600;
+  letter-spacing: -0.06em;
+  line-height: 0.9;
+}
+
 .location-row h2 {
   margin: 0;
   font-size: clamp(3.2rem, 5.2vw, 5.9rem);
@@ -250,6 +277,10 @@ footer h2,
 
 .row-meta {
   text-align: right;
+}
+
+.category-row .row-meta {
+  text-align: left;
 }
 
 .row-meta p {
@@ -940,12 +971,19 @@ footer p {
     letter-spacing: 0.2em;
   }
 
-  .category-row,
+  .category-list {
+    gap: 14px;
+  }
+
+  .category-row {
+    grid-template-columns: 1fr 48px;
+    padding: 22px 24px;
+  }
+
   .location-row {
     grid-template-columns: 48px 1fr 48px;
   }
 
-  .row-meta,
   .location-row p,
   .tag {
     grid-column: 2 / -1;
@@ -1088,17 +1126,34 @@ footer p {
 
   .category-row,
   .location-row {
-    grid-template-columns: 34px 1fr 24px;
     gap: 10px;
     min-height: 58px;
   }
 
-  .category-row h2,
+  .category-list {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    padding-top: 18px;
+  }
+
+  .category-row {
+    grid-template-columns: 1fr 24px;
+    padding: 18px;
+  }
+
+  .location-row {
+    grid-template-columns: 34px 1fr 24px;
+  }
+
   .location-row h2 {
     font-size: 0.85rem;
     font-weight: 800;
     letter-spacing: 0.04em;
     line-height: 1;
+  }
+
+  .category-row h2 {
+    font-size: 2.15rem;
   }
 
   .row-number {
@@ -1107,7 +1162,7 @@ footer p {
     font-style: normal;
   }
 
-  .row-meta {
+  .location-row .row-meta {
     display: none;
   }
 
@@ -1117,6 +1172,10 @@ footer p {
     height: auto;
     border: 0;
     font-size: 0.95rem;
+  }
+
+  .category-row .round-button {
+    grid-column: 2;
   }
 
   .product-strip {
