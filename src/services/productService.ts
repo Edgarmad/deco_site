@@ -71,6 +71,7 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
     .slice()
     .sort((first, second) => (first.sort_order ?? 0) - (second.sort_order ?? 0));
   const mainImage = images.find((image) => image.kind === 'main') ?? images[0];
+  const secondaryImage = images.find((image) => image.kind === 'secondary');
   const gallery = images
     .filter((image) => image !== mainImage)
     .map((image) => getPublicStorageUrl(image.storage_bucket, image.storage_path))
@@ -87,6 +88,7 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
     description: option.description ?? undefined,
     sku: option.sku ?? undefined,
     image: getPublicStorageUrl(mainImage?.storage_bucket ?? '', mainImage?.storage_path),
+    secondaryImage: getPublicStorageUrl(secondaryImage?.storage_bucket ?? '', secondaryImage?.storage_path),
     gallery,
     variants: [
       {

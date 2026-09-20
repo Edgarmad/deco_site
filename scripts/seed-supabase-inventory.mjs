@@ -87,7 +87,7 @@ for (const category of inventory.categories ?? []) {
         category_id: categoryId,
         name: product.name,
         slug: product.slug,
-        status: 'draft',
+        status: 'published',
         sort_order: productSort++
       },
       'slug'
@@ -100,7 +100,7 @@ for (const category of inventory.categories ?? []) {
           product_id: productId,
           name: variant.name,
           slug: variant.slug,
-          status: 'draft',
+          status: 'published',
           sort_order: variantSort++
         },
         'product_id,slug'
@@ -116,7 +116,7 @@ for (const category of inventory.categories ?? []) {
             slug: optionSlug,
             color_name: color.name,
             color_slug: color.slug,
-            status: 'draft',
+            status: 'published',
             sort_order: optionSort++,
             canonical_path: `/productos/${optionSlug}`,
             source_path: color.sourcePath ?? null,
@@ -146,8 +146,6 @@ for (const category of inventory.categories ?? []) {
                 original_filename: image.title,
                 alt_text: `${product.name} ${color.name}`,
                 kind,
-                mime_type: image.mimeType ?? null,
-                size_bytes: image.sizeBytes ?? null,
                 sort_order: imageSort++
               },
               { onConflict: 'storage_bucket,storage_path' }
@@ -161,4 +159,4 @@ for (const category of inventory.categories ?? []) {
   }
 }
 
-console.log('Inventario base sembrado en Supabase como borrador.');
+console.log('Inventario base publicado en Supabase.');

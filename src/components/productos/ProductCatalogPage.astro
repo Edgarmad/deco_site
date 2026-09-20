@@ -48,6 +48,7 @@ const filterLabels = {
         ))}
       </div>
       <div class="catalog-controls">
+        <button type="button" class="reset-filters motion-button" data-filter-toggle aria-expanded="true">{filterLabels.hide}</button>
         <label>
           Ordenar por
           <select class="motion-field" data-sort-select>
@@ -55,7 +56,6 @@ const filterLabels = {
             <option value="name">Nombre</option>
           </select>
         </label>
-        <button type="button" class="reset-filters motion-button" data-filter-toggle aria-expanded="true">{filterLabels.hide}</button>
         <span>Productos por pagina: 12</span>
       </div>
     </div>
@@ -246,7 +246,7 @@ const filterLabels = {
 
 <style>
   .catalog-section {
-    padding: 0 5vw;
+    padding: 0 6.4vw;
     background: var(--white);
   }
 
@@ -259,7 +259,7 @@ const filterLabels = {
     align-items: center;
     justify-content: space-between;
     gap: 20px;
-    padding: 24px 0 18px;
+    padding: 22px 0 18px;
     border-bottom: 1px solid var(--paper-line);
   }
 
@@ -330,9 +330,9 @@ const filterLabels = {
 
   .catalog-layout {
     display: grid;
-    grid-template-columns: 255px minmax(0, 1fr);
-    gap: 44px;
-    padding-top: 26px;
+    grid-template-columns: 220px minmax(0, 1fr);
+    gap: 34px;
+    padding-top: 22px;
   }
 
   .catalog-results h1 {
@@ -385,16 +385,15 @@ const filterLabels = {
 
   @media (max-width: 640px) {
     .catalog-section {
-      padding-left: 12px;
-      padding-right: 12px;
+      padding-left: 30px;
+      padding-right: 30px;
       padding-top: 0;
       padding-bottom: 0;
       background: #f4f4ef;
     }
 
     .mobile-catalog-head {
-      display: block;
-      margin-bottom: 14px;
+      display: none;
     }
 
     .mobile-catalog-head p {
@@ -419,8 +418,8 @@ const filterLabels = {
     }
 
     .catalog-toolbar {
-      gap: 10px;
-      padding: 10px 0 8px;
+      gap: 8px;
+      padding: 6px 0 8px;
       border-bottom: 1px solid var(--paper-line);
     }
 
@@ -433,7 +432,7 @@ const filterLabels = {
     }
 
     .catalog-tabs button {
-      min-height: 28px;
+      min-height: 24px;
       font-size: 0.58rem;
     }
 
@@ -441,18 +440,27 @@ const filterLabels = {
       width: 100%;
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 10px;
       font-size: 0;
     }
 
     .catalog-controls label,
     .reset-filters {
       width: 100%;
-      min-height: 26px;
+      min-height: 30px;
       justify-content: center;
       border-radius: 0;
       background: var(--white-pure);
       font-size: 0.58rem;
+    }
+
+    .catalog-controls label {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 6px;
+      padding-left: 0;
+      background: transparent;
+      text-align: left;
     }
 
     .catalog-controls span {
@@ -461,7 +469,7 @@ const filterLabels = {
 
     .catalog-controls select {
       width: 100%;
-      min-height: 26px;
+      min-height: 30px;
       border-radius: 0;
       font-size: 0.58rem;
     }

@@ -10,6 +10,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "supabase:setup": "node scripts/setup-supabase-cms.mjs",
+    "supabase:setup:no-images": "node scripts/setup-supabase-cms.mjs --skip-images",
     "supabase:push": "supabase db push",
     "supabase:seed:inventory": "node scripts/seed-supabase-inventory.mjs",
     "supabase:upload:product-images": "node scripts/upload-product-images-to-supabase.mjs",

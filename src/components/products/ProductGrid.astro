@@ -22,7 +22,7 @@ const { products } = Astro.props;
   .catalog-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 44px 34px;
+    gap: 46px 42px;
   }
 
   .catalog-empty {
@@ -58,13 +58,14 @@ const { products } = Astro.props;
   @media (max-width: 760px) {
     .catalog-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px 8px;
+      gap: 42px 28px;
     }
   }
 
   @media (max-width: 460px) {
     .catalog-grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 40px 24px;
     }
   }
 </style>

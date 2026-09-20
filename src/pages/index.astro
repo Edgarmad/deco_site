@@ -36,7 +36,7 @@ const popularProducts = Array.from(
         name: product.categoryName ?? product.name,
         slug: product.slug,
         category: product.macroCategory === 'exterior' ? 'Exterior' : 'Interior',
-        image: product.image
+        image: product.secondaryImage ?? product.image
       });
     }
     return items;

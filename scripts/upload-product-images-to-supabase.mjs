@@ -80,9 +80,12 @@ if (error) throw new Error(`product_images: ${error.message}`);
 let uploaded = 0;
 let missing = 0;
 let failed = 0;
+let processed = 0;
+const total = rows?.length ?? 0;
 const folderCounters = new Map();
 
 for (const row of rows ?? []) {
+  processed++;
   const option = row.product_options;
   const variant = option?.product_variants;
   const product = variant?.products;
@@ -91,6 +94,7 @@ for (const row of rows ?? []) {
   if (!option || !variant || !product || !sourcePath) {
     failed++;
     console.warn(`Saltando ${row.id}: faltan relaciones o source_path.`);
+    if (processed % 10 === 0 || processed === total) console.log(`Procesadas ${processed}/${total} imagenes...`);
     continue;
   }
 
@@ -98,6 +102,7 @@ for (const row of rows ?? []) {
   if (!existingSource) {
     missing++;
     console.warn(`No existe archivo local: ${sourcePath}`);
+    if (processed % 10 === 0 || processed === total) console.log(`Procesadas ${processed}/${total} imagenes...`);
     continue;
   }
 
@@ -152,6 +157,8 @@ for (const row of rows ?? []) {
     failed++;
     console.warn(`Error subiendo ${sourcePath}: ${uploadError.message}`);
   }
+
+  if (processed % 10 === 0 || processed === total) console.log(`Procesadas ${processed}/${total} imagenes...`);
 }
 
 console.log(`Imagenes migradas: ${uploaded}. Faltantes: ${missing}. Fallidas: ${failed}.`);

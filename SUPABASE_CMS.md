@@ -12,9 +12,29 @@ SUPABASE_SERVICE_ROLE_KEY=...
 
 `SUPABASE_SERVICE_ROLE_KEY` solo se usa para scripts locales/server-side. No debe exponerse al cliente.
 
-## Migracion
+## Setup rapido
 
 Con la CLI de Supabase ya autenticada y el proyecto vinculado:
+
+```bash
+npm run supabase:setup
+```
+
+Ese comando ejecuta, en orden:
+
+- migraciones (`supabase db push`)
+- seed del inventario (`inventario_final.json`)
+- conversion/subida de imagenes a Storage
+
+Si los archivos locales del catalogo no estan disponibles, ejecutar solo schema + seed:
+
+```bash
+npm run supabase:setup:no-images
+```
+
+## Migracion manual
+
+Para correr solo las migraciones:
 
 ```bash
 npm run supabase:push
@@ -36,7 +56,7 @@ La migracion crea:
 
 ## Seed de inventario
 
-El seed lee `inventario_final.json` y crea categorias publicadas, productos/variantes/opciones en borrador e imagenes con rutas planificadas en Storage.
+El seed lee `inventario_final.json` y crea categorias, productos, variantes y opciones publicadas, ademas de imagenes con rutas planificadas en Storage.
 
 ```bash
 npm run supabase:seed:inventory

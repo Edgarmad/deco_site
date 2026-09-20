@@ -41,6 +41,7 @@ export type Product = {
   description?: string;
   sku?: string;
   image?: string;
+  secondaryImage?: string;
   gallery?: string[];
   variants: ProductVariant[];
   featured?: boolean;
