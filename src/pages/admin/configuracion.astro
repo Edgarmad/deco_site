@@ -1,0 +1,72 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getAdminSession } from '../../lib/adminAuth';
+import { getCsrfToken, validateCsrfToken } from '../../lib/adminSecurity';
+import { createSupabaseServerClient } from '../../lib/supabaseServer';
+import { fallbackWhatsappNumber } from '../../services/siteSettingsService';
+
+export const prerender = false;
+
+const session = await getAdminSession(Astro.request, Astro.cookies);
+if (!session) return Astro.redirect('/admin/login');
+
+const supabase = createSupabaseServerClient(Astro.request, Astro.cookies);
+const csrfToken = getCsrfToken(Astro.cookies);
+let whatsappNumber = fallbackWhatsappNumber;
+let message = Astro.url.searchParams.get('saved') === '1' ? 'Configuración guardada.' : '';
+let errorMessage = '';
+
+if (Astro.request.method === 'POST') {
+  const formData = await Astro.request.formData();
+  if (!validateCsrfToken(Astro.cookies, formData)) {
+    errorMessage = 'La sesión del formulario expiró. Recarga la página e intenta de nuevo.';
+  } else {
+    const submittedNumber = String(formData.get('whatsapp_number') ?? '').replace(/\D/g, '');
+    if (submittedNumber.length < 8 || submittedNumber.length > 15) {
+      errorMessage = 'Ingresa un número válido de 8 a 15 dígitos.';
+      whatsappNumber = submittedNumber;
+    } else {
+      const { error } = await supabase.from('site_settings').upsert(
+        { key: 'whatsapp_number', value: submittedNumber, is_public: true },
+        { onConflict: 'key' }
+      );
+      if (error) errorMessage = error.message;
+      else return Astro.redirect('/admin/configuracion?saved=1');
+    }
+  }
+}
+
+if (!whatsappNumber || !errorMessage) {
+  const { data } = await supabase
+    .from('site_settings')
+    .select('value')
+    .eq('key', 'whatsapp_number')
+    .maybeSingle();
+  whatsappNumber = data?.value?.replace(/\D/g, '') || whatsappNumber;
+}
+---
+
+<AdminLayout title="Configuración" currentPath="/admin/configuracion" userEmail={session.user.email}>
+  <header class="admin-page-head compact">
+    <div>
+      <p class="admin-kicker">Configuración del sitio</p>
+      <h1>Contacto</h1>
+      <p class="admin-note">Actualiza el número que usa el botón flotante de WhatsApp.</p>
+    </div>
+  </header>
+
+  {message && <p class="admin-success">{message}</p>}
+  {errorMessage && <p class="admin-error">No se pudo guardar: {errorMessage}</p>}
+
+  <section class="admin-panel pad">
+    <form class="admin-form" method="post">
+      <input type="hidden" name="csrf_token" value={csrfToken} />
+      <div class="admin-field">
+        <label for="whatsapp_number">Número de WhatsApp</label>
+        <input id="whatsapp_number" name="whatsapp_number" type="tel" value={whatsappNumber} placeholder="9931595909" required />
+        <small class="admin-note">Usa el número con código de país si no es de México. Para números mexicanos de 10 dígitos se agrega +52 automáticamente.</small>
+      </div>
+      <button class="admin-button" type="submit">Guardar configuración</button>
+    </form>
+  </section>
+</AdminLayout>

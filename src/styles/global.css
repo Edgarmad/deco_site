@@ -85,6 +85,7 @@ a {
 .desktop-nav {
   display: flex;
   align-items: center;
+  margin-left: auto;
   gap: 22px;
   font-size: 0.93rem;
   font-weight: 700;
@@ -431,6 +432,15 @@ footer h2,
   line-height: 1.5;
 }
 
+.location-contact {
+  display: block;
+  margin-top: 8px;
+  color: var(--white);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
 .tag {
   width: max-content;
   padding: 8px 16px;
@@ -703,6 +713,7 @@ footer h2,
   font-weight: 300;
   letter-spacing: -0.06em;
   line-height: 1.05;
+  text-align: center;
   text-transform: uppercase;
 }
 
@@ -710,6 +721,10 @@ footer h2,
   color: var(--green);
   font-family: Georgia, serif;
   font-weight: 700;
+}
+
+.footer-title span {
+  color: var(--blue);
 }
 
 .footer-grid {

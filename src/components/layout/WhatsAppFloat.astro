@@ -1,0 +1,71 @@
+---
+import { getWhatsappUrl } from '../../services/siteSettingsService';
+
+const whatsappUrl = await getWhatsappUrl();
+---
+
+<a class="whatsapp-float" href={whatsappUrl} target="_blank" rel="noreferrer" aria-label="Escríbenos por WhatsApp">
+  <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+    <path d="M16 3.5a12.25 12.25 0 0 0-10.6 18.4L4 28l6.3-1.3A12.25 12.25 0 1 0 16 3.5Zm0 22.3a10 10 0 0 1-5.1-1.4l-.4-.2-3.7.8.8-3.6-.3-.4A10 10 0 1 1 16 25.8Zm5.5-7.4c-.3-.2-1.8-.9-2.1-1s-.5-.2-.7.2-.8 1-.9 1.2-.3.3-.6.1a8.2 8.2 0 0 1-2.4-1.5 9 9 0 0 1-1.7-2.1c-.2-.3 0-.5.2-.7l.5-.6.2-.5-.1-.5c-.1-.2-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4a3.2 3.2 0 0 0-1 2.4c0 1.4 1 2.8 1.1 3 .2.2 2 3.1 4.8 4.4.7.3 1.2.5 1.6.6.7.2 1.4.2 1.9.1.6-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4Z"></path>
+  </svg>
+</a>
+
+<style>
+  .whatsapp-float {
+    position: fixed;
+    top: 140px;
+    right: 24px;
+    z-index: 20;
+    display: inline-grid;
+    align-items: center;
+    gap: 12px;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    min-width: 58px;
+    min-height: 58px;
+    aspect-ratio: 1;
+    flex: 0 0 58px;
+    padding: 0;
+    border-radius: 50%;
+    background: #168c4b;
+    box-shadow: 0 12px 30px rgb(0 0 0 / 22%);
+    color: #fff;
+    transition: transform 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+  }
+
+  .whatsapp-float:hover,
+  .whatsapp-float:focus-visible {
+    background: #106c3a;
+    box-shadow: 0 16px 34px rgb(0 0 0 / 28%);
+    transform: translateY(-2px);
+  }
+
+  .whatsapp-float:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+  }
+
+  .whatsapp-float svg {
+    width: 29px;
+    height: 29px;
+    fill: currentColor;
+  }
+
+  @media (max-width: 640px) {
+    .whatsapp-float {
+      top: 104px;
+      right: 14px;
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      min-height: 48px;
+      flex-basis: 48px;
+    }
+
+    .whatsapp-float svg {
+      width: 25px;
+      height: 25px;
+    }
+  }
+</style>

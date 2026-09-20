@@ -12,7 +12,8 @@ const { title, currentPath = '/admin', userEmail } = Astro.props;
 const csrfToken = getCsrfToken(Astro.cookies);
 const navItems = [
   { label: 'Resumen', href: '/admin' },
-  { label: 'Productos', href: '/admin/productos' }
+  { label: 'Productos', href: '/admin/productos' },
+  { label: 'Configuración', href: '/admin/configuracion' }
 ];
 const initials = userEmail?.slice(0, 2).toUpperCase() ?? 'AD';
 ---

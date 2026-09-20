@@ -1,0 +1,214 @@
+---
+import '../styles/global.css';
+import SiteFooter from '../components/layout/SiteFooter.astro';
+import SiteHeader from '../components/layout/SiteHeader.astro';
+import { getProducts } from '../services/productService';
+
+export const prerender = false;
+
+const products = await getProducts();
+const initialQuery = Astro.url.searchParams.get('q') ?? '';
+const initialArea = Astro.url.searchParams.get('area') ?? 'todos';
+const searchData = products.map((product) => ({
+  name: product.name,
+  slug: product.slug,
+  area: product.macroCategory,
+  areaLabel: product.macroCategory === 'interior' ? 'Interior' : 'Exterior',
+  image: product.secondaryImage ?? product.image ?? '',
+  finish: product.variants.flatMap((variant) => variant.colors)[0]?.name ?? product.variants[0]?.name ?? 'Acabado por confirmar',
+  text: [
+    product.name,
+    product.categoryName,
+    product.categorySlug,
+    product.sku,
+    product.summary,
+    product.description,
+    product.material,
+    product.usage,
+    ...product.variants.map((variant) => variant.name),
+    ...product.variants.flatMap((variant) => variant.colors.map((color) => color.name))
+  ].filter(Boolean).join(' ')
+}));
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Encuentra acabados y productos Deco ABC." />
+    <link rel="icon" href="/assets/favicon.ico" />
+    <script src="/assets/scripts/deco-motion.js" defer></script>
+    <title>Buscador de productos | Deco</title>
+  </head>
+  <body>
+    <SiteHeader currentPath="/busqueda" />
+
+    <main class="search-page">
+      <section class="search-hero" aria-labelledby="search-title">
+        <h1 id="search-title">Encuentra tu acabado.</h1>
+        <p class="search-intro">Busca por producto, material o aplicación.</p>
+
+        <form class="search-form" data-search-form role="search">
+          <label class="visually-hidden" for="product-search">Buscar productos</label>
+          <span class="search-icon" aria-hidden="true"></span>
+          <input id="product-search" name="q" type="search" value={initialQuery} placeholder="Nombre, material o aplicación" autocomplete="off" data-search-input />
+          <button class="search-submit" type="submit">Buscar <span aria-hidden="true">→</span></button>
+          <button class="search-clear" type="button" aria-label="Limpiar búsqueda" data-search-clear hidden>×</button>
+        </form>
+
+        <div class="area-filter" role="group" aria-label="Filtrar por área">
+          <span>Área</span>
+          <div class="area-options">
+            {[
+              { label: 'Todos', value: 'todos' },
+              { label: 'Interior', value: 'interior' },
+              { label: 'Exterior', value: 'exterior' }
+            ].map((area) => (
+              <button type="button" class="area-option" data-area={area.value} aria-pressed={initialArea === area.value}>{area.label}</button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section class="search-results" aria-labelledby="results-title" data-search-results>
+        <div class="results-heading">
+          <h2 id="results-title" data-results-title>Todos los productos</h2>
+          <span class="results-count" data-results-count>{products.length}</span>
+        </div>
+        <div class="results-rule"></div>
+
+        <div class="search-grid" data-search-grid>
+          {searchData.map((product) => (
+            <article class="search-card" data-search-card data-area={product.area} data-search-text={product.text.toLowerCase()}>
+              <a href={`/productos/${product.slug}`}>
+                <div class="search-card-image">
+                  {product.image ? <img src={product.image} alt={product.name} loading="lazy" /> : <span aria-hidden="true"></span>}
+                </div>
+                <div class="search-card-copy">
+                  <p class="card-area">{product.areaLabel}</p>
+                  <h3>{product.name}</h3>
+                  <p class="card-finish">{product.finish}</p>
+                  <span class="card-link">Ver producto <b aria-hidden="true">→</b></span>
+                </div>
+              </a>
+            </article>
+          ))}
+        </div>
+
+        <div class="no-results" data-no-results hidden>
+          <span class="empty-search-icon" aria-hidden="true"></span>
+          <h2 data-empty-title>No encontramos resultados.</h2>
+          <p>Prueba otra palabra o cambia el filtro de área.</p>
+          <button type="button" class="outline-button" data-show-all>Ver todos los productos <span aria-hidden="true">→</span></button>
+          <div class="suggestions">
+            <span>Sugerencias</span>
+            {['lambrín', 'mármol', 'deck', 'panel'].map((suggestion) => <button type="button" data-suggestion={suggestion}>{suggestion}</button>)}
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <SiteFooter />
+  </body>
+</html>
+
+<script>
+  const normalize = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  const form = document.querySelector('[data-search-form]');
+  const input = document.querySelector('[data-search-input]');
+  const clearButton = document.querySelector('[data-search-clear]');
+  const cards = Array.from(document.querySelectorAll('[data-search-card]')).filter((card): card is HTMLElement => card instanceof HTMLElement);
+  const areaButtons = Array.from(document.querySelectorAll('[data-area]')).filter((button): button is HTMLButtonElement => button instanceof HTMLButtonElement);
+  const title = document.querySelector('[data-results-title]');
+  const count = document.querySelector('[data-results-count]');
+  const empty = document.querySelector('[data-no-results]');
+  const emptyTitle = document.querySelector('[data-empty-title]');
+  const showAll = document.querySelector('[data-show-all]');
+  const suggestions = Array.from(document.querySelectorAll('[data-suggestion]')).filter((button): button is HTMLButtonElement => button instanceof HTMLButtonElement);
+  let currentArea = new URLSearchParams(window.location.search).get('area') ?? 'todos';
+
+  const updateUrl = () => {
+    const params = new URLSearchParams();
+    const query = input instanceof HTMLInputElement ? input.value.trim() : '';
+    if (query) params.set('q', query);
+    if (currentArea !== 'todos') params.set('area', currentArea);
+    const queryString = params.toString();
+    history.replaceState(null, '', queryString ? `/busqueda?${queryString}` : '/busqueda');
+  };
+
+  const render = () => {
+    const query = input instanceof HTMLInputElement ? normalize(input.value) : '';
+    const visibleCards = cards.filter((card) => {
+      const matchesArea = currentArea === 'todos' || card.dataset.area === currentArea;
+      const matchesQuery = !query || normalize(card.dataset.searchText ?? '').includes(query);
+      card.hidden = !(matchesArea && matchesQuery);
+      return matchesArea && matchesQuery;
+    });
+    const label = query ? `Resultados para «${input instanceof HTMLInputElement ? input.value.trim() : ''}»` : 'Todos los productos';
+    if (title) title.textContent = label;
+    if (count) count.textContent = String(visibleCards.length);
+    if (empty instanceof HTMLElement) empty.hidden = visibleCards.length > 0;
+    if (emptyTitle) emptyTitle.textContent = query ? `No encontramos resultados para «${input instanceof HTMLInputElement ? input.value.trim() : ''}».` : 'No encontramos productos en esta área.';
+    if (clearButton instanceof HTMLButtonElement) clearButton.hidden = !query;
+    areaButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.area === currentArea)));
+    updateUrl();
+  };
+
+  form?.addEventListener('submit', (event) => { event.preventDefault(); render(); });
+  input?.addEventListener('input', render);
+  clearButton?.addEventListener('click', () => { if (input instanceof HTMLInputElement) { input.value = ''; render(); input.focus(); } });
+  areaButtons.forEach((button) => button.addEventListener('click', () => { currentArea = button.dataset.area ?? 'todos'; render(); }));
+  showAll?.addEventListener('click', () => { currentArea = 'todos'; if (input instanceof HTMLInputElement) input.value = ''; render(); });
+  suggestions.forEach((button) => button.addEventListener('click', () => { if (input instanceof HTMLInputElement) input.value = button.dataset.suggestion ?? ''; currentArea = 'todos'; render(); }));
+  render();
+</script>
+
+<style>
+  .search-page { background: var(--white); color: var(--black); }
+  .search-hero, .search-results { width: min(1315px, 66vw); margin-inline: auto; }
+  .search-hero { padding: 38px 0 30px; }
+  .search-hero h1 { margin: 0 0 22px; font-size: clamp(2rem, 3vw, 3rem); line-height: .95; letter-spacing: -.065em; text-align: center; }
+  .search-intro { display: none; }
+  .search-form { position: relative; display: flex; align-items: center; width: min(670px, 100%); min-height: 50px; margin-inline: auto; border: 1px solid var(--paper-line); border-radius: 999px; background: var(--white-pure); box-shadow: 0 18px 36px rgb(0 0 0 / 8%); }
+  .search-icon, .empty-search-icon { width: 30px; height: 30px; display: block; border: 4px solid var(--blue); border-radius: 50%; }
+  .search-icon { width: 15px; height: 15px; margin: 0 16px; flex: 0 0 auto; border-width: 2px; }
+  .search-icon::after, .empty-search-icon::after { content: ''; display: block; width: 8px; height: 2px; margin: 12px 0 0 11px; transform: rotate(45deg); transform-origin: left center; background: var(--blue); }
+  .search-form input { min-width: 0; flex: 1; height: 48px; border: 0; outline: 0; background: transparent; color: var(--black); font: inherit; font-size: .78rem; }
+  .search-form input::placeholder { color: #858d8a; }
+  .search-submit { align-self: stretch; min-width: 92px; margin: 5px; border: 0; border-radius: 999px; background: var(--blue); color: var(--white-pure); font: inherit; font-size: .62rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; }
+  .search-submit span, .card-link b, .outline-button span { margin-left: 12px; font-size: 1.3em; }
+  .search-clear { margin-right: 14px; border: 0; background: transparent; color: #8a908b; font-size: 1.45rem; cursor: pointer; }
+  .area-filter { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 12px; }
+  .area-filter > span, .results-heading h2, .suggestions > span { color: #858a86; font-size: .62rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+  .area-options { display: flex; gap: 7px; flex-wrap: wrap; }
+  .area-option, .suggestions button { padding: 7px 14px; border: 1px solid #d8dad7; border-radius: 999px; background: transparent; color: var(--black); font: inherit; font-size: .62rem; cursor: pointer; }
+  .area-option[aria-pressed='true'] { border-color: var(--blue); background: var(--blue); color: var(--white-pure); font-weight: 800; }
+  .search-results { padding-bottom: 120px; }
+  .results-heading { display: flex; align-items: baseline; gap: 12px; }
+  .results-heading { justify-content: center; }
+  .results-heading h2 { margin: 0; font-size: .65rem; }
+  .results-count { color: var(--green); font-size: 1.2rem; font-weight: 800; }
+  .results-rule { display: none; }
+  .search-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 16px; margin-top: 16px; }
+  .search-card { border: 1px solid #d7dad6; border-radius: 12px; background: var(--white-pure); transition: transform var(--motion-fast) var(--motion-ease), box-shadow var(--motion-fast) var(--motion-ease); }
+  .search-card:hover { transform: translateY(-5px); box-shadow: 0 16px 30px rgb(0 0 0 / 8%); }
+  .search-card a { display: grid; grid-template-columns: 40% 60%; min-height: 178px; padding: 14px; gap: 15px; }
+  .search-card-image { min-height: 150px; overflow: hidden; border-radius: 9px; background: #f1f0eb; }
+  .search-card-image img { width: 100%; height: 100%; display: block; object-fit: cover; }
+  .search-card-image span { display: block; width: 60%; height: 75%; margin: 12% auto; background: linear-gradient(135deg, #5c3924, #c18b57, #221811); }
+  .search-card-copy { display: flex; flex-direction: column; padding: 2px 0 0; min-width: 0; }
+  .card-area { margin: 0 0 9px; color: var(--green); font-size: .57rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+  .search-card h3 { margin: 0; color: var(--black); font-size: clamp(.85rem, 1vw, 1rem); line-height: 1.1; }
+  .card-finish { margin: 9px 0 0; color: #a5aca7; font-size: .64rem; }
+  .card-link { align-self: flex-start; margin-top: auto; padding: 8px 11px; border-radius: 6px; background: var(--blue); color: var(--white-pure); font-size: .58rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; }
+  .search-card[hidden] { display: none; }
+  .no-results { max-width: 760px; margin: 56px auto 0; padding: 72px 30px; background: #f2f1ed; text-align: center; }
+  .empty-search-icon { margin: 0 auto 34px; }
+  .no-results h2 { margin: 0; font-size: clamp(1.5rem, 3vw, 2.5rem); }
+  .no-results p { color: #858a86; font-size: 1.15rem; }
+  .outline-button { margin-top: 20px; padding: 16px 24px; border: 2px solid var(--blue); background: transparent; color: var(--blue); font: inherit; font-weight: 800; text-transform: uppercase; cursor: pointer; }
+  .suggestions { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; margin-top: 44px; }
+  .suggestions button { padding: 10px 20px; }
+  @media (max-width: 900px) { .search-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .search-card a { grid-template-columns: 1fr; gap: 15px; } .search-card-image { min-height: 230px; aspect-ratio: 1.35; } .search-card-copy { padding: 0; min-height: 150px; } }
+  @media (max-width: 640px) { .search-hero, .search-results { width: auto; margin-inline: 30px; } .search-hero { padding: 56px 0 42px; } .search-hero h1 { font-size: clamp(2.7rem, 12vw, 4rem); } .search-intro { margin: 18px 0 32px; font-size: 1.05rem; } .search-form { min-height: 68px; } .search-icon { width: 23px; height: 23px; margin: 0 15px; border-width: 3px; } .search-icon::after { width: 11px; height: 3px; margin: 18px 0 0 16px; } .search-form input { height: 66px; font-size: 1rem; } .search-submit { min-width: 0; padding: 0 15px; margin: 5px; font-size: .75rem; } .search-submit span { margin-left: 4px; } .search-clear { margin-right: 8px; } .area-filter { align-items: flex-start; flex-direction: column; gap: 14px; margin-top: 26px; } .area-options { width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; } .area-option { padding: 11px 4px; font-size: .8rem; } .search-results { padding-bottom: 70px; } .results-heading h2 { font-size: .78rem; } .results-rule { margin: 18px 0 22px; } .search-grid { gap: 20px 12px; } .search-card a { min-height: 0; padding: 10px; gap: 10px; } .search-card-image { min-height: 0; aspect-ratio: 1.2; } .card-area { margin-bottom: 8px; font-size: .65rem; } .search-card h3 { font-size: .95rem; } .card-finish, .card-link { display: none; } .search-card-copy { min-height: 64px; } .no-results { margin-top: 30px; padding: 48px 20px; } .no-results p { font-size: .95rem; } .suggestions { margin-top: 30px; } .suggestions > span { width: 100%; } }
+</style>

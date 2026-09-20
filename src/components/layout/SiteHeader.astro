@@ -6,13 +6,14 @@ interface Props {
 const { currentPath = '/' } = Astro.props;
 const navItems = [
   { label: 'Inicio', href: '/' },
-  { label: 'Productos', href: '/productos' },
-  { label: 'Proyectos', href: '/proyectos' },
-  { label: 'Ubicaciones', href: '/ubicaciones' },
-  { label: 'Contacto', href: '/contacto' }
+  { label: 'Interior', href: '/productos?categoria=interior' },
+  { label: 'Exterior', href: '/productos?categoria=exterior' },
+  // TODO: mover esta URL a la configuracion editable del panel de admin.
+  { label: 'Catálogo', href: 'https://drive.google.com/drive/folders/12p5iAFIaNjnZSjPvLG4gPOmNUzrrt794?usp=drive_link', external: true },
+  { label: 'Contáctanos', href: '/contacto' }
 ];
 
-const isActive = (href: string) => currentPath === href;
+const isActive = (href: string) => currentPath === href.split('?')[0];
 ---
 
 <!-- Seccion: Header / Navegacion principal -->
@@ -23,15 +24,21 @@ const isActive = (href: string) => currentPath === href;
     </a>
     <nav class="desktop-nav" aria-label="Navegacion principal">
       {navItems.map((item) => (
-        <a class:list={[isActive(item.href) && 'active', 'motion-nav-link']} href={item.href} aria-current={isActive(item.href) ? 'page' : undefined}>
+        <a class:list={[isActive(item.href) && 'active', 'motion-nav-link']} href={item.href} target={item.external ? '_blank' : undefined} rel={item.external ? 'noreferrer' : undefined} aria-current={isActive(item.href) ? 'page' : undefined}>
           {item.label}
         </a>
       ))}
     </nav>
+    <a class:list={['search-link', isActive('/busqueda') && 'active']} href="/busqueda" aria-label="Buscar" aria-current={isActive('/busqueda') ? 'page' : undefined}>
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="10.8" cy="10.8" r="6.6"></circle>
+        <path d="m16 16 5 5"></path>
+      </svg>
+    </a>
     <button class="mobile-menu-button" type="button" data-mobile-menu-button aria-expanded="false">Menu</button>
   </div>
   <nav class="mobile-menu" data-mobile-menu data-motion-menu hidden aria-label="Navegacion movil">
-    {navItems.map((item) => <a class:list={[isActive(item.href) && 'active', 'motion-nav-link']} data-motion-menu-item href={item.href}>{item.label}</a>)}
+    {navItems.map((item) => <a class:list={[isActive(item.href) && 'active', 'motion-nav-link']} data-motion-menu-item href={item.href} target={item.external ? '_blank' : undefined} rel={item.external ? 'noreferrer' : undefined}>{item.label}</a>)}
   </nav>
 </header>
 
@@ -59,6 +66,37 @@ const isActive = (href: string) => currentPath === href;
     display: none;
   }
 
+  .search-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    margin-left: 8px;
+    width: 28px;
+    height: 28px;
+    color: var(--black);
+  }
+
+  .search-link svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-width: 1.8;
+  }
+
+  .search-link:hover,
+  .search-link:focus-visible,
+  .search-link.active {
+    color: var(--blue);
+  }
+
+  .search-link:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: 4px;
+  }
+
   @media (max-width: 640px) {
     .catalog-nav-shell {
       min-height: 70px;
@@ -74,6 +112,10 @@ const isActive = (href: string) => currentPath === href;
       font-size: 0.72rem;
       font-weight: 800;
       text-transform: uppercase;
+    }
+
+    .search-link {
+      margin-left: auto;
     }
 
     .mobile-menu:not([hidden]) {

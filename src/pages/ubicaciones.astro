@@ -4,10 +4,12 @@ import LocationsPage from '../components/locations/LocationsPage.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
 import SiteHeader from '../components/layout/SiteHeader.astro';
 import { getLocations } from '../services/locationService';
+import { getWhatsappUrl } from '../services/siteSettingsService';
 
 export const prerender = false;
 
 const locations = await getLocations();
+const whatsappUrl = await getWhatsappUrl();
 ---
 
 <html lang="es">
@@ -21,7 +23,7 @@ const locations = await getLocations();
   </head>
   <body>
     <SiteHeader currentPath="/ubicaciones" />
-    <LocationsPage locations={locations} whatsappUrl="https://wa.me/528123512953" />
+    <LocationsPage locations={locations} whatsappUrl={whatsappUrl} />
     <SiteFooter />
   </body>
 </html>

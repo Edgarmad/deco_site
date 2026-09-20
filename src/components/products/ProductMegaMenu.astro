@@ -9,6 +9,42 @@ type Props = {
 
 const { activeCategory = '' } = Astro.props;
 const products = await getProducts();
+const categoryOrder: Record<ProductMacroCategory, string[]> = {
+  interior: [
+    'lambrin',
+    'panel-reforzado',
+    'placa-marmol',
+    'panel-pvc',
+    'piso-spc',
+    'cristal-carbono',
+    'piedra-pu'
+  ],
+  exterior: ['lambrin-exterior', 'wall-cladding', 'deck-exterior', 'accesorios']
+};
+
+const getCategoryOrder = (slug: string, macroCategory: ProductMacroCategory) => {
+  const normalizedSlug = slug.replaceAll('_', '-').toLowerCase();
+  const aliases: [string, string[]][] = macroCategory === 'interior'
+    ? [
+        ['lambrin', ['lambrin', 'panel-lambrin-wpc']],
+        ['panel-reforzado', ['panel-reforzado']],
+        ['placa-marmol', ['placa-marmol', 'placas-marmol', 'placas-tipo-marmol']],
+        ['panel-pvc', ['panel-pvc']],
+        ['piso-spc', ['piso-spc', 'pisos-spc']],
+        ['cristal-carbono', ['cristal-carbono']],
+        ['piedra-pu', ['piedra-pu']]
+      ]
+    : [
+        ['lambrin-exterior', ['lambrin-exterior']],
+        ['wall-cladding', ['wall-cladding', 'wallcladding']],
+        ['deck-exterior', ['deck', 'deck-exterior']],
+        ['accesorios', ['accesorios']]
+      ];
+  const categoryKey = aliases.find(([, slugs]) => slugs.some((alias) => normalizedSlug === alias || normalizedSlug.startsWith(`${alias}-`)))?.[0];
+  const index = categoryKey ? categoryOrder[macroCategory].indexOf(categoryKey) : -1;
+  return index === -1 ? categoryOrder[macroCategory].length : index;
+};
+
 const productTypes = Array.from(
   products.reduce((types, product) => {
     if (!types.has(product.categorySlug)) {
@@ -21,7 +57,10 @@ const productTypes = Array.from(
     }
     return types;
   }, new Map<string, { slug: string; name: string; macroCategory: ProductMacroCategory; href: string }>()).values()
-).sort((first, second) => first.name.localeCompare(second.name, 'es'));
+).sort((first, second) => {
+  const orderDifference = getCategoryOrder(first.slug, first.macroCategory) - getCategoryOrder(second.slug, second.macroCategory);
+  return orderDifference || first.name.localeCompare(second.name, 'es');
+});
 const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
   { label: 'Productos de interior', macroCategory: 'interior' },
   { label: 'Productos de exterior', macroCategory: 'exterior' }
