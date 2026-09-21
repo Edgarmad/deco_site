@@ -30,11 +30,20 @@ const technicalRows = [
   ['Clasificación de fuego', specs.fire_classification]
 ].filter(([, value]) => value != null && value !== '');
 const category = categories.find((item) => item.slug === product.categorySlug);
+const currentVariant = product.variants[0];
+const currentVariantKey = currentVariant?.id ?? (currentVariant ? `${product.categorySlug}:${currentVariant.slug}` : undefined);
 const siblingProducts = products.filter((item) => item.categorySlug === product.categorySlug);
+const variantSiblingProducts = currentVariantKey
+  ? siblingProducts.filter((item) => {
+      const itemVariant = item.variants[0];
+      const itemVariantKey = itemVariant?.id ?? (itemVariant ? `${item.categorySlug}:${itemVariant.slug}` : undefined);
+      return itemVariantKey === currentVariantKey;
+    })
+  : siblingProducts;
 const relatedProducts = siblingProducts.filter((item) => item.slug !== product.slug).slice(0, 3);
 const allColors = product.variants.flatMap((variant) => variant.colors);
 const activeTone = allColors[0];
-const variantItems = siblingProducts.length > 0 ? siblingProducts : [product];
+const variantItems = variantSiblingProducts.length > 0 ? variantSiblingProducts : [product];
 const faqItems = Object.entries(product.faqItems ?? {});
 const installationSteps = (product.installationNotes ?? '').split(/\r?\n/).filter(Boolean);
 const galleryImages = product.galleryImages ?? (product.gallery ?? []).map(url => ({ url, alt: product.name }));
@@ -318,15 +327,15 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
     display: grid;
     justify-items: center;
     gap: 8px;
-    color: #777f77;
-    font-size: 0.66rem;
+    color: var(--black);
+    font-size: 1.32rem;
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
   .tone-selector a.active {
-    color: var(--black);
+    color: #777f77;
   }
 
   .tone-dot {
@@ -921,7 +930,7 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
 
     .tone-selector a {
       min-width: 144px;
-      font-size: 0;
+      font-size: 1.32rem;
     }
 
     .tone-dot {
