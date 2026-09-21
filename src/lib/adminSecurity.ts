@@ -95,7 +95,9 @@ export const applyAdminSecurityHeaders = (response: Response) => {
   headers.set('Expires', '0');
   headers.set('X-Content-Type-Options', 'nosniff');
   headers.set('X-Frame-Options', 'DENY');
-  headers.set('Referrer-Policy', 'no-referrer');
+  // Los formularios POST necesitan conservar su origen: no-referrer puede producir
+  // Origin: null en el navegador y bloquear el login con nuestra validación CSRF.
+  headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
   headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
   headers.set(
     'Content-Security-Policy',

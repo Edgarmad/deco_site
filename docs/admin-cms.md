@@ -6,6 +6,8 @@ Actualizado: 2026-09-21.
 
 El panel usa Supabase Auth email/password con cookies HTTP-only y validación del rol `admin` en servidor. Cada operación usa la clave anon más la sesión del usuario; la service role no forma parte de las páginas del panel. Formularios con CSRF, controles de origen en producción, confirmación de eliminaciones y de cambios de slug, cabeceras no-store/noindex y RLS.
 
+El panel usa `Referrer-Policy: strict-origin-when-cross-origin`. No cambiarla a `no-referrer`: un formulario POST puede enviar `Origin: null` y ser rechazado con «Origen no permitido» antes de validar las credenciales. La corrección requiere desplegar el código y recargar `/admin/login` para recibir la cabecera actualizada. El origen `null` y los orígenes externos siguen bloqueados.
+
 La relación de productos es:
 
 ```text
