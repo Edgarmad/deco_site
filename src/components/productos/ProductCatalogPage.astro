@@ -65,6 +65,7 @@ const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
 ];
 // Textos compartidos por la barra de acciones para mantener sincronizado el estado visual del panel.
 const filterLabels = {
+  show: 'Filtrar',
   hide: 'Ocultar filtros'
 };
 ---
@@ -84,7 +85,7 @@ const filterLabels = {
         ))}
       </div>
       <div class="catalog-controls">
-        <button type="button" class="reset-filters motion-button" data-filter-toggle aria-expanded="true">{filterLabels.hide}</button>
+        <button type="button" class="reset-filters motion-button" data-filter-toggle aria-expanded="false">{filterLabels.show}</button>
         <label>
           Ordenar por
           <select class="motion-field" data-sort-select>
@@ -141,12 +142,17 @@ const filterLabels = {
   let currentVariant = '';
   let currentPage = 1;
 
-  if (window.matchMedia('(max-width: 640px)').matches && filterToggle instanceof HTMLButtonElement && filterBody instanceof HTMLElement) {
-    filterBody.classList.add('hidden');
-    filterBody.dataset.open = 'false';
-    filterToggle.setAttribute('aria-expanded', 'false');
-    filterToggle.textContent = 'Filtrar';
-  }
+  const setFilterVisibility = (isOpen: boolean) => {
+    if (!(filterToggle instanceof HTMLButtonElement) || !(filterBody instanceof HTMLElement)) return;
+    filterBody.classList.toggle('hidden', !isOpen);
+    filterBody.dataset.open = String(isOpen);
+    filterToggle.setAttribute('aria-expanded', String(isOpen));
+    filterToggle.textContent = isOpen ? 'Ocultar filtros' : 'Filtrar';
+    if (filterPanel instanceof HTMLElement) filterPanel.classList.toggle('is-collapsed', !isOpen);
+  };
+
+  if (window.matchMedia('(max-width: 900px)').matches) setFilterVisibility(false);
+  else setFilterVisibility(true);
 
   const updateUrl = () => {
     const params = new URLSearchParams();
@@ -311,11 +317,7 @@ const filterLabels = {
   }));
   if (filterToggle instanceof HTMLButtonElement && filterBody instanceof HTMLElement) {
     filterToggle.addEventListener('click', () => {
-      const isHidden = filterBody.classList.toggle('hidden');
-      filterToggle.setAttribute('aria-expanded', String(!isHidden));
-      filterBody.dataset.open = String(!isHidden);
-      if (filterPanel instanceof HTMLElement) filterPanel.classList.toggle('is-collapsed', isHidden);
-      filterToggle.textContent = isHidden ? 'Filtrar' : 'Ocultar filtros';
+      setFilterVisibility(filterBody.dataset.open !== 'true');
     });
   }
 

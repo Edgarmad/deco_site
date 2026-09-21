@@ -12,7 +12,7 @@ const { productTypes, productVariants, colors } = Astro.props;
 ---
 
 <aside class="product-filters motion-filterbar" data-filter-panel data-sticky-filter>
-  <div class="filter-body motion-filter-panel" data-filter-body data-open="true">
+  <div class="filter-body motion-filter-panel" data-filter-body data-open="false">
     <fieldset>
       <legend>Familia</legend>
       {productTypes.map((productType) => (
@@ -145,6 +145,25 @@ const { productTypes, productVariants, colors } = Astro.props;
     input[type='search'] {
       margin-top: 0;
       border-radius: 6px;
+    }
+  }
+
+  @media (min-width: 901px) {
+    .filter-body:not(.hidden)[data-open='false'] {
+      opacity: 1;
+      visibility: visible;
+      transform: translate3d(0, 0, 0);
+      transition: none;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .filter-body[data-open='false'] {
+      display: none;
+    }
+
+    .filter-body[data-open='true'] {
+      display: grid;
     }
   }
 </style>
