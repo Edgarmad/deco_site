@@ -26,6 +26,27 @@ Por ahora no se cargan `coverage_type`, `coverage_unit` ni `warranty`.
 
 Las dimensiones se guardan en `product_options.dimensions` como `Alto x Ancho cm`, conservando las unidades visibles. El precio inicial es `product_options.price = 1.00` para todos los productos.
 
+## Datos obligatorios para la calculadora
+
+La calculadora consume los textos guardados en `product_options.technical_specs` y `product_options.dimensions`. Para evitar cálculos incorrectos, el admin debe conservar exactamente estos formatos:
+
+```json
+{
+  "presentation": "Caja",
+  "pieces_per_box": "10 piezas",
+  "coverage": "4.60 m²"
+}
+```
+
+- `presentation`: texto comercial, por ejemplo `Caja`, `Paquete` o `Placa`.
+- `pieces_per_box`: número entero seguido de `piezas`, por ejemplo `10 piezas`, o `N/A` cuando cada presentación equivale a una unidad.
+- `coverage`: número positivo seguido obligatoriamente de `m²`, por ejemplo `4.60 m²`. No usar solo `4.60`.
+- `dimensions`: debe escribirse como `Alto x Ancho cm`, por ejemplo `290 x 10 cm`. Para productos lineales, el primer valor es el largo de una pieza.
+- No escribir unidades distintas, expresiones como `10*5`, texto adicional en medio, ni formatos ambiguos.
+- Los productos lineales se identifican por su familia; no se debe intentar calcularlos usando `coverage`.
+
+Los accesorios y productos sin rendimiento no deben recibir datos inventados para habilitar la calculadora. Si `pieces_per_box` es `N/A`, el cálculo considera una unidad por presentación.
+
 ## Archivos
 
 - `technical_sheet_url`: enlace externo a la ficha tecnica en Drive.

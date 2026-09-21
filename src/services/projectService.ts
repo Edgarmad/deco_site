@@ -71,6 +71,7 @@ export const getProjects = async (): Promise<Project[]> => {
     .order('sort_order', { ascending: true });
 
   if (error) throw new Error(`No se pudieron cargar los proyectos: ${error.message}`);
+  if (!data?.length) return projectPlaceholders;
   return (data as unknown as SupabaseProject[]).map(normalizeProject);
 };
 

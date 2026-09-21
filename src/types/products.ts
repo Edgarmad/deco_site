@@ -4,6 +4,21 @@ export type ProductPublicationStatus = 'draft' | 'published' | 'placeholder';
 
 export type ProductInventoryStatus = 'empty' | 'partial' | 'complete';
 
+export type ProductCalculatorConfig =
+  | {
+      mode: 'area';
+      coverage: number;
+      coverageUnit: 'm²';
+      piecesPerPresentation?: number;
+      presentationLabel?: string;
+    }
+  | {
+      mode: 'linear';
+      pieceLengthMeters: number;
+      piecesPerPresentation?: number;
+      presentationLabel?: string;
+    };
+
 export type ProductCategory = {
   id: string;
   name: string;
@@ -65,4 +80,5 @@ export type Product = {
   technicalSheetUrl?: string;
   installationGuideUrl?: string;
   sectionVisibility?: Record<string, boolean>;
+  calculator?: ProductCalculatorConfig;
 };

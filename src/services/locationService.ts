@@ -60,5 +60,6 @@ export const getLocations = async (): Promise<Location[]> => {
     .order('city', { ascending: true });
 
   if (error) throw new Error(`No se pudieron cargar las ubicaciones: ${error.message}`);
+  if (!data?.length) return locationFallbacks;
   return data.map(normalizeLocation);
 };

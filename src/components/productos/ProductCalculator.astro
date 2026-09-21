@@ -1,0 +1,120 @@
+---
+import type { ProductCalculatorConfig } from '../../types/products';
+
+type Props = { config: ProductCalculatorConfig; productName: string };
+const { config, productName } = Astro.props;
+const isArea = config.mode === 'area';
+---
+
+<section class="product-calculator" data-product-calculator data-mode={config.mode} aria-labelledby="calculator-title">
+  <div class="calculator-heading">
+    <p>Calculadora de materiales</p>
+    <h2 id="calculator-title">Calcula cuánto material necesitas para tu proyecto</h2>
+    <small>Calcula una cantidad aproximada para {productName}.</small>
+  </div>
+  <form class="calculator-form" data-calculator-form novalidate>
+    {isArea ? <fieldset class="calculator-modes">
+      <legend>Forma de cálculo</legend>
+      <label><input type="radio" name={`calculator-mode-${productName}`} value="area" checked data-calculator-mode /> Calcula por m²</label>
+      <label><input type="radio" name={`calculator-mode-${productName}`} value="dimensions" data-calculator-mode /> Calcula Base × Altura</label>
+    </fieldset> : <div class="linear-label">Metros lineales requeridos</div>}
+
+    <div class="calculator-inputs">
+      {isArea && <label data-input-area>m² requeridos<input type="number" min="0.01" step="any" inputmode="decimal" data-area-input /></label>}
+      {isArea && <label data-input-dimension hidden>Base (m)<input type="number" min="0.01" step="any" inputmode="decimal" data-base-input /></label>}
+      {isArea && <label data-input-dimension hidden>Altura (m)<input type="number" min="0.01" step="any" inputmode="decimal" data-height-input /></label>}
+      {!isArea && <label>Metros lineales<input type="number" min="0.01" step="any" inputmode="decimal" data-linear-input /></label>}
+    </div>
+    <p class="calculator-error" data-calculator-error role="alert" hidden>Ingresa valores positivos para calcular.</p>
+
+    <div class="calculator-results" aria-live="polite">
+      <div><span>{isArea ? 'm² totales' : 'Metros solicitados'}</span><strong data-result-requested>—</strong></div>
+      <div><span>Unidades</span><strong data-result-units>—</strong></div>
+      {config.presentationLabel && <div><span>Presentaciones</span><strong data-result-presentations>—</strong></div>}
+      <div><span>{isArea ? 'm² cubiertos' : 'Metros cubiertos'}</span><strong data-result-covered>—</strong></div>
+    </div>
+    <a class="calculator-cta motion-button" href={`/contacto?producto=${encodeURIComponent(productName)}`}>Cotiza aquí</a>
+  </form>
+</section>
+
+<script define:vars={{ config }}>
+  const calculator = document.querySelector('[data-product-calculator]');
+  if (calculator) {
+    const form = calculator.querySelector('[data-calculator-form]');
+    const modeInputs = [...calculator.querySelectorAll('[data-calculator-mode]')];
+    const areaInput = calculator.querySelector('[data-area-input]');
+    const baseInput = calculator.querySelector('[data-base-input]');
+    const heightInput = calculator.querySelector('[data-height-input]');
+    const linearInput = calculator.querySelector('[data-linear-input]');
+    const dimensions = [...calculator.querySelectorAll('[data-input-dimension]')];
+    const areaField = calculator.querySelector('[data-input-area]');
+    const error = calculator.querySelector('[data-calculator-error]');
+    const requestedResult = calculator.querySelector('[data-result-requested]');
+    const unitsResult = calculator.querySelector('[data-result-units]');
+    const presentationsResult = calculator.querySelector('[data-result-presentations]');
+    const coveredResult = calculator.querySelector('[data-result-covered]');
+    const format = (value) => Number(value.toFixed(2)).toLocaleString('es-MX');
+
+    const recalculate = () => {
+      const mode = config.mode === 'linear' ? 'linear' : (modeInputs.find((input) => input.checked)?.value ?? 'area');
+      const values = config.mode === 'linear'
+        ? [Number(linearInput?.value)]
+        : mode === 'area'
+          ? [Number(areaInput?.value)]
+          : [Number(baseInput?.value), Number(heightInput?.value)];
+      const valid = values.every((value) => Number.isFinite(value) && value > 0);
+      const requested = mode === 'area' ? values[0] : values[0] * values[1];
+      const result = config.mode === 'linear'
+        ? (valid ? (() => {
+            const pieces = Math.ceil(requested / config.pieceLengthMeters);
+            const presentations = config.piecesPerPresentation ? Math.ceil(pieces / config.piecesPerPresentation) : pieces;
+            const units = config.piecesPerPresentation ? presentations * config.piecesPerPresentation : pieces;
+            return { requested, presentations, units, covered: units * config.pieceLengthMeters };
+          })() : undefined)
+        : (valid ? (() => {
+            const presentations = Math.ceil(requested / config.coverage);
+            const units = presentations * (config.piecesPerPresentation ?? 1);
+            return { requested, presentations, units, covered: presentations * config.coverage };
+          })() : undefined);
+
+      if (areaField) areaField.hidden = mode !== 'area';
+      dimensions.forEach((field) => { field.hidden = mode !== 'dimensions'; });
+      if (error) error.hidden = valid || values.every((value) => !value);
+      if (!result) {
+        [requestedResult, unitsResult, presentationsResult, coveredResult].forEach((element) => { if (element) element.textContent = '—'; });
+        return;
+      }
+      if (requestedResult) requestedResult.textContent = format(result.requested);
+      if (unitsResult) unitsResult.textContent = format(result.units);
+      if (presentationsResult) presentationsResult.textContent = format(result.presentations);
+      if (coveredResult) coveredResult.textContent = format(result.covered);
+    };
+
+    form?.addEventListener('input', recalculate);
+    modeInputs.forEach((input) => input.addEventListener('change', recalculate));
+    recalculate();
+  }
+</script>
+
+<style>
+  .product-calculator { padding: 10px 8vw 8px; background: #e8e9e7; border-top: 1px solid var(--paper-line); }
+  .calculator-heading { max-width: 1000px; margin: 0 auto 18px; text-align: center; }
+  .calculator-heading p { display: none; }
+  .calculator-heading h2 { margin: 0; color: #26312f; font-size: clamp(1.05rem, 1.45vw, 1.35rem); font-style: italic; font-weight: 400; line-height: 1.15; text-decoration: underline; }
+  .calculator-heading small { display: none; }
+  .calculator-form { display: grid; grid-template-columns: 360px minmax(420px, 1fr) 170px; grid-template-rows: auto auto auto; column-gap: 34px; align-items: center; max-width: 1000px; min-height: 112px; margin: auto; }
+  .calculator-modes { grid-column: 1; grid-row: 1; display: flex; gap: 16px; margin: 0 0 10px; padding: 0; border: 0; color: #414841; font-size: .7rem; }
+  .calculator-modes legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .calculator-modes label { display: flex; align-items: center; gap: 7px; }
+  .calculator-inputs { grid-column: 1; grid-row: 2; display: flex; gap: 8px; min-height: 42px; }
+  .calculator-inputs label { min-width: 148px; color: #697069; font-size: .62rem; font-weight: 400; letter-spacing: .03em; }
+  .calculator-inputs input { display: block; width: 148px; margin-top: 5px; padding: 11px 12px; border: 1px solid #d0d3ce; background: transparent; color: var(--black); text-align: center; }
+  .linear-label { grid-column: 1; grid-row: 1; margin: 0 0 10px; color: #697069; font-size: .7rem; font-weight: 400; }
+  .calculator-error { grid-column: 1; grid-row: 3; margin: 5px 0 0; color: #9b3a2e; font-size: .68rem; }
+  .calculator-results { grid-column: 2; grid-row: 1 / span 3; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin: 0; text-align: center; }
+  .calculator-results div { display: grid; gap: 8px; }
+  .calculator-results span { color: #697069; font-size: .68rem; }
+  .calculator-results strong { font-size: 1.45rem; font-weight: 400; }
+  .calculator-cta { grid-column: 3; grid-row: 2; display: block; width: 168px; margin: 0; padding: 11px 14px; background: #999b9a; color: var(--white-pure); text-align: center; font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  @media (max-width: 850px) { .product-calculator { padding: 28px 20px; } .calculator-form { display: grid; grid-template-columns: 1fr; grid-template-rows: auto; gap: 16px; } .calculator-modes, .calculator-inputs, .linear-label, .calculator-error, .calculator-results, .calculator-cta { grid-column: 1; grid-row: auto; } .calculator-modes, .calculator-inputs { align-items: stretch; flex-direction: column; } .calculator-inputs label, .calculator-inputs input { width: 100%; } .calculator-results { grid-template-columns: repeat(2, 1fr); gap: 20px 10px; } .calculator-cta { width: 100%; margin: auto; } }
+</style>

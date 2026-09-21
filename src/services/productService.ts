@@ -1,5 +1,6 @@
 import { productCategories, productPlaceholders } from '../data/products';
 import type { Product, ProductCategory, ProductMacroCategory } from '../types/products';
+import { getProductCalculator } from '../lib/productCalculator';
 import { getPublicStorageUrl, supabase } from '../lib/supabase';
 
 type SupabaseCategory = {
@@ -95,7 +96,7 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
     .filter((image): image is string => Boolean(image));
   const variantDisplayName = variant.name.trim().toLowerCase() === 'general' ? product.name : variant.name;
 
-  return {
+  const normalizedProduct = {
     id: option.id,
     name: `${product.name} ${option.name}`.trim(),
     slug: option.slug,
@@ -146,6 +147,7 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
     installationGuideUrl: option.installation_guide_url ?? undefined,
     sectionVisibility: option.section_visibility ?? undefined
   };
+  return { ...normalizedProduct, calculator: getProductCalculator(normalizedProduct) };
 };
 
 const normalizeLabel = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
