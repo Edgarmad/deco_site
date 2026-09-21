@@ -1,4 +1,5 @@
 ---
+import { getCatalogUrl } from '../../services/siteSettingsService';
 interface Props {
   currentPath?: string;
 }
@@ -8,8 +9,7 @@ const navItems = [
   { label: 'Inicio', href: '/' },
   { label: 'Interior', href: '/productos?categoria=interior' },
   { label: 'Exterior', href: '/productos?categoria=exterior' },
-  // TODO: mover esta URL a la configuracion editable del panel de admin.
-  { label: 'Catálogo', href: 'https://drive.google.com/drive/folders/12p5iAFIaNjnZSjPvLG4gPOmNUzrrt794?usp=drive_link', external: true },
+  { label: 'Catálogo', href: await getCatalogUrl(), external: true },
   { label: 'Contáctanos', href: '/contacto' }
 ];
 

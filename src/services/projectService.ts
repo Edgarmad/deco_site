@@ -16,6 +16,8 @@ type SupabaseProject = {
   challenge: string | null;
   result: string | null;
   featured: boolean | null;
+  seo_title: string | null;
+  seo_description: string | null;
   project_images?: {
     storage_bucket: string;
     storage_path: string;
@@ -33,6 +35,10 @@ const normalizeProject = (project: SupabaseProject): Project => {
 
   return {
     name: project.title,
+    content: project.content ?? undefined,
+    seoTitle: project.seo_title ?? undefined,
+    seoDescription: project.seo_description ?? undefined,
+    gallery: images.filter(image => image !== mainImage).map(image => ({ url: getPublicStorageUrl(image.storage_bucket, image.storage_path) ?? '', alt: image.alt_text ?? project.title, kind: image.kind })),
     slug: project.slug,
     category: project.category ?? 'Proyecto',
     description: project.summary ?? project.content ?? '',
@@ -50,7 +56,7 @@ const normalizeProject = (project: SupabaseProject): Project => {
 };
 
 const projectSelect = `
-  id,title,slug,summary,content,category,location,year,surface,materials,challenge,result,featured,
+  id,title,slug,summary,content,category,location,year,surface,materials,challenge,result,featured,seo_title,seo_description,
   project_images(storage_bucket,storage_path,alt_text,kind,sort_order)
 `;
 
@@ -64,7 +70,7 @@ export const getProjects = async (): Promise<Project[]> => {
     .order('featured', { ascending: false })
     .order('sort_order', { ascending: true });
 
-  if (error || !data?.length) return projectPlaceholders;
+  if (error) throw new Error(`No se pudieron cargar los proyectos: ${error.message}`);
   return (data as unknown as SupabaseProject[]).map(normalizeProject);
 };
 
@@ -78,6 +84,7 @@ export const getProjectBySlug = async (slug: string): Promise<Project | undefine
     .eq('slug', slug)
     .maybeSingle();
 
-  if (error || !data) return undefined;
+  if (error) throw new Error(`No se pudo consultar el proyecto: ${error.message}`);
+  if (!data) return undefined;
   return normalizeProject(data as unknown as SupabaseProject);
 };

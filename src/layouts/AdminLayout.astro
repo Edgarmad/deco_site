@@ -13,6 +13,11 @@ const csrfToken = getCsrfToken(Astro.cookies);
 const navItems = [
   { label: 'Resumen', href: '/admin' },
   { label: 'Productos', href: '/admin/productos' },
+  { label: 'Categorías', href: '/admin/categorias' },
+  { label: 'Familias', href: '/admin/familias' },
+  { label: 'Variantes', href: '/admin/variantes' },
+  { label: 'Proyectos', href: '/admin/proyectos' },
+  { label: 'Ubicaciones', href: '/admin/ubicaciones' },
   { label: 'Configuración', href: '/admin/configuracion' }
 ];
 const initials = userEmail?.slice(0, 2).toUpperCase() ?? 'AD';

@@ -1,12 +1,8 @@
 ---
 import WhatsAppFloat from './WhatsAppFloat.astro';
+import { getProducts } from '../../services/productService';
 
-const popularProducts = [
-  { name: 'Deck para piso', slug: 'deck-para-piso' },
-  { name: 'Esquinero exterior', slug: 'esquinero-exterior' },
-  { name: 'Esquinero laminado', slug: 'esquinero-laminado' },
-  { name: 'Tablero premium', slug: 'tablero-premium' }
-];
+const popularProducts = (await getProducts()).slice(0, 4);
 ---
 
 <!-- Seccion: Footer / Enlaces de apoyo -->

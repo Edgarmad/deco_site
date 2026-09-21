@@ -16,10 +16,14 @@ if (!project) return new Response(null, { status: 404 });
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={project.description} />
+    <meta name="description" content={project.seoDescription ?? project.description} />
+    <link rel="canonical" href={new URL(`/proyectos/${project.slug}`, Astro.url.origin).href} />
+    <meta property="og:title" content={project.seoTitle ?? project.name} />
+    <meta property="og:description" content={project.seoDescription ?? project.description} />
+    {project.image && <meta property="og:image" content={project.image} />}
     <link rel="icon" href="/assets/favicon.ico" />
     <script src="/assets/scripts/deco-motion.js" defer></script>
-    <title>{project.name} | Proyectos Deco ABC</title>
+    <title>{project.seoTitle ?? `${project.name} | Proyectos Deco ABC`}</title>
   </head>
   <body>
     <SiteHeader currentPath="/proyectos" />

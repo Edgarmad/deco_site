@@ -37,7 +37,8 @@ if (!session) return Astro.redirect('/admin/login');
 const supabase = createSupabaseServerClient(Astro.request, Astro.cookies);
 const search = Astro.url.searchParams.get('q')?.trim() ?? '';
 const status = Astro.url.searchParams.get('status') ?? 'all';
-const page = Math.max(Number(Astro.url.searchParams.get('page') ?? '1'), 1);
+const rawPage = Number(Astro.url.searchParams.get('page') ?? '1');
+const page = Number.isSafeInteger(rawPage) && rawPage > 0 ? Math.min(rawPage, 100000) : 1;
 const pageSize = 8;
 const from = (page - 1) * pageSize;
 const to = from + pageSize - 1;
@@ -49,7 +50,8 @@ let query = supabase
   .range(from, to);
 
 if (search) {
-  query = query.or(`name.ilike.%${search}%,slug.ilike.%${search}%,sku.ilike.%${search}%`);
+  const term = search.replace(/[^\p{L}\p{N}\s-]/gu, '').slice(0, 150);
+  if (term) query = query.or(`name.ilike.%${term}%,slug.ilike.%${term}%,sku.ilike.%${term}%`);
 }
 
 if (status === 'draft' || status === 'published') {
@@ -57,6 +59,7 @@ if (status === 'draft' || status === 'published') {
 }
 
 const { data, error, count } = await query;
+const cleanup = await supabase.from('media_cleanup_queue').select('id', { count: 'exact', head: true });
 const products = (data ?? []) as unknown as ProductOptionAdminRow[];
 const total = count ?? 0;
 const totalPages = Math.max(Math.ceil(total / pageSize), 1);
@@ -71,7 +74,11 @@ const nextUrl = `/admin/productos?${new URLSearchParams({ q: search, status, pag
       <h1>Productos</h1>
       <p class="admin-note">{total} productos en el catalogo.</p>
     </div>
+    <a class="admin-link-button" href="/admin/productos/nuevo">Crear acabado</a>
   </header>
+  <p class="admin-note">Jerarquía: <a href="/admin/categorias">Categorías</a> → <a href="/admin/familias">Familias</a> → <a href="/admin/variantes">Variantes</a> → Acabados. Todos los niveles deben estar publicados para aparecer en el sitio.</p>
+  {Astro.url.searchParams.has('saved') && <p class="admin-success" role="status">Cambios guardados.</p>}
+  {(cleanup.count ?? 0) > 0 && <p class="admin-note">Hay archivos pendientes de limpiar. <a href="/admin/proyectos">Reintentar limpieza de Storage →</a></p>}
 
   <form class="admin-filters admin-panel" method="get">
     <input name="q" value={search} placeholder="Buscar por nombre, slug o SKU" />

@@ -1,4 +1,4 @@
-export type ProductMacroCategory = 'interior' | 'exterior';
+export type ProductMacroCategory = string;
 
 export type ProductPublicationStatus = 'draft' | 'published' | 'placeholder';
 
@@ -14,6 +14,7 @@ export type ProductCategory = {
 };
 
 export type ProductColor = {
+  hex?: string;
   id?: string;
   name: string;
   slug: string;
@@ -43,6 +44,11 @@ export type Product = {
   price?: number;
   image?: string;
   secondaryImage?: string;
+  imageAlt?: string;
+  galleryImages?: { url: string; alt: string }[];
+  canonicalPath?: string;
+  faqItems?: Record<string, string | number | null>;
+  finish?: string;
   gallery?: string[];
   variants: ProductVariant[];
   featured?: boolean;

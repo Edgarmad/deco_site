@@ -4,11 +4,11 @@ import ProductMegaMenu from '../components/products/ProductMegaMenu.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
 import SiteHeader from '../components/layout/SiteHeader.astro';
 import ProductCatalogPage from '../components/productos/ProductCatalogPage.astro';
-import { getProductCategories, getProducts } from '../services/productService';
+import { getCatalogProducts, getProductCategories } from '../services/productService';
 
 export const prerender = false;
 
-const products = await getProducts();
+const products = await getCatalogProducts();
 const categories = await getProductCategories();
 ---
 

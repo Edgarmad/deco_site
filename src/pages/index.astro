@@ -7,24 +7,14 @@ import PopularProductsSection from '../components/index/PopularProductsSection.a
 import ProjectsArchiveSection from '../components/index/ProjectsArchiveSection.astro';
 import SiteFooter from '../components/layout/SiteFooter.astro';
 import SiteHeader from '../components/layout/SiteHeader.astro';
-import { getProducts } from '../services/productService';
+import { getProducts, getProductCategories } from '../services/productService';
+import { getLocations } from '../services/locationService';
+import { getProjects } from '../services/projectService';
 
-const products = await getProducts();
+export const prerender = false;
+const [products, cmsCategories, cmsLocations, cmsProjects] = await Promise.all([getProducts(), getProductCategories(), getLocations(), getProjects()]);
 
-const categories = [
-  {
-    name: 'Interior',
-    slug: 'interior',
-    count: '20 productos',
-    description: 'Paneles, lambrines y mármol sintético'
-  },
-  {
-    name: 'Exterior',
-    slug: 'exterior',
-    count: '10 productos',
-    description: 'Lambrín extruido, deck y piedra sintética'
-  }
-];
+const categories = cmsCategories.map(category => ({ name: category.name, slug: category.slug, description: category.description ?? '', count: `${products.filter(product => product.macroCategory === category.slug).length} productos` }));
 
 const popularProducts = Array.from(
   products.reduce((items, product) => {
@@ -33,7 +23,7 @@ const popularProducts = Array.from(
       items.set(key, {
         name: product.categoryName ?? product.name,
         slug: product.slug,
-        category: product.macroCategory === 'exterior' ? 'Exterior' : 'Interior',
+        category: cmsCategories.find(category => category.slug === product.macroCategory)?.name ?? product.macroCategory,
         image: product.secondaryImage ?? product.image
       });
     }
@@ -41,54 +31,8 @@ const popularProducts = Array.from(
   }, new Map<string, { name: string; slug: string; category: string; image?: string }>()).values()
 ).slice(0, 7);
 
-const locations = [
-  {
-    number: '01',
-    city: 'Mérida',
-    type: 'Tienda',
-    address: 'Bodega 10, C. 6, Chichí Suárez, 97306',
-    mapsUrl: 'https://maps.app.goo.gl/FG9PJTLZq6gDspWSA?g_st=ic',
-    contact: '+52 999 000 0000'
-  },
-  {
-    number: '02',
-    city: 'Playa del Carmen',
-    type: 'Tienda',
-    address: 'Carretera Federal Mz 2 Lt 22, Bodega 7, entre calle 80 Norte y 88 Norte',
-    mapsUrl: 'https://maps.app.goo.gl/7WJnTuYAhmoqoA5QA?g_st=ic',
-    contact: '+52 984 000 0000'
-  }
-];
-
-const projectItems = [
-  {
-    name: 'Expo CIHAC',
-    slug: 'expo-cihac',
-    type: 'Feria comercial',
-    location: 'Ciudad de México',
-    imageAlt: 'Muro de exhibición con paneles y recubrimientos iluminados en Expo CIHAC',
-    visual: 'expo-cihac',
-    chips: ['Panel lambrín laminado', 'Mármol sintético', 'Piedra sintética travertino', 'Viga coextruida']
-  },
-  {
-    name: 'Proyecto AR Design',
-    slug: 'proyecto-ar-design',
-    type: 'Corporativo',
-    location: 'Monterrey, Nuevo León',
-    imageAlt: 'Interior corporativo con paneles verticales y puerta de vidrio texturizado',
-    visual: 'ar-design',
-    chips: ['Recubrimiento vinílico', 'Panel lambrín wavy', 'Piedra sintética PU', 'Panel SPC muros']
-  },
-  {
-    name: 'Jeshi Ramen & Boba Tea',
-    slug: 'jeshi-ramen-boba-tea',
-    type: 'Comercial',
-    location: 'San Pedro Garza García, N.L',
-    imageAlt: 'Restaurante con lambrines, celosía azul y plafón decorativo',
-    visual: 'jeshi-ramen',
-    chips: ['Panel lambrín laminado', 'Mármol sintético']
-  }
-];
+const locations = cmsLocations.map(location => ({ ...location, contact: location.phone ?? '' }));
+const projectItems = cmsProjects.map(project => ({ ...project, type: project.category, chips: project.materials }));
 
 ---
 

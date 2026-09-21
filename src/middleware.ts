@@ -1,13 +1,17 @@
 import { defineMiddleware } from 'astro:middleware';
 import { getAdminSession } from './lib/adminAuth';
-import { applyAdminSecurityHeaders } from './lib/adminSecurity';
+import { applyAdminSecurityHeaders, isTrustedAdminPostOrigin } from './lib/adminSecurity';
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  const pathname = context.url.pathname;
+  const pathname = context.url.pathname.replace(/\/+$/, '') || '/';
 
-  if (!pathname.startsWith('/admin')) {
-    return next();
+  if (pathname !== '/admin' && !pathname.startsWith('/admin/')) {
+    const response = await next();
+    response.headers.set('Cache-Control', 'no-store');
+    return response;
   }
+
+  if (!isTrustedAdminPostOrigin(context.request, context.url)) return applyAdminSecurityHeaders(new Response('Origen no permitido', { status: 403 }));
 
   if (pathname === '/admin/login') {
     return applyAdminSecurityHeaders(await next());

@@ -16,10 +16,11 @@ const latestProjects = projects.filter((project) => project.slug !== featuredPro
   <section class="projects-page" data-reveal-group aria-labelledby="projects-title">
     <p class="page-kicker" data-reveal>Proyectos / Blog</p>
     <h1 id="projects-title" data-reveal>Espacios que cuentan <span>historias a través del material.</span></h1>
+    {!projects.length && <p>No hay proyectos publicados por el momento.</p>}
 
     {featuredProject && (
       <article class="featured-project motion-card" data-reveal>
-        <div class="motion-card__media"><ProjectVisual visual={featuredProject.visual} alt={featuredProject.imageAlt} /></div>
+        <div class="motion-card__media"><ProjectVisual visual={featuredProject.visual} image={featuredProject.image} alt={featuredProject.imageAlt} /></div>
         <div class="featured-project-copy">
           <p>Proyecto destacado</p>
           <h2>{featuredProject.name}</h2>
@@ -36,7 +37,7 @@ const latestProjects = projects.filter((project) => project.slug !== featuredPro
     <div class="latest-project-grid">
       {latestProjects.map((project) => (
         <article class="latest-project-card motion-card" data-reveal>
-          <div class="motion-card__media"><ProjectVisual visual={project.visual} alt={project.imageAlt} /></div>
+          <div class="motion-card__media"><ProjectVisual visual={project.visual} image={project.image} alt={project.imageAlt} /></div>
           <div class="latest-project-copy">
             <div>
               <p>{project.category}</p>

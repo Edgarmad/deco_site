@@ -15,6 +15,7 @@ type ProductImageRow = {
   storage_path: string;
   kind: 'main' | 'secondary' | 'gallery' | 'extra' | 'technical';
   sort_order: number | null;
+  alt_text: string | null;
 };
 
 type ProductOptionRow = {
@@ -22,6 +23,8 @@ type ProductOptionRow = {
   name: string;
   slug: string;
   sku: string | null;
+  color_name: string | null;
+  color_hex: string | null;
   price: number | null;
   summary: string | null;
   description: string | null;
@@ -39,15 +42,22 @@ type ProductOptionRow = {
   status: 'draft' | 'published';
   seo_title: string | null;
   seo_description: string | null;
+  canonical_path: string | null;
+  faq_items: Record<string, string | number | null> | null;
+  finish: string | null;
   product_images?: ProductImageRow[];
   product_variants: {
     id: string;
     name: string;
     slug: string;
+    summary: string | null;
+    description: string | null;
     products: {
       id: string;
       name: string;
       slug: string;
+      summary: string | null;
+      description: string | null;
       categories: {
         id: string;
         name: string;
@@ -61,7 +71,7 @@ const normalizeCategory = (category: SupabaseCategory): ProductCategory => ({
   id: category.id,
   name: category.name,
   slug: category.slug,
-  macroCategory: category.slug === 'exterior' ? 'exterior' : 'interior',
+  macroCategory: category.slug,
   description: category.description ?? undefined,
   count: category.products?.[0]?.count
 });
@@ -81,6 +91,7 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
     .filter((image) => image !== mainImage)
     .map((image) => getPublicStorageUrl(image.storage_bucket, image.storage_path))
     .filter((image): image is string => Boolean(image));
+  const variantDisplayName = variant.name.trim().toLowerCase() === 'general' ? product.name : variant.name;
 
   return {
     id: option.id,
@@ -88,23 +99,29 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
     slug: option.slug,
     categorySlug: product.slug,
     categoryName: product.name,
-    macroCategory: category.slug === 'exterior' ? 'exterior' : 'interior',
-    summary: option.summary ?? undefined,
-    description: option.description ?? undefined,
+    macroCategory: category.slug,
+    summary: option.summary ?? variant.summary ?? product.summary ?? undefined,
+    description: option.description ?? variant.description ?? product.description ?? undefined,
     sku: option.sku ?? undefined,
     price: option.price ?? undefined,
     image: getPublicStorageUrl(mainImage?.storage_bucket ?? '', mainImage?.storage_path),
     secondaryImage: getPublicStorageUrl(secondaryImage?.storage_bucket ?? '', secondaryImage?.storage_path),
     gallery,
+    imageAlt: mainImage?.alt_text ?? undefined,
+    galleryImages: images.filter(image => image !== mainImage).map(image => ({ url: getPublicStorageUrl(image.storage_bucket, image.storage_path) ?? '', alt: image.alt_text ?? option.name })),
+    canonicalPath: option.canonical_path ?? undefined,
+    faqItems: option.faq_items ?? {},
+    finish: option.finish ?? undefined,
     variants: [
       {
         id: variant.id,
-        name: variant.name,
+        name: variantDisplayName,
         slug: variant.slug,
         colors: [
           {
             id: option.id,
-            name: option.name,
+            name: option.color_name ?? option.name,
+            hex: option.color_hex ?? undefined,
             slug: option.slug,
             sku: option.sku ?? undefined,
             status: 'complete'
@@ -129,10 +146,71 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
   };
 };
 
+const normalizeLabel = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+
+const catalogFamilies = [
+  { slug: 'lambrin-asa', name: 'Lambrin ASA', matches: ['lambrin exterior'] },
+  { slug: 'lambrin', name: 'Lambrin', matches: ['panel lambrin wpc', 'lambrin premium', 'lambrin irregular', 'lambrin wavy max'] },
+  { slug: 'panel-reforzado-spc', name: 'Panel Reforzado SPC', matches: ['panel reforzado'] },
+  { slug: 'plafon-pvc', name: 'Plafon PVC', matches: ['panel techo spc', 'plafon pvc'] },
+  { slug: 'placas-marmol-pvc', name: 'Placas Marmol PVC', matches: ['placas marmol', 'placas tipo marmol'] },
+  { slug: 'vigas-wpc', name: 'Vigas WPC', matches: ['vigas interior', 'vigas wpc'] },
+  { slug: 'piso-spc', name: 'Piso SPC', matches: ['pisos spc', 'piso spc'] },
+  { slug: 'wall-cladding-asa', name: 'Wall Cladding ASA', matches: ['wallcladding', 'wall cladding'] },
+  { slug: 'deck-coextruido', name: 'Deck Coextruido', matches: ['deck'] },
+  { slug: 'viga-coextruida', name: 'Viga Coextruida', matches: ['viga exterior'] }
+];
+
+const catalogVariantNames: Record<string, string> = {
+  'lambrin premium wpc': 'Lambrin Premium 4',
+  'lambrin premium 3 max': 'Lambrin Max 3'
+};
+
+const getCatalogFamily = (product: Product) => {
+  const label = normalizeLabel(product.categoryName ?? product.categorySlug.replaceAll('-', ' '));
+  return catalogFamilies.find((family) => family.matches.some((match) => label.includes(match))) ?? {
+    slug: product.categorySlug,
+    name: product.categoryName ?? product.categorySlug
+  };
+};
+
+export const groupProductsByVariant = (products: Product[]): Product[] => {
+  const grouped = new Map<string, Product>();
+
+  products.forEach((product) => {
+    const variant = product.variants[0];
+    if (!variant) return;
+
+    const key = variant.id ?? `${product.categorySlug}:${variant.slug}`;
+    const existing = grouped.get(key);
+    if (!existing) {
+      const family = getCatalogFamily(product);
+      const variantName = catalogVariantNames[normalizeLabel(variant.name)] ?? variant.name;
+      grouped.set(key, {
+        ...product,
+        name: variantName,
+        categorySlug: family.slug,
+        categoryName: family.name,
+        variants: [{ ...variant, name: variantName, colors: [...variant.colors] }]
+      });
+      return;
+    }
+
+    const existingVariant = existing.variants[0];
+    const knownColors = new Set(existingVariant.colors.map((color) => color.id ?? color.slug));
+    existingVariant.colors.push(
+      ...variant.colors.filter((color) => !knownColors.has(color.id ?? color.slug))
+    );
+  });
+
+  return Array.from(grouped.values());
+};
+
 const productOptionSelect = `
   id,name,slug,sku,price,summary,description,dimensions,thickness,material,usage,installation_notes,care_notes,technical_specs,technical_sheet_url,installation_guide_url,section_visibility,featured,status,seo_title,seo_description,
-  product_images(storage_bucket,storage_path,kind,sort_order),
-  product_variants(id,name,slug,products(id,name,slug,categories(id,name,slug)))
+  canonical_path,faq_items,finish,color_name,color_hex,
+  product_images(storage_bucket,storage_path,kind,sort_order,alt_text),
+  product_variants(id,name,slug,summary,description,products(id,name,slug,summary,description,categories(id,name,slug)))
 `;
 
 export const getProducts = async (): Promise<Product[]> => {
@@ -145,8 +223,12 @@ export const getProducts = async (): Promise<Product[]> => {
     .order('featured', { ascending: false })
     .order('sort_order', { ascending: true });
 
-  if (error || !data?.length) return productPlaceholders;
+  if (error) throw new Error(`No se pudo cargar el catálogo: ${error.message}`);
   return (data as unknown as ProductOptionRow[]).map(normalizeOption).filter((product): product is Product => Boolean(product));
+};
+
+export const getCatalogProducts = async (): Promise<Product[]> => {
+  return groupProductsByVariant(await getProducts());
 };
 
 export const getProductCategories = async (): Promise<ProductCategory[]> => {
@@ -158,7 +240,7 @@ export const getProductCategories = async (): Promise<ProductCategory[]> => {
     .eq('status', 'published')
     .order('sort_order', { ascending: true });
 
-  if (error || !data?.length) return productCategories;
+  if (error) throw new Error(`No se pudieron cargar las categorías: ${error.message}`);
   return (data as unknown as SupabaseCategory[]).map(normalizeCategory);
 };
 
@@ -172,6 +254,7 @@ export const getProductBySlug = async (slug: string): Promise<Product | undefine
     .eq('slug', slug)
     .maybeSingle();
 
-  if (error || !data) return undefined;
+  if (error) throw new Error(`No se pudo consultar el producto: ${error.message}`);
+  if (!data) return undefined;
   return normalizeOption(data as unknown as ProductOptionRow) ?? undefined;
 };

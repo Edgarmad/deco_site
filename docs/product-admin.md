@@ -42,9 +42,11 @@ La visibilidad general se controla en `site_settings` con estas claves publicas:
 
 Cada registro puede tener una configuracion individual en `product_options.section_visibility`. Una clave con valor `false` oculta esa seccion solo para ese producto; una clave ausente hereda la configuracion global.
 
-El panel de admin debe exponer ambos niveles:
+El panel de admin expone ambos niveles:
 
 - interruptores globales para todos los productos;
 - interruptores individuales dentro de la edicion de cada producto.
 
-Las preguntas frecuentes y el contenido detallado de instalacion quedan pendientes de captura por el cliente.
+Las preguntas frecuentes se capturan en `product_options.faq_items` (objeto JSON pregunta → respuesta), y la instalación en `installation_notes` (un paso por línea). El contenido definitivo queda pendiente de captura por el cliente.
+
+El selector individual ofrece heredar, mostrar u ocultar cada sección. Ver [admin-cms.md](admin-cms.md) para el flujo completo de categorías, familias, variantes, acabados e imágenes.

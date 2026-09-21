@@ -1,0 +1,217 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { getAdminSession } from '../../lib/adminAuth';
+import { createSupabaseServerClient } from '../../lib/supabaseServer';
+import { getCsrfToken, validateCsrfToken } from '../../lib/adminSecurity';
+import { contentModules, contentError, isUuid, parseContentForm, sectionLabels } from '../../lib/adminContent';
+import { cleanMediaQueue, uploadMedia, type MediaRow } from '../../lib/adminMedia';
+import { getPublicStorageUrl } from '../../lib/supabase';
+
+export const prerender = false;
+const [section, routeId, extra] = (Astro.params.path ?? '').split('/').filter(Boolean);
+const module = Object.hasOwn(contentModules, section ?? '') ? contentModules[section] : undefined;
+if (!module || extra) return new Response('No encontrado', { status: 404 });
+const session = await getAdminSession(Astro.request, Astro.cookies);
+if (!session) return Astro.redirect('/admin/login');
+const client = createSupabaseServerClient(Astro.request, Astro.cookies);
+const csrf = getCsrfToken(Astro.cookies);
+const base = `/admin/${section}`;
+const isNew = routeId === 'nuevo' || routeId === 'nueva';
+if (routeId && !isNew && !isUuid(routeId)) return new Response('No encontrado', { status: 404 });
+const id = !isNew ? routeId : undefined;
+let record: Record<string, unknown> = { status: 'draft', sort_order: 0, price: 0 };
+let errorMessage = '';
+let warning = '';
+let submitted: FormData | undefined;
+if (id) {
+  const loaded = await client.from(module.table).select('*').eq('id', id).maybeSingle();
+  if (loaded.error) return new Response('No se pudo consultar Supabase.', { status: 503 });
+  if (!loaded.data) return new Response('No encontrado', { status: 404 });
+  record = loaded.data;
+}
+
+// Todas las escrituras usan la sesión del editor y las políticas RLS.
+if (Astro.request.method === 'POST') {
+  try {
+    const form = await Astro.request.formData();
+    if (!validateCsrfToken(Astro.cookies, form)) throw new Error('El formulario expiró. Recarga la página.');
+    const intent = String(form.get('intent') ?? 'save');
+    if (intent === 'cleanup') {
+      const pending = await cleanMediaQueue(client);
+      if (pending) throw new Error(`Quedan ${pending} archivos pendientes. Reintenta la limpieza.`);
+      return Astro.redirect(`${base}?saved=1`, 303);
+    }
+    if (!routeId) throw new Error('Acción no válida.');
+    if (intent === 'save') {
+      submitted = form;
+      const values = parseContentForm(module, form);
+      if (id && values.slug !== undefined && values.slug !== record.slug && form.get('confirm_slug') !== 'on') throw new Error('Confirma el cambio de slug: la URL anterior dejará de funcionar.');
+      const saved = id ? await client.from(module.table).update(values).eq('id', id).select('id').single() : await client.from(module.table).insert(values).select('id').single();
+      if (saved.error) throw new Error(contentError(saved.error));
+      return Astro.redirect(`${base}/${saved.data.id}?saved=1`, 303);
+    }
+    if (!id) throw new Error('Guarda primero el contenido.');
+    if (intent === 'delete') {
+      if (form.get('confirm_delete') !== 'on') throw new Error('Confirma la eliminación.');
+      if (module.child) {
+        const children = await client.from(module.child.table).select('id', { count: 'exact', head: true }).eq(module.child.key, id);
+        if (children.error) throw new Error(contentError(children.error));
+        if (children.count) throw new Error('Primero reasigna o elimina el contenido dependiente. También puedes dejar este registro en borrador.');
+      }
+      const deleted = await client.from(module.table).delete().eq('id', id).select('id').single();
+      if (deleted.error) throw new Error(contentError(deleted.error));
+      if (module.media) await cleanMediaQueue(client).catch(() => undefined);
+      return Astro.redirect(`${base}?saved=1`, 303);
+    }
+    if (!module.media) throw new Error('Acción no válida.');
+    if (intent === 'upload') await uploadMedia(client, module, id, String(record.slug), form);
+    else if (intent === 'image-save' || intent === 'image-delete') {
+      const imageId = String(form.get('image_id') ?? '');
+      if (!isUuid(imageId)) throw new Error('Imagen inválida.');
+      if (intent === 'image-delete') {
+        if (form.get('confirm_delete') !== 'on') throw new Error('Confirma la eliminación de la imagen.');
+        const removed = await client.from(module.media.table).delete().eq('id', imageId).eq(module.media.key, id).select('id').single();
+        if (removed.error) throw new Error(contentError(removed.error));
+      } else {
+        const kind = String(form.get('kind'));
+        const sort_order = Number(form.get('sort_order'));
+        if (!module.media.kinds.includes(kind) || !Number.isInteger(sort_order) || Math.abs(sort_order) > 2147483647) throw new Error('Tipo u orden inválido.');
+        const updated = await client.from(module.media.table).update({ kind, sort_order, alt_text: String(form.get('alt_text') ?? '').slice(0, 1000) }).eq('id', imageId).eq(module.media.key, id).select('id').single();
+        if (updated.error) throw new Error(contentError(updated.error));
+      }
+    } else throw new Error('Acción no válida.');
+    await cleanMediaQueue(client).catch(() => undefined);
+    return Astro.redirect(`${base}/${id}?saved=1`, 303);
+  } catch (error) {
+    Astro.response.status = 400;
+    errorMessage = error instanceof Error ? error.message : 'No se pudo completar la operación.';
+  }
+}
+
+// Las visitas GET solo consultan la cola; la limpieza requiere POST con CSRF.
+const cleanup = await client.from('media_cleanup_queue').select('id', { count: 'exact', head: true });
+if (cleanup.error) warning = 'Aplica la migración pendiente del CMS para habilitar la limpieza de imágenes.';
+else if (cleanup.count) warning = `${cleanup.count} archivos pendientes de limpieza en Storage.`;
+const relations: Record<string, { id: string; label: string }[]> = {};
+for (const field of module.fields.filter(field => field.relation)) {
+  const related = contentModules[field.relation!];
+  const result = await client.from(related.table).select('*').order('name').limit(1000);
+  if (result.error) errorMessage = contentError(result.error);
+  let families = new Map<string, string>();
+  if (field.relation === 'variantes') {
+    const parents = await client.from('products').select('id,name').limit(1000);
+    if (parents.error) errorMessage = contentError(parents.error);
+    families = new Map((parents.data ?? []).map(row => [row.id, row.name]));
+  }
+  relations[field.key] = (result.data ?? []).map(row => ({ id: row.id, label: `${families.get(row.product_id) ? families.get(row.product_id) + ' / ' : ''}${row.name} (${row.status === 'published' ? 'publicado' : 'borrador'})` }));
+}
+const rawPage = Number(Astro.url.searchParams.get('page'));
+const page = Number.isSafeInteger(rawPage) && rawPage > 0 ? Math.min(rawPage, 100000) : 1;
+const search = (Astro.url.searchParams.get('q') ?? '').trim().slice(0, 150);
+const statusFilter = Astro.url.searchParams.get('status') ?? '';
+let rows: Record<string, unknown>[] = [];
+let total = 0;
+if (!routeId) {
+  let query = client.from(module.table).select('*', { count: 'exact' }).order('sort_order').order('id').range((page - 1) * 25, page * 25 - 1);
+  if (search) query = query.ilike(module.titleKey, `%${search.replace(/[%_]/g, '\\$&')}%`);
+  if (['draft', 'published'].includes(statusFilter)) query = query.eq('status', statusFilter);
+  const result = await query;
+  rows = result.data ?? []; total = result.count ?? 0;
+  if (result.error) errorMessage = contentError(result.error);
+}
+let images: MediaRow[] = [];
+if (id && module.media) {
+  const result = await client.from(module.media.table).select('*').eq(module.media.key, id).order('sort_order').order('id');
+  images = result.data ?? [];
+  if (result.error) errorMessage = contentError(result.error);
+}
+const value = (key: string) => submitted ? String(submitted.get(key) ?? '') : String(record[key] ?? '');
+const checked = (key: string) => submitted ? submitted.get(key) === 'on' : record[key] === true;
+const fieldValue = (key: string, type?: string) => submitted ? value(key) : type === 'json' ? JSON.stringify(record[key] ?? {}, null, 2) : type === 'lines' ? (Array.isArray(record[key]) ? (record[key] as string[]).join('\n') : '') : value(key);
+const visibility = (record.section_visibility ?? {}) as Record<string, boolean>;
+const pageUrl = (number: number) => `${base}?${new URLSearchParams({ q: search, status: statusFilter, page: String(number) })}`;
+---
+<AdminLayout title={module.label} currentPath={base} userEmail={session.user.email}>
+  <!-- Seccion: Encabezado y mensajes -->
+  <header class="admin-page-head compact">
+    <div><p class="admin-kicker">CMS / {module.label}</p><h1>{routeId ? isNew ? 'Nuevo registro' : String(record[module.titleKey]) : module.label}</h1>
+      <p class="admin-note">Los cambios publicados se reflejan en el sitio al recargar. Productos: categoría, familia y variante también deben estar publicados.</p>
+    </div>
+    <a class="admin-link-button" href={routeId ? base : `${base}/${section === 'ubicaciones' ? 'nueva' : 'nuevo'}`}>{routeId ? 'Volver al listado' : 'Crear nuevo'}</a>
+  </header>
+  {Astro.url.searchParams.has('saved') && <p class="admin-success" role="status">Cambios guardados.</p>}
+  {errorMessage && <p class="admin-error" role="alert">{errorMessage}</p>}
+  {warning && <div class="admin-panel pad"><p role="status">{warning}</p><form method="post"><input type="hidden" name="csrf_token" value={csrf} /><button class="admin-button secondary" name="intent" value="cleanup">Reintentar limpieza</button></form></div>}
+  {!routeId ? <>
+    <!-- Seccion: Listado -->
+    <form class="admin-filters admin-panel" method="get">
+      <input name="q" value={search} aria-label="Buscar por nombre" placeholder="Buscar por nombre" />
+      <select name="status" aria-label="Estado"><option value="">Todos</option><option value="draft" selected={statusFilter === 'draft'}>Borrador</option><option value="published" selected={statusFilter === 'published'}>Publicado</option></select>
+      <button class="admin-button">Buscar</button>
+    </form>
+    <section class="admin-panel pad" style="overflow-x:auto">
+      <table class="admin-table"><thead><tr><th>Nombre</th><th>Estado</th><th>Orden</th><th>Acciones</th></tr></thead><tbody>
+        {rows.map(row => <tr><td>{String(row[module.titleKey])}<br /><small>{String(row.slug ?? row.city ?? '')}</small></td><td>{row.status === 'published' ? 'Publicado' : 'Borrador'}</td><td>{String(row.sort_order)}</td><td><a href={`${base}/${row.id}`}>Editar →</a></td></tr>)}
+        {!rows.length && <tr><td colspan="4">No hay registros para mostrar.</td></tr>}
+      </tbody></table>
+      <footer class="admin-pagination"><span>{total} registros</span>{page > 1 && <a href={pageUrl(page - 1)}>Anterior</a>}{page * 25 < total && <a href={pageUrl(page + 1)}>Siguiente</a>}</footer>
+    </section>
+  </> : <>
+    <!-- Seccion: Edición de contenido -->
+    <section class="admin-panel pad">
+      {id && ['productos', 'proyectos'].includes(section) && <p><a href={`/${section}/${record.slug}`} target="_blank" rel="noreferrer">Ver página pública →</a> (los borradores devuelven 404)</p>}
+      <form method="post" class="admin-form" data-content-form>
+        <input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="intent" value="save" />
+        <div class="admin-form-grid">
+          {module.fields.map(field => <div class:list={['admin-field', ['textarea', 'json', 'lines'].includes(field.type ?? '') && 'full']}>
+            <label for={field.key}>{field.label}</label>
+            {field.relation ? <><select id={field.key} name={field.key} required={field.required}><option value="">Selecciona…</option>{relations[field.key]?.map(item => <option value={item.id} selected={value(field.key) === item.id}>{item.label}</option>)}</select><a href={`/admin/${field.relation}`}>Administrar {contentModules[field.relation].label.toLowerCase()} →</a></>
+              : field.choices ? <select id={field.key} name={field.key}>{field.choices.map(choice => <option value={choice} selected={value(field.key) === choice}>{choice === 'published' ? 'Publicado' : 'Borrador'}</option>)}</select>
+              : ['textarea', 'json', 'lines'].includes(field.type ?? '') ? <textarea id={field.key} name={field.key} required={field.required} rows={5}>{fieldValue(field.key, field.type)}</textarea>
+              : field.type === 'checkbox' ? <input id={field.key} name={field.key} type="checkbox" checked={checked(field.key)} />
+              : <input id={field.key} name={field.key} type={field.type === 'number' ? 'number' : field.type === 'url' ? 'url' : 'text'} value={value(field.key)} required={field.required} min={field.min} max={field.max} step={field.step} />}
+          </div>)}
+          {section === 'productos' && <fieldset class="admin-field full"><legend>Visibilidad individual de secciones</legend>{Object.entries(sectionLabels).map(([key, label]) => <label>{label}<select name={`section_${key}`}>{[['inherit', 'Heredar configuración global'], ['true', 'Mostrar'], ['false', 'Ocultar']].map(([option, title]) => <option value={option} selected={(submitted ? value(`section_${key}`) : visibility[key] === undefined ? 'inherit' : String(visibility[key])) === option}>{title}</option>)}</select></label>)}</fieldset>}
+        </div>
+        {id && record.slug && <label><input type="checkbox" name="confirm_slug" /> Confirmo cambiar la URL si modifiqué el slug.</label>}
+        <button class="admin-button" type="submit">Guardar información</button><p data-save-status role="status"></p>
+      </form>
+    </section>
+    <!-- Seccion: Imágenes y Storage -->
+    {module.media && id && <section class="admin-panel pad admin-section-spaced">
+      <h2>Imágenes</h2><p>La imagen de tipo main con menor orden es la principal. Cambia el orden numérico para reordenar la galería.</p>
+      {images.map(image => <article class="admin-image-row">
+        <img src={getPublicStorageUrl(image.storage_bucket, image.storage_path)} alt={image.alt_text ?? ''} loading="lazy" />
+        <div><form method="post" class="admin-form">
+          <input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="image_id" value={image.id} />
+          <label>Texto alternativo<input name="alt_text" value={image.alt_text ?? ''} /></label>
+          <label>Tipo<select name="kind">{module.media!.kinds.map(kind => <option value={kind} selected={image.kind === kind}>{kind}</option>)}</select></label>
+          <label>Orden<input name="sort_order" type="number" step="1" value={image.sort_order} required /></label>
+          <button class="admin-button secondary" name="intent" value="image-save">Guardar imagen</button>
+        </form><form method="post" class="admin-delete-form">
+          <input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="image_id" value={image.id} />
+          <label><input type="checkbox" name="confirm_delete" required /> Eliminar imagen y archivo</label><button class="admin-button secondary" name="intent" value="image-delete">Eliminar</button>
+        </form></div>
+      </article>)}
+      {!images.length && <p>No hay imágenes. Añade una imagen principal para la ficha.</p>}
+      <form method="post" enctype="multipart/form-data" class="admin-form admin-section-spaced" data-upload-form>
+        <input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="intent" value="upload" />
+        <h3>Subir o reemplazar imagen</h3><p>JPEG, PNG o WebP, máximo 4 MB. Se convierte a WebP y se reduce a 2400 px.</p>
+        <label>Archivo<input type="file" name="file" accept="image/jpeg,image/png,image/webp" required /></label>
+        <img data-upload-preview hidden alt="Vista previa del archivo seleccionado" width="200" />
+        <label>Reemplazar<select name="replace_id"><option value="">Añadir nueva imagen</option>{images.map(image => <option value={image.id}>{image.kind} / {image.alt_text || image.storage_path}</option>)}</select></label>
+        <label>Texto alternativo<input name="alt_text" required maxlength="1000" /></label>
+        <label>Tipo<select name="kind">{module.media.kinds.map(kind => <option value={kind}>{kind}</option>)}</select></label>
+        <label>Orden<input name="sort_order" type="number" step="1" value="0" required /></label>
+        <button class="admin-button" type="submit">Subir imagen</button><progress data-upload-progress hidden max="100" value="0"></progress><p data-upload-status role="status"></p>
+      </form>
+    </section>}
+    <!-- Seccion: Eliminación explícita -->
+    {id && <section class="admin-panel pad admin-section-spaced"><h2>Eliminar registro</h2><p>La eliminación es permanente. Puedes usar el estado borrador para ocultarlo temporalmente.</p><form method="post" class="admin-form">
+      <input type="hidden" name="csrf_token" value={csrf} /><label><input type="checkbox" name="confirm_delete" required /> Confirmo eliminar este registro y sus imágenes.</label><button class="admin-button secondary" name="intent" value="delete">Eliminar registro</button>
+    </form></section>}
+  </>}
+</AdminLayout>
+<script>
+  import '../../scripts/adminForms';
+</script>

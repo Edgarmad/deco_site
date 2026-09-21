@@ -20,10 +20,14 @@ const sectionVisibility = await getProductSectionVisibility();
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={product.summary ?? `Detalle de ${product.name} en Deco.`} />
+    <meta name="description" content={product.seoDescription ?? product.summary ?? `Detalle de ${product.name} en Deco.`} />
+    <link rel="canonical" href={new URL(product.canonicalPath ?? `/productos/${product.slug}`, Astro.url.origin).href} />
+    <meta property="og:title" content={product.seoTitle ?? product.name} />
+    <meta property="og:description" content={product.seoDescription ?? product.summary} />
+    {product.image && <meta property="og:image" content={product.image} />}
     <link rel="icon" href="/assets/favicon.ico" />
     <script src="/assets/scripts/deco-motion.js" defer></script>
-    <title>{product.name} | Deco</title>
+    <title>{product.seoTitle ?? `${product.name} | Deco`}</title>
   </head>
   <body>
     <SiteHeader currentPath="/productos" />

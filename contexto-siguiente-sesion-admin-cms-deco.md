@@ -1,5 +1,7 @@
 # Contexto siguiente sesion: Admin CMS DECO ABC
 
+> **Actualización 2026-09-20:** el panel descrito como pendiente en este documento ya fue implementado. Consultar `docs/admin-cms.md` y `SUPABASE_CMS.md` para arquitectura, rutas, migraciones y verificaciones actuales. El resto se conserva como contexto histórico.
+
 Este archivo resume el estado real despues de contrastar `contexto-agente-supabase-cms-deco.md` y `contexto-codex-cms-deco.md` con lo ya implementado. El objetivo de la siguiente sesion es construir el panel `/admin` sobre la base Supabase ya existente.
 
 ## Estado actual confirmado

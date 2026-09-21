@@ -9,7 +9,28 @@ type Props = {
   categories: ProductCategory[];
 };
 
-const { products } = Astro.props;
+const { products, categories } = Astro.props;
+const familyProducts = Array.from(
+  products.reduce((families, product) => {
+    const existing = families.get(product.categorySlug);
+    if (!existing) {
+      families.set(product.categorySlug, {
+        ...product,
+        name: product.categoryName ?? product.name,
+        variants: product.variants.map((variant) => ({ ...variant, colors: [...variant.colors] }))
+      });
+    } else {
+      const existingColors = new Set(existing.variants.flatMap((variant) => variant.colors.map((color) => color.id ?? color.slug)));
+      product.variants.forEach((variant) => {
+        existing.variants[0]?.colors.push(
+          ...variant.colors.filter((color) => !existingColors.has(color.id ?? color.slug))
+        );
+      });
+    }
+    return families;
+  }, new Map<string, Product>()).values()
+);
+const colors = Array.from(new Set(products.flatMap(product => product.variants.flatMap(variant => variant.colors.map(color => color.name))))).sort((a, b) => a.localeCompare(b, 'es'));
 const productTypes = Array.from(
   products.reduce((types, product) => {
     if (!types.has(product.categorySlug)) {
@@ -22,10 +43,25 @@ const productTypes = Array.from(
     return types;
   }, new Map<string, { slug: string; name: string; macroCategory: ProductMacroCategory }>()).values()
 ).sort((first, second) => first.name.localeCompare(second.name, 'es'));
+const productVariants = Array.from(
+  products.reduce((variants, product) => {
+    const variant = product.variants[0];
+    if (variant && !variants.has(`${product.categorySlug}:${variant.slug}`)) {
+      variants.set(`${product.categorySlug}:${variant.slug}`, {
+        slug: `${product.categorySlug}:${variant.slug}`,
+        name: product.name,
+        categorySlug: product.categorySlug
+      });
+    }
+    return variants;
+  }, new Map<string, { slug: string; name: string; categorySlug: string }>()).values()
+).sort((first, second) => first.name.localeCompare(second.name, 'es'));
 const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
   { label: 'Todo', value: 'todo' },
-  { label: 'Interior', value: 'interior' },
-  { label: 'Exterior', value: 'exterior' }
+  ...Array.from(new Set(products.map((product) => product.macroCategory))).map((macroCategory) => ({
+    label: macroCategory === 'interior' ? 'Interior' : macroCategory === 'exterior' ? 'Exterior' : macroCategory,
+    value: macroCategory
+  }))
 ];
 // Textos compartidos por la barra de acciones para mantener sincronizado el estado visual del panel.
 const filterLabels = {
@@ -63,15 +99,16 @@ const filterLabels = {
     {products.length === 0 ? (
       <div class="catalog-empty-page">
         <h1 id="catalog-title">Catalogo en preparacion</h1>
-        <p>La fuente de WordPress aun no tiene productos publicados. El sitio permanece listo para recibir contenido.</p>
+         <p>No hay productos publicados por el momento.</p>
       </div>
     ) : (
       <div class="catalog-layout">
-        <ProductFilters productTypes={productTypes} />
+        <ProductFilters productTypes={productTypes} productVariants={productVariants} colors={colors} />
         <div class="catalog-results">
           <h1 id="catalog-title" data-reveal>Todos los productos</h1>
-          <ProductGrid products={products} />
-          <ProductPagination total={products.length} />
+          <ProductGrid products={familyProducts} level="family" />
+          <ProductGrid products={products} level="variant" />
+          <ProductPagination total={familyProducts.length} />
         </div>
       </div>
     )}
@@ -83,6 +120,7 @@ const filterLabels = {
   const cards = Array.from(document.querySelectorAll('[data-product-card]')).filter((card): card is HTMLElement => card instanceof HTMLElement);
   const tabs = Array.from(document.querySelectorAll('[data-macro-tab]')).filter((tab): tab is HTMLButtonElement => tab instanceof HTMLButtonElement);
   const categoryFilters = Array.from(document.querySelectorAll('[data-category-filter]')).filter((input): input is HTMLInputElement => input instanceof HTMLInputElement);
+  const variantFilters = Array.from(document.querySelectorAll('[data-variant-filter]')).filter((input): input is HTMLInputElement => input instanceof HTMLInputElement);
   const colorFilters = Array.from(document.querySelectorAll('[data-color-filter]')).filter((input): input is HTMLInputElement => input instanceof HTMLInputElement);
   const searchInput = document.querySelector('[data-search-input]');
   const sortSelect = document.querySelector('[data-sort-select]');
@@ -99,6 +137,8 @@ const filterLabels = {
   const productGrid = document.querySelector('[data-catalog-grid]');
   const perPage = pagination instanceof HTMLElement ? Number(pagination.dataset.perPage ?? 12) : 12;
   let currentMacro = 'todo';
+  let currentFamily = '';
+  let currentVariant = '';
   let currentPage = 1;
 
   if (window.matchMedia('(max-width: 640px)').matches && filterToggle instanceof HTMLButtonElement && filterBody instanceof HTMLElement) {
@@ -111,6 +151,8 @@ const filterLabels = {
   const updateUrl = () => {
     const params = new URLSearchParams();
     if (currentMacro !== 'todo') params.set('categoria', currentMacro);
+    if (currentFamily) params.set('familia', currentFamily);
+    if (currentVariant) params.set('subcategoria', currentVariant);
     if (searchInput instanceof HTMLInputElement && searchInput.value.trim()) params.set('q', searchInput.value.trim());
     if (sortSelect instanceof HTMLSelectElement && sortSelect.value !== 'featured') params.set('orden', sortSelect.value);
     if (currentPage > 1) params.set('page', String(currentPage));
@@ -135,6 +177,7 @@ const filterLabels = {
 
   const getFilteredCards = () => {
     const checkedCategories = categoryFilters.filter((input) => input.checked).map((input) => input.value);
+    const checkedVariants = variantFilters.filter((input) => input.checked).map((input) => input.value);
     const checkedColors = colorFilters.filter((input) => input.checked).map((input) => input.value);
     const query = searchInput instanceof HTMLInputElement ? searchInput.value.trim().toLowerCase() : '';
 
@@ -142,9 +185,12 @@ const filterLabels = {
       const searchText = card.dataset.search ?? '';
       const matchesMacro = currentMacro === 'todo' || card.dataset.macro === currentMacro;
       const matchesCategory = checkedCategories.length === 0 || checkedCategories.includes(card.dataset.category ?? '');
+      const matchesVariant = checkedVariants.length === 0 || checkedVariants.includes(card.dataset.variant ?? '');
       const matchesColor = checkedColors.length === 0 || checkedColors.some((color) => searchText.includes(color));
       const matchesQuery = !query || searchText.includes(query);
-      return matchesMacro && matchesCategory && matchesColor && matchesQuery;
+      const showingVariants = checkedCategories.length > 0 || Boolean(currentFamily) || Boolean(currentVariant);
+      const matchesLevel = card.dataset.level === (showingVariants ? 'variant' : 'family');
+      return matchesLevel && matchesMacro && matchesCategory && matchesVariant && matchesColor && matchesQuery;
     });
   };
 
@@ -189,7 +235,14 @@ const filterLabels = {
   };
 
   const setMacro = (macro: string) => {
+    const macroChanged = currentMacro !== macro;
     currentMacro = macro;
+    if (macroChanged) {
+      currentFamily = '';
+      currentVariant = '';
+      categoryFilters.forEach((input) => { input.checked = false; });
+      variantFilters.forEach((input) => { input.checked = false; });
+    }
     currentPage = 1;
     tabs.forEach((tab) => tab.setAttribute('aria-pressed', String(tab.dataset.macroTab === macro)));
     renderCatalog();
@@ -197,8 +250,11 @@ const filterLabels = {
 
   const resetAllFilters = () => {
     currentMacro = 'todo';
+    currentFamily = '';
+    currentVariant = '';
     currentPage = 1;
     categoryFilters.forEach((input) => { input.checked = false; });
+    variantFilters.forEach((input) => { input.checked = false; });
     colorFilters.forEach((input) => { input.checked = false; });
     if (searchInput instanceof HTMLInputElement) searchInput.value = '';
     if (sortSelect instanceof HTMLSelectElement) sortSelect.value = 'featured';
@@ -208,6 +264,8 @@ const filterLabels = {
 
   const params = new URLSearchParams(window.location.search);
   const initialCategory = params.get('categoria');
+  const initialFamily = params.get('familia');
+  const initialVariant = params.get('subcategoria');
   const initialQuery = params.get('q');
   const initialSort = params.get('orden');
   const initialPage = Number(params.get('page') ?? 1);
@@ -217,11 +275,31 @@ const filterLabels = {
   if (initialCategory) {
     const macroMatch = tabs.some((tab) => tab.dataset.macroTab === initialCategory);
     if (macroMatch) currentMacro = initialCategory;
-    categoryFilters.forEach((input) => { input.checked = input.value === initialCategory; });
+    else {
+      currentFamily = initialCategory;
+      categoryFilters.forEach((input) => { input.checked = input.value === initialCategory; });
+    }
+  }
+  if (initialFamily) {
+    currentFamily = initialFamily;
+    categoryFilters.forEach((input) => { input.checked = input.value === initialFamily; });
+  }
+  if (initialVariant) {
+    currentVariant = initialVariant;
+    variantFilters.forEach((input) => { input.checked = input.value === initialVariant; });
   }
 
   tabs.forEach((tab) => tab.addEventListener('click', () => setMacro(tab.dataset.macroTab ?? 'todo')));
-  categoryFilters.forEach((input) => input.addEventListener('change', () => { currentPage = 1; renderCatalog(); }));
+  categoryFilters.forEach((input) => input.addEventListener('change', () => {
+    currentFamily = categoryFilters.filter((item) => item.checked).map((item) => item.value)[0] ?? '';
+    currentPage = 1;
+    renderCatalog();
+  }));
+  variantFilters.forEach((input) => input.addEventListener('change', () => {
+    currentVariant = variantFilters.filter((item) => item.checked).map((item) => item.value)[0] ?? '';
+    currentPage = 1;
+    renderCatalog();
+  }));
   colorFilters.forEach((input) => input.addEventListener('change', () => { currentPage = 1; renderCatalog(); }));
   if (searchInput instanceof HTMLInputElement) searchInput.addEventListener('input', () => { currentPage = 1; renderCatalog(); });
   if (sortSelect instanceof HTMLSelectElement) sortSelect.addEventListener('change', () => { currentPage = 1; renderCatalog(); });

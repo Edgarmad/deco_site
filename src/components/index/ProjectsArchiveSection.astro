@@ -6,6 +6,7 @@ type ProjectItem = {
   location: string;
   imageAlt: string;
   visual: string;
+  image?: string;
   chips: string[];
 };
 
@@ -22,9 +23,9 @@ const initialProject = projectItems[0];
   <div class="archive-head">
     <div class="archive-label">Archivo de proyectos</div>
     <div class="archive-controls" aria-label="Navegación de proyectos">
-      <span class="archive-count"><strong data-project-current>01</strong> / {String(projectItems.length).padStart(2, '0')}</span>
-      <button type="button" data-project-control="previous" aria-label="Proyecto anterior">‹</button>
-      <button type="button" data-project-control="next" aria-label="Proyecto siguiente">›</button>
+      <span class="archive-count"><strong data-project-current>{projectItems.length ? '01' : '00'}</strong> / {String(projectItems.length).padStart(2, '0')}</span>
+      <button type="button" data-project-control="previous" disabled={projectItems.length < 2} aria-label="Proyecto anterior">‹</button>
+      <button type="button" data-project-control="next" disabled={projectItems.length < 2} aria-label="Proyecto siguiente">›</button>
     </div>
   </div>
   <div class="projects-layout">
@@ -46,9 +47,10 @@ const initialProject = projectItems[0];
           class={`project-image project-image-${initialProject.visual} motion-project-media`}
           data-project-image
           data-project-media
+          style="position:relative"
           role="img"
           aria-label={initialProject.imageAlt}
-        ></div>
+        ><img data-project-photo src={initialProject.image} alt={initialProject.imageAlt} hidden={!initialProject.image} style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0" /></div>
         <div class="project-card motion-card">
           <span data-project-type>{initialProject.type}</span>
           <h2 data-project-name>{initialProject.name}</h2>
@@ -61,6 +63,7 @@ const initialProject = projectItems[0];
       </article>
     )}
   </div>
+  {!projectItems.length && <p>No hay proyectos publicados por el momento.</p>}
 </section>
 
 <!-- Seccion: Interacciones de proyectos -->
@@ -95,6 +98,8 @@ const initialProject = projectItems[0];
 
     projectImage.className = `project-image project-image-${project.visual} motion-project-media`;
     projectImage.setAttribute('aria-label', project.imageAlt);
+    const photo = projectImage.querySelector('[data-project-photo]');
+    if (photo) { photo.hidden = !project.image; if (project.image) photo.src = project.image; photo.alt = project.imageAlt; }
     projectType.textContent = project.type;
     projectName.textContent = project.name;
     projectLocation.textContent = project.location;

@@ -3,16 +3,18 @@ import type { ProductMacroCategory } from '../../types/products';
 
 type Props = {
   productTypes: { slug: string; name: string; macroCategory: ProductMacroCategory }[];
+  productVariants: { slug: string; name: string; categorySlug: string }[];
+  colors: string[];
 };
 
-const { productTypes } = Astro.props;
+const { productTypes, productVariants, colors } = Astro.props;
 // Los filtros se renderizan desde los tipos reales de producto para que coincidan con cada card.
 ---
 
 <aside class="product-filters motion-filterbar" data-filter-panel data-sticky-filter>
   <div class="filter-body motion-filter-panel" data-filter-body data-open="true">
     <fieldset>
-      <legend>Tipo de producto</legend>
+      <legend>Familia</legend>
       {productTypes.map((productType) => (
         <label>
           <input type="checkbox" value={productType.slug} data-category-filter />
@@ -21,8 +23,17 @@ const { productTypes } = Astro.props;
       ))}
     </fieldset>
     <fieldset>
+      <legend>Subcategoría</legend>
+      {productVariants.map((productVariant) => (
+        <label>
+          <input type="checkbox" value={productVariant.slug} data-variant-filter />
+          <span>{productVariant.name}</span>
+        </label>
+      ))}
+    </fieldset>
+    <fieldset>
       <legend>Colores</legend>
-      {['Brasilia', 'Gold Rio', 'Roble Dorado'].map((color) => (
+      {colors.map((color) => (
         <label>
           <input type="checkbox" value={color.toLowerCase()} data-color-filter />
           <span>{color}</span>

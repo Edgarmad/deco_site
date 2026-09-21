@@ -3,7 +3,8 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import { getAdminSession } from '../../lib/adminAuth';
 import { getCsrfToken, validateCsrfToken } from '../../lib/adminSecurity';
 import { createSupabaseServerClient } from '../../lib/supabaseServer';
-import { fallbackWhatsappNumber } from '../../services/siteSettingsService';
+import { fallbackWhatsappNumber, fallbackCatalogUrl } from '../../services/siteSettingsService';
+import { validWebUrl } from '../../lib/adminContent';
 
 export const prerender = false;
 
@@ -13,6 +14,7 @@ if (!session) return Astro.redirect('/admin/login');
 const supabase = createSupabaseServerClient(Astro.request, Astro.cookies);
 const csrfToken = getCsrfToken(Astro.cookies);
 let whatsappNumber = fallbackWhatsappNumber;
+let catalogUrl = fallbackCatalogUrl;
 const sectionKeys = {
   technical: 'product_section_technical_enabled',
   support: 'product_section_support_enabled',
@@ -29,12 +31,18 @@ if (Astro.request.method === 'POST') {
     errorMessage = 'La sesión del formulario expiró. Recarga la página e intenta de nuevo.';
   } else {
     const submittedNumber = String(formData.get('whatsapp_number') ?? '').replace(/\D/g, '');
-    if (submittedNumber.length < 8 || submittedNumber.length > 15) {
+    whatsappNumber = submittedNumber;
+    for (const section of Object.keys(sectionVisibility) as (keyof typeof sectionVisibility)[]) sectionVisibility[section] = formData.get(`section_${section}`) === 'on';
+    catalogUrl = String(formData.get('catalog_url') ?? '').trim();
+    if (!validWebUrl(catalogUrl)) {
+      errorMessage = 'El catálogo debe ser un enlace http o https válido.';
+    } else if (submittedNumber.length < 8 || submittedNumber.length > 15) {
       errorMessage = 'Ingresa un número válido de 8 a 15 dígitos.';
       whatsappNumber = submittedNumber;
     } else {
       const settings = [
         { key: 'whatsapp_number', value: submittedNumber, is_public: true },
+        { key: 'catalog_url', value: catalogUrl, is_public: true },
         ...Object.entries(sectionKeys).map(([section, key]) => ({
           key,
           value: formData.get(`section_${section}`) === 'on' ? 'true' : 'false',
@@ -61,9 +69,13 @@ const { data: sectionSettings } = await supabase
   .from('site_settings')
   .select('key,value')
   .in('key', Object.values(sectionKeys));
-for (const setting of sectionSettings ?? []) {
+for (const setting of Astro.request.method === 'POST' ? [] : sectionSettings ?? []) {
   const section = (Object.entries(sectionKeys).find(([, key]) => key === setting.key)?.[0] ?? '') as keyof typeof sectionVisibility;
   if (section) sectionVisibility[section] = setting.value === 'true';
+}
+if (Astro.request.method !== 'POST') {
+  const { data } = await supabase.from('site_settings').select('value').eq('key', 'catalog_url').maybeSingle();
+  catalogUrl = data?.value ?? fallbackCatalogUrl;
 }
 ---
 
@@ -82,6 +94,7 @@ for (const setting of sectionSettings ?? []) {
   <section class="admin-panel pad">
     <form class="admin-form" method="post">
       <input type="hidden" name="csrf_token" value={csrfToken} />
+      <div class="admin-field"><label for="catalog_url">Enlace del catálogo en el menú</label><input type="url" id="catalog_url" name="catalog_url" value={catalogUrl} required /></div>
       <div class="admin-field">
         <label for="whatsapp_number">Número de WhatsApp</label>
         <input id="whatsapp_number" name="whatsapp_number" type="tel" value={whatsappNumber} placeholder="9931595909" required />

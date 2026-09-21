@@ -1,80 +1,54 @@
-# Revelo Catalog MVP
+# DECO ABC — sitio y CMS
 
-Visual MVP de catálogo comercial inspirado en el PDF de referencia de Milapro Home. El proyecto usa Astro, TypeScript, Tailwind CSS, datos mock locales y salida estática para HostGator.
+Frontend Astro 7 + TypeScript, desplegado con el adaptador de Vercel (Node 24). Supabase proporciona Postgres, Auth y Storage. La documentación antigua de WordPress/HostGator se conserva como referencia histórica; no describe la arquitectura actual.
 
-## Comandos
+## Desarrollo
 
 ```bash
 npm install
 npm run dev
+npx astro check
+npm test
 npm run build
-npm run preview
 ```
 
-## Estructura
+Configurar `.env` y Vercel con `SUPABASE_URL` y `SUPABASE_ANON_KEY` según `.env.example`. La clave `SUPABASE_SERVICE_ROLE_KEY` se reserva a scripts controlados; el CMS usa la sesión del administrador y RLS.
+
+## Flujo de contenido
 
 ```text
-src/
-  components/
-    common/
-    navigation/
-    product/
-    category/
-    filters/
-    sections/
-  data/
-  layouts/
-  pages/
-  services/
-  styles/
-  types/
+/admin → Supabase Auth + RLS → Postgres / Storage
+                                    ↓
+                     servicios → páginas SSR → sitio público
 ```
 
-## Páginas Implementadas
+Las páginas públicas consultan Supabase en cada petición, sin caché HTML: guardar un contenido publicado se refleja al recargar, sin otro deployment. Las listas vacías del CMS permanecen vacías; no se sustituyen por datos de ejemplo. Sin configuración Supabase se conserva el fallback local histórico.
 
-- `/` home comercial con hero, beneficios, categorías, productos, social proof, blogs, reviews y CTA.
-- `/products/` catálogo con búsqueda y filtros locales visuales.
-- `/products/[slug]/` detalle estático por producto con galería, colores, especificaciones y relacionados.
-- `/categories/[slug]/` categorías estáticas con productos y categorías relacionadas.
-- `/about/` historia y valores de marca.
-- `/contact/` formulario visual con validación local, sin envío real.
-- `/404.html` página de error personalizada.
+Rutas públicas: `/`, `/productos`, `/productos/[slug]`, `/proyectos`, `/proyectos/[slug]`, `/ubicaciones`, `/contacto`, `/busqueda`.
 
-## WordPress Headless
+Rutas privadas: `/admin/login`, `/admin`, `/admin/productos`, `/admin/categorias`, `/admin/familias`, `/admin/variantes`, `/admin/proyectos`, `/admin/ubicaciones`, `/admin/configuracion`.
 
-El proyecto ahora está preparado para usar WordPress como CMS headless sin cambiar el frontend visual aprobado. El flujo es:
-
-```text
-WordPress REST API -> src/services -> src/pages -> components via props
-```
-
-Si `WORDPRESS_API_URL` no está configurada o WordPress no responde, los servicios usan los datos locales de `src/data` como fallback para no romper el build.
-
-La estructura CMS vive en el plugin propio `wordpress/plugins/milapro-headless-cms` y el entorno local usa Docker:
+## Base de datos y primer administrador
 
 ```bash
-docker compose up -d
+npm run supabase:push
 ```
 
-Documentación completa: `docs/wordpress-headless.md`.
+Crear la cuenta en Supabase Auth y asignar `profiles.role = 'admin'`. No existe registro público. Instrucciones SQL en [SUPABASE_CMS.md](SUPABASE_CMS.md).
 
-## Despliegue HostGator
+No ejecutar los scripts de seed sobre contenido editado sin revisar primero sus `upsert`.
 
-1. WordPress se instala en HostGator como CMS, preferentemente en `cms.example.com`.
-2. GitHub Actions ejecuta `npm run build` leyendo la REST API de WordPress.
-3. GitHub Actions sube `dist/` a HostGator por FTP.
-4. El plugin de WordPress dispara el workflow cuando se actualizan productos, categorías, reels o blogs.
-5. No se requiere proceso Node.js en producción.
+## Documentación vigente
 
-## Diferido Intencionalmente
+- [Operación del panel y verificaciones](docs/admin-cms.md).
+- [Configuración Supabase y migraciones](SUPABASE_CMS.md).
+- [Datos técnicos y visibilidad de productos](docs/product-admin.md).
 
-- Backend, base de datos y autenticación.
-- WooCommerce, carrito, checkout, pagos y órdenes.
-- Envío real del formulario de contacto.
-- Persistencia de favoritos o analítica.
-- Filtrado avanzado conectado a inventario real.
+## Organización
 
-## Validación
-
-- `npm run build` genera `dist/` con salida estática.
-- `npx tsc --noEmit` valida TypeScript sin errores.
+- `src/pages/admin/[...path].astro`: listados/formularios de contenido y operaciones autenticadas.
+- `src/lib/adminContent.ts`: modelos de formulario y validación de servidor.
+- `src/lib/adminMedia.ts`: WebP, Storage y limpieza reintentable.
+- `src/lib/adminAuth.ts`, `supabaseServer.ts`, `adminSecurity.ts`, `src/middleware.ts`: sesiones y protección.
+- `src/services/`: consultas y normalización del contenido público.
+- `supabase/migrations/`: estructura, políticas y evolución de la base.

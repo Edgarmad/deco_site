@@ -1,5 +1,7 @@
 # Supabase CMS Deco ABC
 
+> Estado actualizado del panel: [docs/admin-cms.md](docs/admin-cms.md). El admin ya está implementado; los documentos `contexto-*-cms-deco.md` describen etapas previas.
+
 ## Variables
 
 Crear `.env` local y variables en Vercel usando `.env.example` como referencia:
@@ -111,4 +113,6 @@ No habilitar registro publico en el sitio.
 
 ## Estrategia runtime
 
-Las rutas `/productos`, `/productos/[slug]`, `/proyectos`, `/proyectos/[slug]` y `/ubicaciones` quedan en SSR sin cache explicita para el MVP. Las fichas no publicadas o inexistentes devuelven 404 real.
+Las rutas `/`, `/productos`, `/productos/[slug]`, `/proyectos`, `/proyectos/[slug]`, `/ubicaciones`, `/busqueda` y `/contacto` usan SSR con `Cache-Control: no-store`. Las fichas no publicadas o inexistentes devuelven 404 real. Una lista vacía en Supabase ya no activa datos de ejemplo.
+
+La migración `20260920150000_admin_completion.sql` agrega FAQ de acabados, limpieza reintentable de Storage y publicación dependiente de categoría/familia/variante. Ya fue aplicada al proyecto vinculado durante el cierre del CMS.

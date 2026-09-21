@@ -4,14 +4,17 @@ import type { Product } from '../../types/products';
 type Props = {
   product: Product;
   index: number;
+  level?: 'family' | 'variant';
 };
 
-const { product, index } = Astro.props;
+const { product, index, level = 'variant' } = Astro.props;
 const primaryColor = product.variants.flatMap((variant) => variant.colors)[0];
+const productVariant = product.variants[0];
 const cardImage = product.secondaryImage ?? product.image;
 // data-* concentra la informacion que usan filtros, busqueda y ordenamiento sin re-renderizar Astro.
 const searchText = [
   product.name,
+  product.categoryName,
   product.sku,
   product.macroCategory,
   product.categorySlug,
@@ -24,21 +27,23 @@ const searchText = [
   class="catalog-card motion-card"
   data-reveal
   data-product-card
+  data-level={level}
   data-macro={product.macroCategory}
   data-category={product.categorySlug}
+  data-variant={productVariant ? `${product.categorySlug}:${productVariant.slug}` : undefined}
   data-search={searchText}
   data-name={product.name.toLowerCase()}
   data-featured={product.featured ? 'true' : 'false'}
   data-index={index}
 >
-  <a href={`/productos/${product.slug}`} aria-label={`Ver ${product.name}`}>
+  <a href={level === 'family' ? `/productos?familia=${product.categorySlug}` : `/productos/${product.slug}`} aria-label={level === 'family' ? `Ver productos de ${product.name}` : `Ver ${product.name}`}>
     <div class={`catalog-visual catalog-visual-${(index % 6) + 1} motion-card__media`}>
       {cardImage ? <img src={cardImage} alt={product.name} loading="lazy" /> : <span aria-hidden="true"></span>}
     </div>
     <div class="catalog-copy">
       <h2>{product.name}</h2>
       {product.sku && <p>SKU: {product.sku}</p>}
-      <small>{primaryColor?.name ?? product.variants[0]?.name ?? 'Acabado por confirmar'}</small>
+      <small>{primaryColor ? `${productVariant?.name ?? 'Variante'} · ${productVariant.colors.length} colores` : productVariant?.name ?? 'Variante por confirmar'}</small>
       <em class="motion-card__arrow">Ver ficha y variantes</em>
     </div>
   </a>

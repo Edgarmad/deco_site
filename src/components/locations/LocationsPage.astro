@@ -22,15 +22,19 @@ const { locations, whatsappUrl } = Astro.props;
     {locations.map((location) => (
       <article class="location-card motion-row motion-location" data-reveal>
         <span>{location.number}</span>
-        <h2>{location.city}</h2>
+        <h2>{location.name}</h2>
         <strong>{location.type}</strong>
         <div>
           <p>{location.address}</p>
           <small>{location.schedule}</small>
+          <p>{location.city}</p>
+          {location.phone && <p><a href={`tel:${location.phone.replace(/[^\d+]/g, '')}`}>{location.phone}</a></p>}
+          {location.whatsappUrl && <a href={location.whatsappUrl} target="_blank" rel="noreferrer">WhatsApp de la sucursal →</a>}
         </div>
         <a class="motion-row__arrow" href={location.mapsUrl} target="_blank" rel="noreferrer">Abrir en maps ↗</a>
       </article>
     ))}
+    {!locations.length && <p>No hay ubicaciones publicadas por el momento.</p>}
   </section>
 
   <!-- Seccion: Confirmacion por WhatsApp -->

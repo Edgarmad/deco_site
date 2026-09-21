@@ -3,8 +3,7 @@ import type { AstroCookies } from 'astro';
 const csrfCookieName = 'deco_admin_csrf';
 
 export const isAdminSecurityRelaxed = () => {
-  const envValue = String(import.meta.env.env ?? import.meta.env.ENV ?? '').toLowerCase();
-  return import.meta.env.DEV || envValue === 'development';
+  return import.meta.env.DEV;
 };
 
 const csrfCookieOptions = {
@@ -38,8 +37,6 @@ export const getCsrfToken = (cookies: AstroCookies) => {
 };
 
 export const validateCsrfToken = (cookies: AstroCookies, formData: FormData) => {
-  if (isAdminSecurityRelaxed()) return true;
-
   const cookieToken = cookies.get(csrfCookieName)?.value ?? '';
   const formToken = String(formData.get('csrf_token') ?? '');
   return secureCompare(cookieToken, formToken);
@@ -108,7 +105,7 @@ export const applyAdminSecurityHeaders = (response: Response) => {
       "object-src 'none'",
       "frame-ancestors 'none'",
       "form-action 'self'",
-      "img-src 'self' data: https:",
+      "img-src 'self' data: blob: https:",
       "style-src 'self' 'unsafe-inline'",
       "script-src 'self'",
       "connect-src 'self' https://*.supabase.co wss://*.supabase.co"

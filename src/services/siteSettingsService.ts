@@ -1,6 +1,13 @@
 import { supabase } from '../lib/supabase';
 
 export const fallbackWhatsappNumber = '9931595909';
+export const fallbackCatalogUrl = 'https://drive.google.com/drive/folders/12p5iAFIaNjnZSjPvLG4gPOmNUzrrt794?usp=drive_link';
+export const getCatalogUrl = async () => {
+  if (!supabase) return fallbackCatalogUrl;
+  const { data } = await supabase.from('site_settings').select('value').eq('key', 'catalog_url').maybeSingle();
+  try { const url = new URL(data?.value ?? ''); return ['https:', 'http:'].includes(url.protocol) ? url.href : fallbackCatalogUrl; }
+  catch { return fallbackCatalogUrl; }
+};
 
 export type ProductSectionVisibility = {
   technical: boolean;

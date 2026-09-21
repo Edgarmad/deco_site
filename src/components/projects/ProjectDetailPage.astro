@@ -17,7 +17,7 @@ const { project } = Astro.props;
       <h1 id="project-title" data-reveal>{project.name}</h1>
       <span data-reveal>{project.description}</span>
     </div>
-    <div class="motion-project-media" data-reveal data-parallax="0.025"><ProjectVisual visual={project.visual} alt={project.imageAlt} class="project-detail-visual" /></div>
+    <div class="motion-project-media" data-reveal data-parallax="0.025"><ProjectVisual visual={project.visual} image={project.image} alt={project.imageAlt} class="project-detail-visual" /></div>
   </section>
 
   <!-- Seccion: Datos del proyecto -->
@@ -56,9 +56,19 @@ const { project } = Astro.props;
       <a class="motion-button" href="/contacto">Cotizar materiales →</a>
     </aside>
   </section>
+  <!-- Seccion: Contenido y galería del CMS -->
+  {(project.content || project.gallery?.length) && <section class="project-cms-content">
+    {project.content && <p>{project.content}</p>}
+    <div>{project.gallery?.map(image => <figure><img src={image.url} alt={image.alt} loading="lazy" /><figcaption>{image.kind === 'before' ? 'Antes' : image.kind === 'after' ? 'Después' : ''}</figcaption></figure>)}</div>
+  </section>}
 </main>
 
 <style>
+  .project-cms-content { padding: 0 6.6vw 60px; }
+  .project-cms-content p { white-space: pre-line; line-height: 1.6; }
+  .project-cms-content > div { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 24px; }
+  .project-cms-content figure { margin: 0; }
+  .project-cms-content img { width: 100%; height: auto; }
   .project-detail-page {
     background: var(--white);
     color: var(--black);

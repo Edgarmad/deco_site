@@ -8,6 +8,10 @@ export type Project = {
   visual: ProjectVisual;
   imageAlt: string;
   image?: string;
+  content?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  gallery?: { url: string; alt: string; kind: string }[];
   featured?: boolean;
   location: string;
   year: string;

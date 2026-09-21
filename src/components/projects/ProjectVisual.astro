@@ -4,19 +4,22 @@ import type { ProjectVisual } from '../../types/projects';
 type Props = {
   visual: ProjectVisual;
   alt: string;
+  image?: string;
   class?: string;
 };
 
-const { visual, alt, class: className = '' } = Astro.props;
+const { visual, alt, image, class: className = '' } = Astro.props;
 ---
 
-<div class={`project-visual project-visual-${visual} ${className}`} role="img" aria-label={alt}></div>
+<div class={`project-visual project-visual-${visual} ${className}`} role={image ? undefined : 'img'} aria-label={image ? undefined : alt}>{image && <img src={image} alt={alt} loading="lazy" />}</div>
 
 <style>
   .project-visual {
+    position: relative;
     min-height: 145px;
     background-color: var(--wood);
   }
+  .project-visual img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 
   .project-visual-wood-stripes {
     background-image: repeating-linear-gradient(90deg, #c89155 0 16px, #644225 16px 25px, #231b16 25px 34px, #d5a15f 34px 50px);

@@ -1,6 +1,6 @@
 ---
 import type { ProductCategory, ProductMacroCategory } from '../../types/products';
-import { getProducts } from '../../services/productService';
+import { getCatalogProducts } from '../../services/productService';
 
 type Props = {
   categories: ProductCategory[];
@@ -8,7 +8,7 @@ type Props = {
 };
 
 const { activeCategory = '' } = Astro.props;
-const products = await getProducts();
+const products = await getCatalogProducts();
 const categoryOrder: Record<ProductMacroCategory, string[]> = {
   interior: [
     'lambrin',
@@ -47,12 +47,17 @@ const getCategoryOrder = (slug: string, macroCategory: ProductMacroCategory) => 
 
 const productTypes = Array.from(
   products.reduce((types, product) => {
+    const excelFamilySlugs = new Set([
+      'lambrin', 'panel-reforzado-spc', 'plafon-pvc', 'placas-marmol-pvc', 'vigas-wpc', 'piso-spc',
+      'lambrin-asa', 'wall-cladding-asa', 'deck-coextruido', 'viga-coextruida'
+    ]);
+    if (!excelFamilySlugs.has(product.categorySlug)) return types;
     if (!types.has(product.categorySlug)) {
       types.set(product.categorySlug, {
         slug: product.categorySlug,
         name: product.categoryName ?? product.categorySlug,
         macroCategory: product.macroCategory,
-        href: `/productos?categoria=${product.categorySlug}`
+        href: `/productos?familia=${product.categorySlug}`,
       });
     }
     return types;
@@ -76,11 +81,11 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
           {group.label}
         </button>
         <nav class="mega-panel" aria-label={group.label}>
-          {groupProductTypes.map((productType) => (
-            <a class={activeCategory === productType.slug ? 'active' : ''} href={productType.href} aria-current={activeCategory === productType.slug ? 'page' : undefined}>
-              {productType.name}
-            </a>
-          ))}
+            {groupProductTypes.map((productType) => (
+              <a class={activeCategory === productType.slug ? 'active' : ''} href={productType.href} aria-current={activeCategory === productType.slug ? 'page' : undefined}>
+                {productType.name}
+              </a>
+            ))}
         </nav>
       </section>
     );
@@ -166,7 +171,7 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
   .mega-group.open .mega-panel,
   .mega-group:hover .mega-panel,
   .mega-group:focus-within .mega-panel {
-    max-height: 180px;
+    max-height: 420px;
     opacity: 1;
     padding: 8px 8vw 28px;
     pointer-events: auto;
@@ -213,7 +218,7 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
     .mega-group.open .mega-panel,
     .mega-group:hover .mega-panel,
     .mega-group:focus-within .mega-panel {
-      max-height: 260px;
+      max-height: 520px;
       padding: 0 20px 22px;
     }
   }

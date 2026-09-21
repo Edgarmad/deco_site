@@ -32,6 +32,8 @@ type SupabaseLocation = {
   phone: string | null;
   whatsapp_url: string | null;
   maps_url: string | null;
+  latitude: number | null;
+  longitude: number | null;
 };
 
 const normalizeLocation = (location: SupabaseLocation, index: number): Location => ({
@@ -44,7 +46,7 @@ const normalizeLocation = (location: SupabaseLocation, index: number): Location 
   schedule: location.schedule ?? 'Horario por confirmar',
   phone: location.phone ?? undefined,
   whatsappUrl: location.whatsapp_url ?? undefined,
-  mapsUrl: location.maps_url ?? '#'
+  mapsUrl: location.maps_url ?? (location.latitude != null && location.longitude != null ? `https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}` : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${location.address ?? ''} ${location.city}`)}`)
 });
 
 export const getLocations = async (): Promise<Location[]> => {
@@ -52,11 +54,11 @@ export const getLocations = async (): Promise<Location[]> => {
 
   const { data, error } = await supabase
     .from('locations')
-    .select('id,name,city,type,address,schedule,phone,whatsapp_url,maps_url')
+    .select('id,name,city,type,address,schedule,phone,whatsapp_url,maps_url,latitude,longitude')
     .eq('status', 'published')
     .order('sort_order', { ascending: true })
     .order('city', { ascending: true });
 
-  if (error || !data?.length) return locationFallbacks;
+  if (error) throw new Error(`No se pudieron cargar las ubicaciones: ${error.message}`);
   return data.map(normalizeLocation);
 };

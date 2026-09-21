@@ -4,13 +4,14 @@ import ProductCard from './ProductCard.astro';
 
 type Props = {
   products: Product[];
+  level?: 'family' | 'variant';
 };
 
-const { products } = Astro.props;
+const { products, level = 'variant' } = Astro.props;
 ---
 
 <div class="catalog-grid" data-product-grid data-catalog-grid data-reveal-group>
-  {products.map((product, index) => <ProductCard product={product} index={index} />)}
+  {products.map((product, index) => <ProductCard product={product} index={index} level={level} />)}
 </div>
 
 <div class="catalog-empty" data-empty-state hidden>

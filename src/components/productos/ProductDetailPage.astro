@@ -32,11 +32,9 @@ const relatedProducts = siblingProducts.filter((item) => item.slug !== product.s
 const allColors = product.variants.flatMap((variant) => variant.colors);
 const activeTone = allColors[0];
 const variantItems = siblingProducts.length > 0 ? siblingProducts : [product];
-const faqItems = [
-  ['¿Como calculo cuanto material necesito?', 'Mide ancho y alto del muro, resta vanos y agrega un margen de merma antes de solicitar cotizacion.'],
-  ['¿Puedo instalarlo en exterior?', product.macroCategory === 'exterior' ? 'Si, esta familia esta pensada para uso exterior segun la preparacion del sustrato.' : 'Esta variante esta orientada a interior; valida exposicion y humedad antes de instalar.'],
-  ['¿Que incluye la ficha tecnica?', 'Medidas, presentacion, cuidados, garantia y recomendaciones de instalacion.']
-];
+const faqItems = Object.entries(product.faqItems ?? {});
+const installationSteps = (product.installationNotes ?? '').split(/\r?\n/).filter(Boolean);
+const galleryImages = product.galleryImages ?? (product.gallery ?? []).map(url => ({ url, alt: product.name }));
 ---
 
 <main>
@@ -45,7 +43,7 @@ const faqItems = [
     <a class="back-link" href="/productos">Volver al catalogo</a>
     <div class="detail-layout">
       <div class="detail-media motion-card__media" data-product-gallery data-reveal="hero">
-        {product.image ? <img class="motion-product-image" src={product.image} alt={product.name} /> : <span class="motion-product-image" aria-hidden="true"></span>}
+        {product.image ? <img class="motion-product-image" src={product.image} alt={product.imageAlt ?? product.name} /> : <span class="motion-product-image" aria-hidden="true"></span>}
       </div>
       <article class="detail-copy" data-reveal-group>
         <p data-reveal>{product.categoryName ?? category?.name ?? product.macroCategory}</p>
@@ -59,7 +57,7 @@ const faqItems = [
              <div class="tone-selector-track">
                {variantItems.map((variantProduct, index) => (
                  <a class={variantProduct.slug === product.slug ? 'active' : ''} href={`/productos/${variantProduct.slug}`} aria-current={variantProduct.slug === product.slug ? 'page' : undefined} title={variantProduct.name}>
-                   <span class={`tone-dot${variantProduct.image ? ' tone-dot-image' : ` tone-dot-${(index % 8) + 1}`}`} aria-hidden="true">
+                    <span class={`tone-dot${variantProduct.image ? ' tone-dot-image' : ` tone-dot-${(index % 8) + 1}`}`} style={!variantProduct.image && variantProduct.variants[0]?.colors[0]?.hex ? { background: variantProduct.variants[0].colors[0].hex } : undefined} aria-hidden="true">
                      {variantProduct.image && <img src={variantProduct.image} alt="" loading="lazy" />}
                    </span>
                    <small>{variantProduct.variants[0]?.colors[0]?.name ?? variantProduct.name}</small>
@@ -74,10 +72,11 @@ const faqItems = [
              <small>{activeTone?.name ?? 'Acabado por confirmar'}</small>
              <small>{product.macroCategory}</small>
              <small>{product.variants[0]?.name ?? 'Presentacion por confirmar'}</small>
-             {product.price != null && <small>Precio: ${product.price.toFixed(2)}</small>}
+              {product.price != null && <small>Precio: ${product.price.toFixed(2)}</small>}
+              {product.finish && <small>{product.finish}</small>}
            </div>
          </div>
-         {technicalRows.length > 0 && <div class="product-specs" data-reveal>
+          {visibility.technical && technicalRows.length > 0 && <div class="product-specs" data-reveal>
            <p>Especificaciones del producto</p>
            <dl>
              {technicalRows.map(([label, value]) => (
@@ -91,6 +90,8 @@ const faqItems = [
          <a class="quote-link motion-button" data-reveal href="/contacto">Solicitar cotizacion</a>
       </article>
     </div>
+    <!-- Seccion: Galería del acabado -->
+    {galleryImages.length > 0 && <div class="cms-product-gallery">{galleryImages.map(image => <a href={image.url} target="_blank" rel="noreferrer"><img src={image.url} alt={image.alt} loading="lazy" /></a>)}</div>}
   </section>
 
   <section class="quote-calculator" data-reveal="section" aria-labelledby="calculator-title">
@@ -132,7 +133,7 @@ const faqItems = [
    </section>}
 
    {(visibility.faq || visibility.installation) && <section class="faq-installation" data-reveal-group>
-     {visibility.faq && <div class="faq-list">
+      {visibility.faq && faqItems.length > 0 && <div class="faq-list">
       <h2>Preguntas frecuentes</h2>
       {faqItems.map(([question, answer]) => (
         <details class="motion-accordion" data-reveal>
@@ -141,9 +142,9 @@ const faqItems = [
         </details>
       ))}
      </div>}
-     {visibility.installation && <div class="installation-list">
+      {visibility.installation && installationSteps.length > 0 && <div class="installation-list">
       <h2>Guia de instalacion</h2>
-      {['Preparar superficie', 'Trazar modulacion', 'Cortar piezas', 'Aplicar fijacion', 'Instalar de abajo hacia arriba', 'Rematar bordes', 'Limpiar y revisar'].map((step, index) => (
+       {installationSteps.map((step, index) => (
         <p data-reveal><span>{String(index + 1).padStart(2, '0')}</span>{step}</p>
       ))}
      </div>}
@@ -164,6 +165,8 @@ const faqItems = [
 </main>
 
 <style>
+  .cms-product-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-top: 24px; }
+  .cms-product-gallery img { width: 100%; height: 200px; object-fit: contain; }
   .product-detail {
     padding: 64px 8vw 78px;
     background: var(--white-pure);
