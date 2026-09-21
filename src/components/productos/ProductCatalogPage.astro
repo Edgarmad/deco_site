@@ -108,7 +108,7 @@ const filterLabels = {
           <h1 id="catalog-title" data-reveal>Todos los productos</h1>
           <ProductGrid products={familyProducts} level="family" />
           <ProductGrid products={products} level="variant" />
-          <ProductPagination total={familyProducts.length} />
+          <ProductPagination total={products.length} />
         </div>
       </div>
     )}
@@ -188,7 +188,7 @@ const filterLabels = {
       const matchesVariant = checkedVariants.length === 0 || checkedVariants.includes(card.dataset.variant ?? '');
       const matchesColor = checkedColors.length === 0 || checkedColors.some((color) => searchText.includes(color));
       const matchesQuery = !query || searchText.includes(query);
-      const showingVariants = checkedCategories.length > 0 || Boolean(currentFamily) || Boolean(currentVariant);
+      const showingVariants = currentMacro !== 'todo' || checkedCategories.length > 0 || Boolean(currentFamily) || Boolean(currentVariant);
       const matchesLevel = card.dataset.level === (showingVariants ? 'variant' : 'family');
       return matchesLevel && matchesMacro && matchesCategory && matchesVariant && matchesColor && matchesQuery;
     });
