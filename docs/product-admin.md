@@ -9,7 +9,7 @@ La plantilla `DECO_ABC_Plantilla_Inventario_Productos (1).xlsx` se relaciona con
 - `Variante / Color`: opcion/color de la variante.
 - `Categoría de uso`: categoria `interior` o `exterior`.
 
-La carga inicial considera los 112 registros que ya existen en `product_options`. La homologacion por slug encontro 60 coincidencias seguras en la plantilla; las otras 52 opciones existentes quedan publicadas, con precio temporal, pero pendientes de informacion tecnica.
+El Excel es el inventario canonico. La carga actual contiene 160 combinaciones unicas; la fila duplicada de `ACCESORIOS / Soclo SPC / Humo` se ignora. Los productos que no aparecen en el Excel se retiran del catalogo publicado.
 
 ## Datos tecnicos
 
@@ -41,6 +41,8 @@ La visibilidad general se controla en `site_settings` con estas claves publicas:
 - `product_section_installation_enabled`
 
 Cada registro puede tener una configuracion individual en `product_options.section_visibility`. Una clave con valor `false` oculta esa seccion solo para ese producto; una clave ausente hereda la configuracion global.
+
+Las opciones sin imagen real reciben `fallback_image_path = products/_placeholder/product-placeholder.webp`. El archivo WebP se almacena una sola vez en Storage y se reutiliza como fallback.
 
 El panel de admin expone ambos niveles:
 

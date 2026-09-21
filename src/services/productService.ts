@@ -38,6 +38,7 @@ type ProductOptionRow = {
   technical_sheet_url: string | null;
   installation_guide_url: string | null;
   section_visibility: Record<string, boolean> | null;
+  fallback_image_path: string | null;
   featured: boolean | null;
   status: 'draft' | 'published';
   seo_title: string | null;
@@ -86,6 +87,7 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
     .slice()
     .sort((first, second) => (first.sort_order ?? 0) - (second.sort_order ?? 0));
   const mainImage = images.find((image) => image.kind === 'main') ?? images[0];
+  const fallbackImage = getPublicStorageUrl('site-media', option.fallback_image_path ?? '');
   const secondaryImage = images.find((image) => image.kind === 'secondary');
   const gallery = images
     .filter((image) => image !== mainImage)
@@ -104,7 +106,7 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
     description: option.description ?? variant.description ?? product.description ?? undefined,
     sku: option.sku ?? undefined,
     price: option.price ?? undefined,
-    image: getPublicStorageUrl(mainImage?.storage_bucket ?? '', mainImage?.storage_path),
+    image: getPublicStorageUrl(mainImage?.storage_bucket ?? '', mainImage?.storage_path) ?? fallbackImage,
     secondaryImage: getPublicStorageUrl(secondaryImage?.storage_bucket ?? '', secondaryImage?.storage_path),
     gallery,
     imageAlt: mainImage?.alt_text ?? undefined,
@@ -207,7 +209,7 @@ export const groupProductsByVariant = (products: Product[]): Product[] => {
 };
 
 const productOptionSelect = `
-  id,name,slug,sku,price,summary,description,dimensions,thickness,material,usage,installation_notes,care_notes,technical_specs,technical_sheet_url,installation_guide_url,section_visibility,featured,status,seo_title,seo_description,
+  id,name,slug,sku,price,summary,description,dimensions,thickness,material,usage,installation_notes,care_notes,technical_specs,technical_sheet_url,installation_guide_url,section_visibility,fallback_image_path,featured,status,seo_title,seo_description,
   canonical_path,faq_items,finish,color_name,color_hex,
   product_images(storage_bucket,storage_path,kind,sort_order,alt_text),
   product_variants(id,name,slug,summary,description,products(id,name,slug,summary,description,categories(id,name,slug)))
