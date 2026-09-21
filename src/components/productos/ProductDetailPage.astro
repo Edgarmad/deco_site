@@ -44,8 +44,11 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
     <a class="back-link" href={catalogUrl}>Volver al catalogo</a>
     <div class="detail-layout">
        <div class="detail-media motion-card__media" data-product-gallery>
-        {product.image ? <img class="motion-product-image" src={product.image} alt={product.imageAlt ?? product.name} /> : <span class="motion-product-image" aria-hidden="true"></span>}
-      </div>
+         <div class="detail-main-image">
+           {product.image ? <img class="motion-product-image" src={product.image} alt={product.imageAlt ?? product.name} /> : <span class="motion-product-image" aria-hidden="true"></span>}
+         </div>
+         {galleryImages.length > 0 && <div class="cms-product-gallery">{galleryImages.map(image => <a href={image.url} target="_blank" rel="noreferrer"><img src={image.url} alt={image.alt} loading="lazy" /></a>)}</div>}
+       </div>
       <article class="detail-copy" data-reveal-group>
         <p data-reveal>{product.categoryName ?? category?.name ?? product.macroCategory}</p>
         <h1 data-reveal>{product.name}</h1>
@@ -91,9 +94,7 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
          <a class="quote-link motion-button" data-reveal href="/contacto">Solicitar cotizacion</a>
       </article>
     </div>
-    <!-- Seccion: Galería del acabado -->
-    {galleryImages.length > 0 && <div class="cms-product-gallery">{galleryImages.map(image => <a href={image.url} target="_blank" rel="noreferrer"><img src={image.url} alt={image.alt} loading="lazy" /></a>)}</div>}
-  </section>
+   </section>
 
   <section class="quote-calculator" data-reveal="section" aria-labelledby="calculator-title">
     <div>
@@ -166,8 +167,35 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
 </main>
 
 <style>
-  .cms-product-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-top: 24px; }
-  .cms-product-gallery img { width: 100%; height: 200px; object-fit: contain; }
+  .detail-main-image {
+    width: 100%;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+    background: #f0f0ec;
+    overflow: hidden;
+  }
+
+  .cms-product-gallery {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+
+  .cms-product-gallery a {
+    display: block;
+    aspect-ratio: 1.25;
+    background: #f0f0ec;
+    overflow: hidden;
+  }
+
+  .cms-product-gallery img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
   .product-detail {
     padding: 64px 8vw 78px;
     background: var(--white-pure);
@@ -196,16 +224,12 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
 
   .detail-media {
     width: 100%;
-    aspect-ratio: 1;
     height: auto;
     min-height: 0;
-    display: grid;
-    place-items: center;
-    background: #f0f0ec;
     overflow: hidden;
   }
 
-  .detail-media img {
+  .detail-main-image img {
     display: block;
     width: 100%;
     height: 100%;
@@ -214,7 +238,7 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
     object-fit: contain;
   }
 
-  .detail-media span {
+  .detail-main-image span {
     width: 52%;
     height: 64%;
     transform: perspective(640px) rotateX(56deg) rotateZ(-22deg);
@@ -739,7 +763,7 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
       justify-self: center;
     }
 
-    .detail-media img {
+    .detail-main-image img {
       min-width: 0;
     }
 
@@ -779,7 +803,7 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
     }
 
     .detail-media {
-      min-height: 380px;
+      min-height: 0;
     }
   }
 
@@ -860,7 +884,7 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
       font-size: 0.58rem;
     }
 
-    .detail-media {
+    .detail-main-image {
       width: 100%;
       aspect-ratio: 1;
       height: auto;
@@ -871,7 +895,7 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
       overflow: hidden;
     }
 
-    .detail-media span {
+    .detail-main-image span {
       width: 72%;
       height: 72%;
       transform: none;
