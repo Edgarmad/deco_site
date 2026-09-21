@@ -30,7 +30,7 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
   {groups.map((group) => {
     const groupProductTypes = productTypes.filter((productType) => productType.macroCategory === group.macroCategory);
     return (
-      <section class="mega-group" data-mega-group>
+      <section class="mega-group" data-mega-group data-macro-category={group.macroCategory}>
         <button type="button" class="mega-trigger" aria-expanded="false">
           {group.label}
         </button>
@@ -67,7 +67,9 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
       if (nextTarget instanceof Node && group.contains(nextTarget)) return;
       setExpanded(false);
     });
-    trigger.addEventListener('click', () => setExpanded(trigger.getAttribute('aria-expanded') !== 'true'));
+    trigger.addEventListener('click', () => {
+      window.location.href = `/productos?categoria=${group.dataset.macroCategory ?? ''}`;
+    });
   });
 </script>
 
