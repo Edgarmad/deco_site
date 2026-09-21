@@ -782,6 +782,32 @@ const galleryImages = product.galleryImages ?? (product.gallery ?? []).map(url =
     }
   }
 
+  @media (min-width: 641px) and (max-width: 850px) {
+    .detail-copy,
+    .tone-selector {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .tone-selector {
+      width: 100%;
+      overflow-x: auto;
+      overscroll-behavior-inline: contain;
+      scroll-snap-type: x proximity;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tone-selector-track {
+      width: max-content;
+      min-width: 100%;
+      flex-wrap: nowrap;
+    }
+
+    .tone-selector a {
+      scroll-snap-align: start;
+    }
+  }
+
   @media (max-width: 640px) {
     .product-detail {
       padding: 18px 14px 22px;
