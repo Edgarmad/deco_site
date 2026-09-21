@@ -9,6 +9,7 @@ const locationFallbacks: Location[] = [
     type: 'Tienda',
     address: 'Bodega 10, C. 6, Chichi Suarez, 97306',
     schedule: 'Lun-Vie 9:00-18:00',
+    phone: '+52 999 000 0000',
     mapsUrl: 'https://maps.app.goo.gl/FG9PJTLZq6gDspWSA?g_st=ic'
   },
   {
@@ -18,6 +19,7 @@ const locationFallbacks: Location[] = [
     type: 'Tienda',
     address: 'Carretera Federal Mz 2 Lt 22, Bodega 7',
     schedule: 'Lun-Sab 9:00-17:00',
+    phone: '+52 984 000 0000',
     mapsUrl: 'https://maps.app.goo.gl/7WJnTuYAhmoqoA5QA?g_st=ic'
   }
 ];
