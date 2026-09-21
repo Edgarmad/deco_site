@@ -54,16 +54,19 @@ const faqItems = [
         <div class="summary" data-reveal>{product.summary ?? 'Producto Deco en preparacion para publicacion final.'}</div>
          <div class="detail-block" data-reveal>
           <h2>Variantes de la familia</h2>
-          <div class="tone-selector" aria-label="Variantes disponibles">
-            {variantItems.map((variantProduct, index) => (
-              <a class={variantProduct.slug === product.slug ? 'active' : ''} href={`/productos/${variantProduct.slug}`} aria-current={variantProduct.slug === product.slug ? 'page' : undefined} title={variantProduct.name}>
-                <span class={`tone-dot${variantProduct.image ? ' tone-dot-image' : ` tone-dot-${(index % 8) + 1}`}`} aria-hidden="true">
-                  {variantProduct.image && <img src={variantProduct.image} alt="" loading="lazy" />}
-                </span>
-                <small>{variantProduct.variants[0]?.colors[0]?.name ?? variantProduct.name}</small>
-              </a>
-            ))}
-          </div>
+           <div class="tone-selector" aria-label="Variantes disponibles">
+             <p class="tone-hint">Desliza para ver más</p>
+             <div class="tone-selector-track">
+               {variantItems.map((variantProduct, index) => (
+                 <a class={variantProduct.slug === product.slug ? 'active' : ''} href={`/productos/${variantProduct.slug}`} aria-current={variantProduct.slug === product.slug ? 'page' : undefined} title={variantProduct.name}>
+                   <span class={`tone-dot${variantProduct.image ? ' tone-dot-image' : ` tone-dot-${(index % 8) + 1}`}`} aria-hidden="true">
+                     {variantProduct.image && <img src={variantProduct.image} alt="" loading="lazy" />}
+                   </span>
+                   <small>{variantProduct.variants[0]?.colors[0]?.name ?? variantProduct.name}</small>
+                 </a>
+               ))}
+             </div>
+           </div>
         </div>
         <div class="detail-block" data-reveal>
           <h2>Datos comerciales</h2>
@@ -268,12 +271,28 @@ const faqItems = [
   }
 
   .tone-selector {
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #c5cac3 transparent;
+  }
+
+  .tone-selector-track {
+    width: max-content;
     display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
+    gap: 18px;
+  }
+
+  .tone-hint {
+    margin: 0 0 10px;
+    color: #818781;
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
   }
 
   .tone-selector a {
+    flex: 0 0 auto;
     display: grid;
     justify-items: center;
     gap: 8px;
@@ -692,10 +711,11 @@ const faqItems = [
     }
 
     .tone-selector {
-      flex-wrap: nowrap;
-      gap: 9px;
-      overflow-x: auto;
       padding-bottom: 2px;
+    }
+
+    .tone-selector-track {
+      gap: 14px;
     }
 
     .tone-selector a {
