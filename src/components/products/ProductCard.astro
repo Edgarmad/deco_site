@@ -10,6 +10,7 @@ type Props = {
 const { product, index, level = 'variant' } = Astro.props;
 const primaryColor = product.variants.flatMap((variant) => variant.colors)[0];
 const productVariant = product.variants[0];
+const productVariantKey = productVariant ? `${product.categorySlug}:${productVariant.slug}` : '';
 const cardImage = product.secondaryImage ?? product.image;
 // data-* concentra la informacion que usan filtros, busqueda y ordenamiento sin re-renderizar Astro.
 const searchText = [
@@ -30,13 +31,13 @@ const searchText = [
   data-level={level}
   data-macro={product.macroCategory}
   data-category={product.categorySlug}
-  data-variant={productVariant ? `${product.categorySlug}:${productVariant.slug}` : undefined}
+  data-variant={productVariantKey || undefined}
   data-search={searchText}
   data-name={product.name.toLowerCase()}
   data-featured={product.featured ? 'true' : 'false'}
   data-index={index}
 >
-  <a href={level === 'family' ? `/productos?categoria=${product.macroCategory}&familia=${product.categorySlug}` : `/productos/${product.slug}`} aria-label={level === 'family' ? `Ver productos de ${product.name}` : `Ver ${product.name}`}>
+  <a href={level === 'family' ? `/productos?categoria=${product.macroCategory}&subcategoria=${productVariantKey}` : `/productos/${product.slug}`} aria-label={level === 'family' ? `Ver acabados de ${product.name}` : `Ver ${product.name}`}>
     <div class={`catalog-visual catalog-visual-${(index % 6) + 1} motion-card__media`}>
       {cardImage ? <img src={cardImage} alt={product.name} loading="lazy" /> : <span aria-hidden="true"></span>}
     </div>

@@ -68,7 +68,7 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
         {product.sku && <strong data-reveal>SKU: {product.sku}</strong>}
         <div class="summary" data-reveal>{product.summary ?? 'Producto Deco en preparacion para publicacion final.'}</div>
          <div class="detail-block" data-reveal>
-          <h2>Variantes de la familia</h2>
+          <h2>Colores de esta familia</h2>
            <div class="tone-selector" aria-label="Variantes disponibles">
              <p class="tone-hint">Desliza para ver más</p>
              <div class="tone-selector-track">
@@ -335,7 +335,7 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
   }
 
   .tone-selector a.active {
-    color: #777f77;
+    color: var(--green);
   }
 
   .tone-dot {
@@ -345,7 +345,6 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
     position: relative;
     border-radius: 999px;
     border: 2px solid var(--white-pure);
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12);
     overflow: hidden;
   }
 

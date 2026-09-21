@@ -10,26 +10,7 @@ type Props = {
 };
 
 const { products, categories } = Astro.props;
-const familyProducts = Array.from(
-  products.reduce((families, product) => {
-    const existing = families.get(product.categorySlug);
-    if (!existing) {
-      families.set(product.categorySlug, {
-        ...product,
-        name: product.categoryName ?? product.name,
-        variants: product.variants.map((variant) => ({ ...variant, colors: [...variant.colors] }))
-      });
-    } else {
-      const existingColors = new Set(existing.variants.flatMap((variant) => variant.colors.map((color) => color.id ?? color.slug)));
-      product.variants.forEach((variant) => {
-        existing.variants[0]?.colors.push(
-          ...variant.colors.filter((color) => !existingColors.has(color.id ?? color.slug))
-        );
-      });
-    }
-    return families;
-  }, new Map<string, Product>()).values()
-);
+const familyProducts = products;
 const colors = Array.from(new Set(products.flatMap(product => product.variants.flatMap(variant => variant.colors.map(color => color.name))))).sort((a, b) => a.localeCompare(b, 'es'));
 const productTypes = Array.from(
   products.reduce((types, product) => {

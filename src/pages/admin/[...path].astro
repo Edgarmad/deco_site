@@ -192,7 +192,7 @@ const pageUrl = (number: number) => `${base}?${new URLSearchParams({ q: search, 
   <!-- Seccion: Encabezado y mensajes -->
   <header class="admin-page-head compact">
     <div><p class="admin-kicker">CMS / {module.label}</p><h1>{routeId ? isNew ? 'Nuevo registro' : String(record[module.titleKey]) : module.label}</h1>
-      <p class="admin-note">Categoría de uso → Tipo de producto → Familia / subcategoría → Acabado / color. Todos los niveles deben estar publicados. El catálogo agrupa los colores en una tarjeta por familia.</p>
+      <p class="admin-note">Categoría de uso → Tipo de producto → Familia / subcategoría → Acabado / color. En el Excel: Producto → Familia(Subcategoria) → Variante / Color. El sitio solo debe mezclar colores dentro de la misma Familia(Subcategoria).</p>
     </div>
     <a class="admin-link-button" href={routeId ? base : `${base}/${section === 'ubicaciones' ? 'nueva' : 'nuevo'}`}>{routeId ? 'Volver al listado' : 'Crear nuevo'}</a>
   </header>

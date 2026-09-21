@@ -93,7 +93,7 @@ const nextUrl = `/admin/productos?${new URLSearchParams({ q: search, status, vis
     </div>
     <a class="admin-link-button" href={familyView ? '/admin/variantes/nuevo' : `/admin/productos/nuevo${familyId ? `?familia=${familyId}` : ''}`}>{familyView ? 'Crear familia' : 'Crear acabado'}</a>
   </header>
-  <p class="admin-note">Jerarquía: <a href="/admin/categorias">Categorías de uso</a> → <a href="/admin/familias">Tipos de producto</a> → <a href="/admin/variantes">Familias / subcategorías</a> → Acabados. El sitio muestra una tarjeta por familia y una URL por acabado.</p>
+  <p class="admin-note">Jerarquía: <a href="/admin/categorias">Categorías de uso</a> → <a href="/admin/familias">Tipos de producto</a> → <a href="/admin/variantes">Familias / subcategorías</a> → Acabados. En el Excel: Producto → Familia(Subcategoria) → Variante / Color. El sitio muestra una tarjeta por Familia(Subcategoria) y una URL por acabado.</p>
   <nav class="admin-actions" aria-label="Vista del catálogo"><a href="/admin/productos?vista=familias" aria-current={familyView ? 'page' : undefined}>Por familia</a><a href="/admin/productos?vista=acabados" aria-current={!familyView ? 'page' : undefined}>Todos los acabados</a></nav>
   {Astro.url.searchParams.has('saved') && <p class="admin-success" role="status">Cambios guardados.</p>}
   {(cleanup.count ?? 0) > 0 && <p class="admin-note">Hay archivos pendientes de limpiar. <a href="/admin/proyectos">Reintentar limpieza de Storage →</a></p>}
