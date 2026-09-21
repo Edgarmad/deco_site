@@ -49,7 +49,9 @@ Los accesorios y productos sin rendimiento no deben recibir datos inventados par
 
 ## Archivos
 
-- `technical_sheet_url`: enlace externo a la ficha tecnica en Drive.
+- Los archivos de apoyo se suben desde la edición de un acabado y se guardan en `product_support_files` asociados a la familia/variante. Por eso un mismo PDF aparece en todos los acabados de esa familia.
+- El bucket público `site-media` almacena los archivos en la ruta `support/<variant_id>/...`.
+- `technical_sheet_url`: enlace externo legado a la ficha tecnica en Drive; se usa como respaldo cuando no hay un archivo de apoyo subido.
 - `installation_guide_url`: enlace externo a la guia de instalacion en Drive.
 
 ## Visibilidad de secciones

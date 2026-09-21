@@ -18,6 +18,7 @@
     "supabase:migrate:product-data": "python scripts/migrate-product-technical-data.py",
     "supabase:migrate:canonical-inventory": "python scripts/migrate-canonical-inventory.py",
     "supabase:upload:product-images": "node scripts/upload-product-images-to-supabase.mjs",
+    "supabase:upload:product-support": "node scripts/upload-product-support-file.mjs",
     "supabase:transparent:black": "node scripts/replace-black-background-product-images.mjs"
   },
   "dependencies": {

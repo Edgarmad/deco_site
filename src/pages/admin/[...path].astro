@@ -6,6 +6,7 @@ import { getCsrfToken, validateCsrfToken } from '../../lib/adminSecurity';
 import { contentModules, contentError, isUuid, parseContentForm, sectionLabels } from '../../lib/adminContent';
 import { cleanMediaQueue, uploadMedia, type MediaRow } from '../../lib/adminMedia';
 import { getPublicStorageUrl } from '../../lib/supabase';
+import { deleteSupportFile, uploadSupportFile, type SupportFileRow } from '../../lib/adminSupportFiles';
 
 export const prerender = false;
 const [section, routeId, extra] = (Astro.params.path ?? '').split('/').filter(Boolean);
@@ -51,6 +52,17 @@ if (Astro.request.method === 'POST') {
       return Astro.redirect(`${base}/${saved.data.id}?saved=1`, 303);
     }
     if (!id) throw new Error('Guarda primero el contenido.');
+    if (intent === 'support-upload') {
+      if (module.table !== 'product_options' || !record.variant_id) throw new Error('El archivo de apoyo solo puede asociarse a un producto válido.');
+      await uploadSupportFile(client, String(record.variant_id), form);
+      return Astro.redirect(`${base}/${id}?saved=1`, 303);
+    }
+    if (intent === 'support-delete') {
+      if (module.table !== 'product_options') throw new Error('Acción no válida.');
+      if (form.get('confirm_support_delete') !== 'on') throw new Error('Confirma la eliminación del archivo.');
+      await deleteSupportFile(client, String(form.get('support_id') ?? ''));
+      return Astro.redirect(`${base}/${id}?saved=1`, 303);
+    }
     if (intent === 'delete') {
       if (form.get('confirm_delete') !== 'on') throw new Error('Confirma la eliminación.');
       if (module.child) {
@@ -123,6 +135,12 @@ let images: MediaRow[] = [];
 if (id && module.media) {
   const result = await client.from(module.media.table).select('*').eq(module.media.key, id).order('sort_order').order('id');
   images = result.data ?? [];
+  if (result.error) errorMessage = contentError(result.error);
+}
+let supportFiles: SupportFileRow[] = [];
+if (id && section === 'productos' && record.variant_id) {
+  const result = await client.from('product_support_files').select('id,title,storage_bucket,storage_path,original_filename,mime_type,size_bytes,sort_order').eq('variant_id', String(record.variant_id)).order('sort_order').order('id');
+  supportFiles = (result.data ?? []) as SupportFileRow[];
   if (result.error) errorMessage = contentError(result.error);
 }
 const value = (key: string) => submitted ? String(submitted.get(key) ?? '') : String(record[key] ?? '');
@@ -204,6 +222,24 @@ const pageUrl = (number: number) => `${base}?${new URLSearchParams({ q: search, 
         <label>Tipo<select name="kind">{module.media.kinds.map(kind => <option value={kind}>{kind}</option>)}</select></label>
         <label>Orden<input name="sort_order" type="number" step="1" value="0" required /></label>
         <button class="admin-button" type="submit">Subir imagen</button><progress data-upload-progress hidden max="100" value="0"></progress><p data-upload-status role="status"></p>
+      </form>
+    </section>}
+    {section === 'productos' && id && record.variant_id && <section class="admin-panel pad admin-section-spaced">
+      <h2>Material de apoyo</h2>
+      <p>Estos archivos quedan asociados a la familia del producto y aparecen en todos sus acabados publicados.</p>
+      {supportFiles.map(file => <article class="admin-support-row">
+        <div><strong>{file.title}</strong><br /><small>{file.original_filename} · {Math.ceil(file.size_bytes / 1024)} KB</small></div>
+        <div><a href={getPublicStorageUrl(file.storage_bucket, file.storage_path)} target="_blank" rel="noreferrer">Ver archivo</a>
+          <form method="post" class="admin-delete-form"><input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="support_id" value={file.id} /><label><input type="checkbox" name="confirm_support_delete" required /> Confirmo eliminar</label><button class="admin-button secondary" name="intent" value="support-delete">Eliminar</button></form>
+        </div>
+      </article>)}
+      <form method="post" enctype="multipart/form-data" class="admin-form admin-section-spaced">
+        <input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="intent" value="support-upload" />
+        <h3>Subir archivo de apoyo</h3><p>PDF, máximo 15 MB. Se recomienda nombrarlo como ficha técnica.</p>
+        <label>Título<input name="support_title" value="Ficha técnica" required maxlength="160" /></label>
+        <label>Archivo PDF<input type="file" name="support_file" accept="application/pdf,.pdf" required /></label>
+        <label>Orden<input name="support_sort_order" type="number" step="1" value="0" required /></label>
+        <button class="admin-button" type="submit">Subir archivo</button>
       </form>
     </section>}
     <!-- Seccion: Eliminación explícita -->

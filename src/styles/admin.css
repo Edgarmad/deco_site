@@ -471,6 +471,33 @@ p { margin-top: 0; }
   gap: 10px;
 }
 
+.admin-support-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+  padding: 14px 0;
+  border-top: 1px solid var(--admin-line, #d9ddd7);
+}
+
+.admin-support-row small {
+  color: #687168;
+}
+
+.admin-support-row > div:last-child {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .admin-support-row,
+  .admin-support-row > div:last-child {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
 .admin-danger-check {
   display: flex;
   align-items: flex-start;

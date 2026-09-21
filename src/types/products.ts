@@ -19,6 +19,14 @@ export type ProductCalculatorConfig =
       presentationLabel?: string;
     };
 
+export type ProductSupportFile = {
+  id: string;
+  title: string;
+  url: string;
+  originalFilename?: string;
+  mimeType?: string;
+};
+
 export type ProductCategory = {
   id: string;
   name: string;
@@ -79,6 +87,7 @@ export type Product = {
   technicalSpecs?: Record<string, string | number | null>;
   technicalSheetUrl?: string;
   installationGuideUrl?: string;
+  supportFiles?: ProductSupportFile[];
   sectionVisibility?: Record<string, boolean>;
   calculator?: ProductCalculatorConfig;
 };

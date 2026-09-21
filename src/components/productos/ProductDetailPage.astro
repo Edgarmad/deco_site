@@ -38,6 +38,7 @@ const variantItems = siblingProducts.length > 0 ? siblingProducts : [product];
 const faqItems = Object.entries(product.faqItems ?? {});
 const installationSteps = (product.installationNotes ?? '').split(/\r?\n/).filter(Boolean);
 const galleryImages = product.galleryImages ?? (product.gallery ?? []).map(url => ({ url, alt: product.name }));
+const supportFiles = product.supportFiles ?? [];
 const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' ? 'exterior' : 'interior'}`;
 ---
 
@@ -118,12 +119,13 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
          <p>{product.careNotes ?? 'Cuidados por confirmar.'}</p>
        </details>
      </div>}
-     {visibility.support && <aside class="support-card">
-      <h2>Material de apoyo</h2>
-       {visibility.support && product.technicalSheetUrl && <a href={product.technicalSheetUrl} target="_blank" rel="noreferrer">Descargar ficha tecnica</a>}
-       {visibility.support && product.installationGuideUrl && <a href={product.installationGuideUrl} target="_blank" rel="noreferrer">Guia de instalacion</a>}
-      <div class="plan-preview" aria-label="Plano acotado de instalacion"></div>
-     </aside>}
+      {visibility.support && <aside class="support-card">
+       <h2>Material de apoyo</h2>
+        {visibility.support && supportFiles.map((file) => <a class="support-download" href={file.url} download={file.originalFilename} target="_blank" rel="noreferrer">Descargar {file.title}</a>)}
+        {!supportFiles.length && visibility.support && product.technicalSheetUrl && <a class="support-download" href={product.technicalSheetUrl} target="_blank" rel="noreferrer">Descargar ficha tecnica</a>}
+        {visibility.support && product.installationGuideUrl && <a href={product.installationGuideUrl} target="_blank" rel="noreferrer">Guia de instalacion</a>}
+        {!supportFiles.length && !product.technicalSheetUrl && !product.installationGuideUrl && <p class="support-empty">No hay archivos de apoyo disponibles por ahora.</p>}
+      </aside>}
    </section>}
 
    {(visibility.faq || visibility.installation) && <section class="faq-installation" data-reveal-group>
@@ -558,14 +560,11 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
     text-transform: uppercase;
   }
 
-  .plan-preview {
-    min-height: 260px;
-    margin-top: 16px;
-    background:
-      linear-gradient(90deg, transparent 0 49%, #9aa09a 49% 51%, transparent 51% 100%),
-      repeating-linear-gradient(90deg, transparent 0 28px, rgba(0, 0, 0, 0.1) 28px 29px),
-      repeating-linear-gradient(0deg, transparent 0 28px, rgba(0, 0, 0, 0.1) 28px 29px),
-      #fff;
+  .support-empty {
+    margin: 0;
+    color: #596059;
+    font-size: 0.78rem;
+    line-height: 1.5;
   }
 
   .faq-installation {
@@ -1044,10 +1043,6 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
 
     .support-card h2 {
       font-size: 0.68rem;
-    }
-
-    .plan-preview {
-      min-height: 180px;
     }
 
     .faq-installation {

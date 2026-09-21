@@ -65,7 +65,15 @@ type ProductOptionRow = {
         name: string;
         slug: ProductMacroCategory;
       } | null;
-    } | null;
+      } | null;
+    product_support_files?: {
+      id: string;
+      title: string;
+      storage_bucket: string;
+      storage_path: string;
+      original_filename: string;
+      mime_type: string;
+    }[];
   } | null;
 };
 
@@ -95,6 +103,13 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
     .map((image) => getPublicStorageUrl(image.storage_bucket, image.storage_path))
     .filter((image): image is string => Boolean(image));
   const variantDisplayName = variant.name.trim().toLowerCase() === 'general' ? product.name : variant.name;
+  const supportFiles = (variant.product_support_files ?? []).map((file) => ({
+    id: file.id,
+    title: file.title,
+    url: getPublicStorageUrl(file.storage_bucket, file.storage_path) ?? '',
+    originalFilename: file.original_filename,
+    mimeType: file.mime_type
+  })).filter((file) => file.url);
 
   const normalizedProduct = {
     id: option.id,
@@ -145,6 +160,7 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
     technicalSpecs: option.technical_specs ?? undefined,
     technicalSheetUrl: option.technical_sheet_url ?? undefined,
     installationGuideUrl: option.installation_guide_url ?? undefined,
+    supportFiles,
     sectionVisibility: option.section_visibility ?? undefined
   };
   return { ...normalizedProduct, calculator: getProductCalculator(normalizedProduct) };
@@ -214,7 +230,7 @@ const productOptionSelect = `
   id,name,slug,sku,price,summary,description,dimensions,thickness,material,usage,installation_notes,care_notes,technical_specs,technical_sheet_url,installation_guide_url,section_visibility,fallback_image_path,featured,status,seo_title,seo_description,
   canonical_path,faq_items,finish,color_name,color_hex,
   product_images(storage_bucket,storage_path,kind,sort_order,alt_text),
-  product_variants(id,name,slug,summary,description,products(id,name,slug,summary,description,categories(id,name,slug)))
+  product_variants(id,name,slug,summary,description,products(id,name,slug,summary,description,categories(id,name,slug)),product_support_files(id,title,storage_bucket,storage_path,original_filename,mime_type))
 `;
 
 export const getProducts = async (): Promise<Product[]> => {
