@@ -126,7 +126,7 @@ const filterLabels = {
   const pagination = document.querySelector('[data-pagination]');
   const prevButton = document.querySelector('[data-page-prev]');
   const nextButton = document.querySelector('[data-page-next]');
-  const pageButtons = Array.from(document.querySelectorAll('[data-page-number]')).filter((button): button is HTMLButtonElement => button instanceof HTMLButtonElement);
+  const pageNumbers = document.querySelector('[data-page-numbers]');
   const currentPageLabel = document.querySelector('[data-page-current]');
   const summary = document.querySelector('[data-pagination-summary]');
   const filterPanel = document.querySelector('[data-filter-panel]');
@@ -218,13 +218,19 @@ const filterLabels = {
     if (prevButton instanceof HTMLButtonElement) prevButton.disabled = currentPage <= 1;
     if (nextButton instanceof HTMLButtonElement) nextButton.disabled = currentPage >= pageCount;
     if (currentPageLabel instanceof HTMLElement) currentPageLabel.textContent = String(currentPage);
-    pageButtons.forEach((button) => {
-      const page = Number(button.dataset.pageNumber);
-      const isActive = page === currentPage;
-      button.hidden = page > pageCount;
-      button.disabled = isActive;
-      button.setAttribute('aria-current', isActive ? 'page' : 'false');
-    });
+    if (pageNumbers instanceof HTMLElement) {
+      pageNumbers.replaceChildren(...Array.from({ length: pageCount }, (_, index) => {
+        const page = index + 1;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.dataset.pageNumber = String(page);
+        button.dataset.pageButton = '';
+        button.disabled = page === currentPage;
+        button.setAttribute('aria-current', page === currentPage ? 'page' : 'false');
+        button.textContent = String(page);
+        return button;
+      }));
+    }
     if (summary instanceof HTMLElement) {
       const visibleStart = filteredCards.length === 0 ? 0 : start + 1;
       const visibleEnd = Math.min(end, filteredCards.length);
@@ -298,12 +304,22 @@ const filterLabels = {
   colorFilters.forEach((input) => input.addEventListener('change', () => { currentPage = 1; renderCatalog(); }));
   if (searchInput instanceof HTMLInputElement) searchInput.addEventListener('input', () => { currentPage = 1; renderCatalog(); });
   if (sortSelect instanceof HTMLSelectElement) sortSelect.addEventListener('change', () => { currentPage = 1; renderCatalog(); });
-  if (prevButton instanceof HTMLButtonElement) prevButton.addEventListener('click', () => { currentPage -= 1; renderCatalog(); });
-  if (nextButton instanceof HTMLButtonElement) nextButton.addEventListener('click', () => { currentPage += 1; renderCatalog(); });
-  pageButtons.forEach((button) => button.addEventListener('click', () => {
-    currentPage = Number(button.dataset.pageNumber ?? 1);
+  if (pagination instanceof HTMLElement) pagination.addEventListener('click', (event) => {
+    const target = event.target instanceof Element ? event.target.closest('button') : null;
+    if (!(target instanceof HTMLButtonElement) || target.disabled) return;
+
+    const filteredCards = getFilteredCards();
+    const pageCount = Math.max(1, Math.ceil(filteredCards.length / perPage));
+    const requestedPage = target.hasAttribute('data-page-prev')
+      ? currentPage - 1
+      : target.hasAttribute('data-page-next')
+        ? currentPage + 1
+        : Number(target.dataset.pageNumber);
+
+    if (!Number.isInteger(requestedPage)) return;
+    currentPage = Math.max(1, Math.min(requestedPage, pageCount));
     renderCatalog();
-  }));
+  });
   if (filterToggle instanceof HTMLButtonElement && filterBody instanceof HTMLElement) {
     filterToggle.addEventListener('click', () => {
       setFilterVisibility(filterBody.dataset.open !== 'true');

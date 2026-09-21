@@ -72,7 +72,7 @@ const normalizeCategory = (category: SupabaseCategory): ProductCategory => ({
   id: category.id,
   name: category.name,
   slug: category.slug,
-  macroCategory: category.slug,
+  macroCategory: category.slug === 'interior' ? 'interior' : 'exterior',
   description: category.description ?? undefined,
   count: category.products?.[0]?.count
 });
@@ -101,7 +101,7 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
     slug: option.slug,
     categorySlug: product.slug,
     categoryName: product.name,
-    macroCategory: category.slug,
+    macroCategory: category.slug === 'interior' ? 'interior' : 'exterior',
     summary: option.summary ?? variant.summary ?? product.summary ?? undefined,
     description: option.description ?? variant.description ?? product.description ?? undefined,
     sku: option.sku ?? undefined,
@@ -151,8 +151,8 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
 const normalizeLabel = (value: string) => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 
 const catalogFamilies = [
-  { slug: 'lambrin-asa', name: 'Lambrin ASA', matches: ['lambrin exterior'] },
-  { slug: 'lambrin', name: 'Lambrin', matches: ['panel lambrin wpc', 'lambrin premium', 'lambrin irregular', 'lambrin wavy max'] },
+  { slug: 'lambrin-asa', name: 'Lambrin ASA', matches: ['lambrin exterior', 'lambrin asa'] },
+  { slug: 'lambrin', name: 'Lambrin', matches: ['panel lambrin wpc', 'lambrin premium', 'lambrin irregular', 'lambrin wavy max', 'lambrin'] },
   { slug: 'panel-reforzado-spc', name: 'Panel Reforzado SPC', matches: ['panel reforzado'] },
   { slug: 'plafon-pvc', name: 'Plafon PVC', matches: ['panel techo spc', 'plafon pvc'] },
   { slug: 'placas-marmol-pvc', name: 'Placas Marmol PVC', matches: ['placas marmol', 'placas tipo marmol'] },
@@ -160,7 +160,7 @@ const catalogFamilies = [
   { slug: 'piso-spc', name: 'Piso SPC', matches: ['pisos spc', 'piso spc'] },
   { slug: 'wall-cladding-asa', name: 'Wall Cladding ASA', matches: ['wallcladding', 'wall cladding'] },
   { slug: 'deck-coextruido', name: 'Deck Coextruido', matches: ['deck'] },
-  { slug: 'viga-coextruida', name: 'Viga Coextruida', matches: ['viga exterior'] }
+  { slug: 'viga-coextruida', name: 'Viga Coextruida', matches: ['viga exterior', 'viga coextruida'] }
 ];
 
 const catalogVariantNames: Record<string, string> = {

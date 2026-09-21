@@ -1,6 +1,5 @@
 ---
 import type { ProductCategory, ProductMacroCategory } from '../../types/products';
-import { getCatalogProducts } from '../../services/productService';
 
 type Props = {
   categories: ProductCategory[];
@@ -8,64 +7,19 @@ type Props = {
 };
 
 const { activeCategory = '' } = Astro.props;
-const products = await getCatalogProducts();
-const categoryOrder: Record<ProductMacroCategory, string[]> = {
-  interior: [
-    'lambrin',
-    'panel-reforzado',
-    'placa-marmol',
-    'panel-pvc',
-    'piso-spc',
-    'cristal-carbono',
-    'piedra-pu'
-  ],
-  exterior: ['lambrin-exterior', 'wall-cladding', 'deck-exterior', 'accesorios']
-};
-
-const getCategoryOrder = (slug: string, macroCategory: ProductMacroCategory) => {
-  const normalizedSlug = slug.replaceAll('_', '-').toLowerCase();
-  const aliases: [string, string[]][] = macroCategory === 'interior'
-    ? [
-        ['lambrin', ['lambrin', 'panel-lambrin-wpc']],
-        ['panel-reforzado', ['panel-reforzado']],
-        ['placa-marmol', ['placa-marmol', 'placas-marmol', 'placas-tipo-marmol']],
-        ['panel-pvc', ['panel-pvc']],
-        ['piso-spc', ['piso-spc', 'pisos-spc']],
-        ['cristal-carbono', ['cristal-carbono']],
-        ['piedra-pu', ['piedra-pu']]
-      ]
-    : [
-        ['lambrin-exterior', ['lambrin-exterior']],
-        ['wall-cladding', ['wall-cladding', 'wallcladding']],
-        ['deck-exterior', ['deck', 'deck-exterior']],
-        ['accesorios', ['accesorios']]
-      ];
-  const categoryKey = aliases.find(([, slugs]) => slugs.some((alias) => normalizedSlug === alias || normalizedSlug.startsWith(`${alias}-`)))?.[0];
-  const index = categoryKey ? categoryOrder[macroCategory].indexOf(categoryKey) : -1;
-  return index === -1 ? categoryOrder[macroCategory].length : index;
-};
-
-const productTypes = Array.from(
-  products.reduce((types, product) => {
-    const excelFamilySlugs = new Set([
-      'lambrin', 'panel-reforzado-spc', 'plafon-pvc', 'placas-marmol-pvc', 'vigas-wpc', 'piso-spc',
-      'lambrin-asa', 'wall-cladding-asa', 'deck-coextruido', 'viga-coextruida'
-    ]);
-    if (!excelFamilySlugs.has(product.categorySlug)) return types;
-    if (!types.has(product.categorySlug)) {
-      types.set(product.categorySlug, {
-        slug: product.categorySlug,
-        name: product.categoryName ?? product.categorySlug,
-        macroCategory: product.macroCategory,
-        href: `/productos?categoria=${product.macroCategory}&familia=${product.categorySlug}`,
-      });
-    }
-    return types;
-  }, new Map<string, { slug: string; name: string; macroCategory: ProductMacroCategory; href: string }>()).values()
-).sort((first, second) => {
-  const orderDifference = getCategoryOrder(first.slug, first.macroCategory) - getCategoryOrder(second.slug, second.macroCategory);
-  return orderDifference || first.name.localeCompare(second.name, 'es');
-});
+const productTypes: { slug: string; name: string; macroCategory: ProductMacroCategory; href: string }[] = [
+  { slug: 'lambrin', name: 'Lambrin', macroCategory: 'interior', href: '/productos?categoria=interior&familia=lambrin' },
+  { slug: 'panel-reforzado-spc', name: 'Panel reforzado', macroCategory: 'interior', href: '/productos?categoria=interior&familia=panel-reforzado-spc' },
+  { slug: 'placas-marmol-pvc', name: 'Placa marmol', macroCategory: 'interior', href: '/productos?categoria=interior&familia=placas-marmol-pvc' },
+  { slug: 'plafon-pvc', name: 'Panel PVC', macroCategory: 'interior', href: '/productos?categoria=interior&familia=plafon-pvc' },
+  { slug: 'piso-spc', name: 'Piso SPC', macroCategory: 'interior', href: '/productos?categoria=interior&familia=piso-spc' },
+  { slug: 'cristal-carbono', name: 'Cristal carbono', macroCategory: 'interior', href: '/productos?categoria=interior&familia=cristal-carbono' },
+  { slug: 'piedra-pu', name: 'Piedra PU', macroCategory: 'interior', href: '/productos?categoria=interior&familia=piedra-pu' },
+  { slug: 'lambrin-asa', name: 'Lambrin exterior', macroCategory: 'exterior', href: '/productos?categoria=exterior&familia=lambrin-asa' },
+  { slug: 'wall-cladding-asa', name: 'Wall cladding', macroCategory: 'exterior', href: '/productos?categoria=exterior&familia=wall-cladding-asa' },
+  { slug: 'deck-coextruido', name: 'Deck exterior', macroCategory: 'exterior', href: '/productos?categoria=exterior&familia=deck-coextruido' },
+  { slug: 'accesorios', name: 'Accesorios', macroCategory: 'exterior', href: '/productos?categoria=exterior&familia=accesorios' }
+];
 const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
   { label: 'Productos de interior', macroCategory: 'interior' },
   { label: 'Productos de exterior', macroCategory: 'exterior' }

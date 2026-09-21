@@ -5,22 +5,15 @@ type Props = {
 };
 
 const { total, perPage = 12 } = Astro.props;
-const pageCount = Math.max(1, Math.ceil(total / perPage));
-// Se limita el set inicial para evitar una paginacion larga; el script oculta botones fuera del resultado filtrado.
-const visiblePages = Array.from({ length: Math.min(pageCount, 5) }, (_, index) => index + 1);
 ---
 
 <nav class="product-pagination" aria-label="Paginacion de productos" data-pagination data-per-page={perPage}>
   <p data-pagination-summary>Mostrando 1-{Math.min(total, perPage)} de {total} productos</p>
   <div class="pagination-buttons">
     <button type="button" data-page-prev disabled>Anterior</button>
-    {visiblePages.map((page) => (
-      <button type="button" data-page-number={page} data-page-button disabled={page === 1} aria-current={page === 1 ? 'page' : 'false'}>{page}</button>
-    ))}
-    {pageCount > 6 && <span aria-hidden="true">...</span>}
-    {pageCount > 5 && <button type="button" data-page-number={pageCount} data-page-button>{pageCount}</button>}
+    <span data-page-numbers></span>
     <span class="current-page-label" data-page-current>1</span>
-    <button type="button" data-page-next disabled={pageCount <= 1}>Siguiente</button>
+    <button type="button" data-page-next disabled>Siguiente</button>
   </div>
 </nav>
 
