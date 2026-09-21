@@ -5,12 +5,20 @@ import type { ContentModule } from './adminContent';
 export type MediaRow = { id: string; storage_bucket: string; storage_path: string; alt_text: string | null; kind: string; sort_order: number };
 
 // La cola persistente permite reintentar Storage sin perder la referencia al archivo.
-export async function cleanMediaQueue(client: SupabaseClient) {
-  const { data, error } = await client.from('media_cleanup_queue').select('id,storage_bucket,storage_path').limit(100);
+export async function cleanMediaQueue(client: SupabaseClient, paths?: string[]) {
+  let query = client.from('media_cleanup_queue').select('id,storage_bucket,storage_path').order('created_at', { ascending: false }).order('id').limit(20);
+  if (paths) query = query.in('storage_path', paths);
+  const { data, error } = await query;
   if (error) throw new Error('Falta aplicar la migración del CMS (media_cleanup_queue) o no hay permisos.');
   for (const item of data ?? []) {
-    const references = await Promise.all(['product_images', 'project_images'].map(table => client.from(table).select('id', { count: 'exact', head: true }).eq('storage_bucket', item.storage_bucket).eq('storage_path', item.storage_path)));
-    if (references.some(result => result.error || result.count)) continue;
+    const references = await Promise.all(['product_images', 'project_images', 'product_support_files'].map(table => client.from(table).select('id', { count: 'exact', head: true }).eq('storage_bucket', item.storage_bucket).eq('storage_path', item.storage_path)));
+    if (references.some(result => result.error)) continue;
+    // Una importación puede reutilizar la ruta. La solicitud antigua queda resuelta;
+    // su eventual eliminación volverá a encolarla mediante el trigger correspondiente.
+    if (references.some(result => result.count) || (item.storage_bucket === 'site-media' && item.storage_path === 'products/_placeholder/product-placeholder.webp')) {
+      await client.from('media_cleanup_queue').delete().eq('id', item.id);
+      continue;
+    }
     const removed = await client.storage.from(item.storage_bucket).remove([item.storage_path]);
     if (removed.error) continue;
     await client.from('media_cleanup_queue').delete().eq('id', item.id);
@@ -29,9 +37,11 @@ export async function uploadMedia(client: SupabaseClient, module: ContentModule,
   const order = Number(form.get('sort_order') || 0);
   if (!media.kinds.includes(kind) || !Number.isInteger(order) || Math.abs(order) > 2147483647) throw new Error('Tipo u orden de imagen inválido.');
   const replacement = String(form.get('replace_id') ?? '');
+  let previousPath: string | undefined;
   if (replacement) {
-    const existing = await client.from(media.table).select('id').eq('id', replacement).eq(media.key, ownerId).maybeSingle();
+    const existing = await client.from(media.table).select('id,storage_path').eq('id', replacement).eq(media.key, ownerId).maybeSingle();
     if (existing.error || !existing.data) throw new Error('La imagen a reemplazar no pertenece a este registro.');
+    previousPath = existing.data.storage_path;
   }
   let converted;
   try {
@@ -56,4 +66,5 @@ export async function uploadMedia(client: SupabaseClient, module: ContentModule,
     if (cleanup.error) await client.from('media_cleanup_queue').insert({ storage_bucket: 'site-media', storage_path: path });
     throw new Error(saved.error.message);
   }
+  if (previousPath) await cleanMediaQueue(client, [previousPath]).catch(() => undefined);
 }

@@ -18,6 +18,7 @@ const email = `${prefix}@example.com`;
 const password = `${randomUUID()}Aa1!`;
 const cookies = new Map();
 const records = new Map();
+const extraOptions = [];
 let userId;
 let files = [];
 async function request(path, body, authenticated = true) {
@@ -83,6 +84,8 @@ try {
   const variant = await save('variantes', { name: prefix, slug: prefix, product_id: family, status: 'published' });
   const productValues = { name: prefix, slug: prefix, variant_id: variant, status: 'draft', summary: 'CMS resumen', seo_title: `${prefix} SEO`, faq_items: '{"Pregunta de prueba":"Respuesta CMS"}', installation_notes: 'Paso CMS' };
   const product = await save('productos', productValues);
+  assert.match(await (await request(`/admin/productos?familia=${variant}`)).text(), new RegExp(prefix));
+  assert.match(await (await request('/admin/productos')).text(), /Familias del catálogo/);
   assert.equal((await request(`/productos/${prefix}`, undefined, false)).status, 404);
   await save('productos', { ...productValues, status: 'published' }, product);
   let publicProduct = await request(`/productos/${prefix}`, undefined, false);
@@ -98,9 +101,44 @@ try {
   await save('categorias', { name: prefix, slug: prefix, status: 'published' }, category);
   console.log('PASS CRUD de jerarquía, publicación, borradores y CSRF');
 
+  const structured = contentForm('productos', { ...productValues, status: 'published', dimensions: '290 x 10 cm' });
+  structured.set('structured_specs', '1'); structured.set('spec_coverage', '4.60 m²'); structured.set('spec_pieces_per_box', '10 piezas'); structured.set('spec_presentation', 'Caja');
+  structured.set('csrf_token', await token(`/admin/productos/${product}`));
+  assert.equal((await request(`/admin/productos/${product}`, structured)).status, 303);
+  assert.match(await (await request(`/admin/productos/${product}`)).text(), /Por área: 4.6 m²/);
+  structured.set('spec_coverage', '4.60');
+  assert.equal((await request(`/admin/productos/${product}`, structured)).status, 400);
+  const sibling = await service.from('product_options').insert({ variant_id: variant, name: `${prefix}-sibling`, slug: `${prefix}-sibling`, status: 'published' }).select('id').single();
+  if (sibling.error) throw sibling.error;
+  extraOptions.push(sibling.data.id);
+  const support = new FormData(); support.set('csrf_token', await token(`/admin/variantes/${variant}`)); support.set('variant_id', variant);
+  support.set('intent', 'prepare'); support.set('support_title', 'Ficha compartida de prueba'); support.set('support_sort_order', '2');
+  const pdf = Buffer.concat([Buffer.from('%PDF-1.4\n'), Buffer.alloc(5 * 1024 * 1024, 32), Buffer.from('\n%%EOF')]);
+  support.set('size_bytes', String(pdf.length)); support.set('original_filename', 'ficha-test.pdf');
+  const preparedResponse = await request('/admin/support-upload', support);
+  assert.equal(preparedResponse.status, 200, 'prepare PDF');
+  const prepared = await preparedResponse.json();
+  const pending = await service.from('product_support_files').select('storage_path,upload_state').eq('id', prepared.id).single();
+  files.push(pending.data.storage_path);
+  assert.equal(pending.data.upload_state, 'pending');
+  const anonymous = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, { auth: { persistSession: false } });
+  assert.deepEqual((await anonymous.from('product_support_files').select('id').eq('id', prepared.id)).data, []);
+  const storageUpload = await fetch(prepared.signedUrl, { method: 'PUT', headers: { 'Content-Type': 'application/pdf' }, body: pdf });
+  assert.equal(storageUpload.status, 200, 'direct PDF upload >4MB');
+  support.set('intent', 'finish'); support.set('support_id', prepared.id);
+  assert.equal((await request('/admin/support-upload', support)).status, 200, 'finish PDF');
+  for (const slug of [prefix, `${prefix}-sibling`]) assert.match(await (await request(`/productos/${slug}`, undefined, false)).text(), /Ficha compartida de prueba/);
+  support.set('intent', 'support-save'); support.set('support_title', 'Ficha compartida editada'); support.set('support_sort_order', '-1');
+  assert.equal((await request(`/admin/variantes/${variant}`, support)).status, 303);
+  assert.match(await (await request(`/productos/${prefix}`, undefined, false)).text(), /Ficha compartida editada/);
+  support.set('intent', 'support-delete'); support.set('confirm_support_delete', 'on');
+  assert.equal((await request(`/admin/productos/${product}`, support)).status, 303);
+  assert.ok((await service.storage.from('site-media').download(pending.data.storage_path)).error);
+  console.log('PASS familias, datos guiados, calculadora y PDF de 5 MB compartido entre colores');
+
   const projectValues = { title: prefix, slug: prefix, status: 'published', content: 'Contenido CMS', materials: 'Madera\nPiedra' };
   const project = await save('proyectos', projectValues);
-  const location = await save('ubicaciones', { name: prefix, city: prefix, status: 'published', phone: '9991234567', maps_url: 'https://maps.google.com' });
+  await save('ubicaciones', { name: prefix, city: prefix, status: 'published', phone: '9991234567', maps_url: 'https://maps.google.com' });
   for (const [path, text] of [[`/proyectos/${prefix}`, 'Contenido CMS'], ['/ubicaciones', prefix], ['/', prefix]]) {
     const result = await request(path, undefined, false); assert.equal(result.status, 200); assert.ok((await result.text()).includes(text), path);
   }
@@ -125,6 +163,7 @@ try {
     assert.equal((await request(path, remove)).status, 303);
   }
   console.log('PASS proyectos, ubicaciones, home, subida WebP, reemplazo y limpieza Storage');
+  for (const id of extraOptions) await service.from('product_options').delete().eq('id', id);
   for (const section of ['productos', 'proyectos', 'ubicaciones', 'variantes', 'familias', 'categorias']) {
     const path = `/admin/${section}/${records.get(section)}`;
     const form = new FormData(); form.set('csrf_token', await token(path)); form.set('intent', 'delete'); form.set('confirm_delete', 'on');
@@ -160,3 +199,8 @@ try {
   if (userId) { const removed = await service.auth.admin.deleteUser(userId); if (removed.error) console.error('No se pudo retirar el usuario temporal.'); }
   server.kill();
 }
+  for (const id of extraOptions) await service.from('product_options').delete().eq('id', id);
+  if (records.has('variantes')) {
+    const remaining = await service.from('product_support_files').select('storage_path').eq('variant_id', records.get('variantes'));
+    files.push(...(remaining.data ?? []).map(row => row.storage_path));
+  }

@@ -4,6 +4,44 @@ document.querySelectorAll<HTMLFormElement>('[data-content-form]').forEach(form =
     if (status) status.textContent = 'Guardando…';
   });
 });
+// Los PDF grandes no atraviesan la función de Vercel: únicamente la autorización y confirmación.
+document.querySelectorAll<HTMLFormElement>('[data-support-upload]').forEach(form => {
+  const status = form.querySelector<HTMLElement>('[data-support-status]')!;
+  const progress = form.querySelector<HTMLProgressElement>('[data-support-progress]')!;
+  const button = form.querySelector<HTMLButtonElement>('button[type=submit]')!;
+  form.addEventListener('submit', async event => {
+    event.preventDefault();
+    button.disabled = true;
+    try {
+      const values = new FormData(form);
+      const file = values.get('support_file');
+      if (!(file instanceof File) || !file.size || file.size > 15 * 1024 * 1024 || await file.slice(0, 5).text() !== '%PDF-') throw new Error('Selecciona un PDF válido de hasta 15 MB.');
+      values.delete('support_file');
+      values.set('intent', 'prepare'); values.set('size_bytes', String(file.size)); values.set('original_filename', file.name);
+      const api = async (data: FormData) => {
+        const response = await fetch('/admin/support-upload', { method: 'POST', body: data });
+        if (!response.headers.get('content-type')?.includes('application/json')) throw new Error('Sesión expirada. Recarga la página.');
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error ?? 'No se pudo completar la operación.');
+        return result;
+      };
+      status.textContent = 'Autorizando subida…';
+      const prepared = await api(values);
+      status.textContent = 'Subiendo PDF a Storage…'; progress.hidden = false;
+      await new Promise<void>((resolve, reject) => {
+        const upload = new XMLHttpRequest(); upload.open('PUT', prepared.signedUrl); upload.timeout = 180000;
+        upload.setRequestHeader('Content-Type', 'application/pdf');
+        upload.upload.onprogress = event => { if (event.lengthComputable) progress.value = event.loaded / event.total * 100; };
+        upload.onerror = upload.ontimeout = () => reject(new Error('No se pudo subir. Recarga para ver y retirar el intento incompleto.'));
+        upload.onload = () => upload.status >= 200 && upload.status < 300 ? resolve() : reject(new Error('Storage rechazó el archivo. Recarga para revisar el intento.'));
+        upload.send(file);
+      });
+      status.textContent = 'Validando PDF…'; values.set('intent', 'finish'); values.set('support_id', prepared.id);
+      await api(values);
+      window.location.assign(`${window.location.pathname}?saved=1`);
+    } catch (error) { status.textContent = error instanceof Error ? error.message : 'Error al subir el PDF.'; button.disabled = false; }
+  });
+});
 document.querySelectorAll<HTMLFormElement>('[data-upload-form]').forEach(form => {
   const file = form.querySelector<HTMLInputElement>('input[type=file]')!;
   const preview = form.querySelector<HTMLImageElement>('[data-upload-preview]')!;

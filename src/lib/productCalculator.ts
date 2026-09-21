@@ -45,7 +45,7 @@ const isLinearProduct = (product: Product) => {
     product.categoryName,
     product.name,
     product.variants[0]?.name
-  ].filter(Boolean).map(normalize);
+  ].filter((value): value is string => Boolean(value)).map(normalize);
 
   return labels.some((label) => linearSlugs.has(label) ||
     label.includes('vigas wpc') ||
@@ -57,7 +57,7 @@ const isLinearProduct = (product: Product) => {
 
 const isExcludedProduct = (product: Product) => {
   const labels = [product.categorySlug, product.categoryName, product.name]
-    .filter(Boolean)
+    .filter((value): value is string => Boolean(value))
     .map(normalize);
   return labels.some((label) => label === 'accesorios' || label.includes('accesor')) ||
     labels.some((label) => label.includes('grapa deck'));

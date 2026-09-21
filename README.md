@@ -22,7 +22,9 @@ Configurar `.env` y Vercel con `SUPABASE_URL` y `SUPABASE_ANON_KEY` según `.env
                      servicios → páginas SSR → sitio público
 ```
 
-Las páginas públicas consultan Supabase en cada petición, sin caché HTML: guardar un contenido publicado se refleja al recargar, sin otro deployment. Las listas vacías del CMS permanecen vacías; no se sustituyen por datos de ejemplo. Sin configuración Supabase se conserva el fallback local histórico.
+Las páginas públicas consultan Supabase en cada petición, sin caché HTML: guardar un contenido publicado se refleja al recargar, sin otro deployment. Productos y proyectos vacíos permanecen vacíos. Ubicaciones conserva el respaldo local introducido posteriormente cuando no hay sucursales publicadas. Sin configuración Supabase se conserva el fallback local histórico.
+
+El inventario vigente procede del Excel (160 combinaciones únicas). El catálogo y el admin agrupan por familia/subcategoría, con ficha propia por acabado/color. El panel ofrece datos guiados de calculadora y PDF compartidos por familia. Ver `docs/product-admin.md`.
 
 Rutas públicas: `/`, `/productos`, `/productos/[slug]`, `/proyectos`, `/proyectos/[slug]`, `/ubicaciones`, `/contacto`, `/busqueda`.
 

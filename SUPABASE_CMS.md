@@ -16,6 +16,8 @@ SUPABASE_SERVICE_ROLE_KEY=...
 
 ## Setup rapido
 
+**Referencia histórica:** el setup/seed siguiente carga `inventario_final.json`. El catálogo vigente proviene del Excel canónico con 160 combinaciones únicas; no usar ese seed para restaurar ni actualizar el catálogo actual. Consultar `docs/canonical-inventory-migration-report.md` y `docs/product-admin.md`.
+
 Con la CLI de Supabase ya autenticada y el proyecto vinculado:
 
 ```bash
@@ -113,6 +115,8 @@ No habilitar registro publico en el sitio.
 
 ## Estrategia runtime
 
-Las rutas `/`, `/productos`, `/productos/[slug]`, `/proyectos`, `/proyectos/[slug]`, `/ubicaciones`, `/busqueda` y `/contacto` usan SSR con `Cache-Control: no-store`. Las fichas no publicadas o inexistentes devuelven 404 real. Una lista vacía en Supabase ya no activa datos de ejemplo.
+Las rutas `/`, `/productos`, `/productos/[slug]`, `/proyectos`, `/proyectos/[slug]`, `/ubicaciones`, `/busqueda` y `/contacto` usan SSR con `Cache-Control: no-store`. Las fichas no publicadas o inexistentes devuelven 404 real. Productos y proyectos no activan datos de ejemplo al quedar vacíos; ubicaciones conserva el respaldo local agregado el 21 de septiembre.
 
 La migración `20260920150000_admin_completion.sql` agrega FAQ de acabados, limpieza reintentable de Storage y publicación dependiente de categoría/familia/variante. Ya fue aplicada al proyecto vinculado durante el cierre del CMS.
+
+`20260921150000_admin_support_uploads.sql` agrega estados de validación de PDF y limpieza de archivos de apoyo. Los PDF se suben directamente con URL firmada para admitir hasta 15 MB en Vercel. Aplicada durante la adaptación del admin al inventario canónico y al catálogo agrupado por familia.

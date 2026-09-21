@@ -3,6 +3,7 @@ import AdminLayout from '../../../layouts/AdminLayout.astro';
 import { getAdminSession } from '../../../lib/adminAuth';
 import { getPublicStorageUrl } from '../../../lib/supabase';
 import { createSupabaseServerClient } from '../../../lib/supabaseServer';
+import { isUuid } from '../../../lib/adminContent';
 
 export const prerender = false;
 
@@ -13,6 +14,8 @@ type ProductOptionAdminRow = {
   sku: string | null;
   status: 'draft' | 'published';
   updated_at: string;
+  fallback_image_path: string | null;
+  variant_id: string;
   product_images: {
     storage_bucket: string;
     storage_path: string;
@@ -37,6 +40,8 @@ if (!session) return Astro.redirect('/admin/login');
 const supabase = createSupabaseServerClient(Astro.request, Astro.cookies);
 const search = Astro.url.searchParams.get('q')?.trim() ?? '';
 const status = Astro.url.searchParams.get('status') ?? 'all';
+const familyId = isUuid(Astro.url.searchParams.get('familia') ?? '') ? Astro.url.searchParams.get('familia')! : '';
+const familyView = !familyId && Astro.url.searchParams.get('vista') !== 'acabados';
 const rawPage = Number(Astro.url.searchParams.get('page') ?? '1');
 const page = Number.isSafeInteger(rawPage) && rawPage > 0 ? Math.min(rawPage, 100000) : 1;
 const pageSize = 8;
@@ -45,7 +50,7 @@ const to = from + pageSize - 1;
 
 let query = supabase
   .from('product_options')
-  .select('id,name,slug,sku,status,updated_at,product_images(storage_bucket,storage_path,alt_text,kind,sort_order),product_variants(name,products(name,categories(name)))', { count: 'exact' })
+  .select('id,name,slug,sku,status,updated_at,variant_id,fallback_image_path,product_images(storage_bucket,storage_path,alt_text,kind,sort_order),product_variants(name,products(name,categories(name)))', { count: 'exact' })
   .order('updated_at', { ascending: false })
   .range(from, to);
 
@@ -57,31 +62,45 @@ if (search) {
 if (status === 'draft' || status === 'published') {
   query = query.eq('status', status);
 }
+if (familyId) query = query.eq('variant_id', familyId);
+type FamilyRow = { id: string; name: string; status: string; products: { name: string; status: string; categories: { name: string; status: string } }; product_options: { id: string; status: string }[] };
+let familyRows: FamilyRow[] = [];
+let familyCount = 0;
+let familyError = '';
+if (familyView) {
+  let families = supabase.from('product_variants').select('id,name,status,products(name,status,categories(name,status)),product_options(id,status)', { count: 'exact' }).order('sort_order').order('id').range(from, to);
+  if (search) families = families.ilike('name', `%${search.replace(/[%_]/g, '\\$&')}%`);
+  if (['draft', 'published'].includes(status)) families = families.eq('status', status);
+  const result = await families;
+  familyRows = (result.data ?? []) as unknown as FamilyRow[]; familyCount = result.count ?? 0; familyError = result.error?.message ?? '';
+}
 
 const { data, error, count } = await query;
 const cleanup = await supabase.from('media_cleanup_queue').select('id', { count: 'exact', head: true });
 const products = (data ?? []) as unknown as ProductOptionAdminRow[];
-const total = count ?? 0;
+const total = familyView ? familyCount : count ?? 0;
 const totalPages = Math.max(Math.ceil(total / pageSize), 1);
-const previousUrl = `/admin/productos?${new URLSearchParams({ q: search, status, page: String(Math.max(page - 1, 1)) })}`;
-const nextUrl = `/admin/productos?${new URLSearchParams({ q: search, status, page: String(Math.min(page + 1, totalPages)) })}`;
+const previousUrl = `/admin/productos?${new URLSearchParams({ q: search, status, vista: familyView ? 'familias' : 'acabados', familia: familyId, page: String(Math.max(page - 1, 1)) })}`;
+const nextUrl = `/admin/productos?${new URLSearchParams({ q: search, status, vista: familyView ? 'familias' : 'acabados', familia: familyId, page: String(Math.min(page + 1, totalPages)) })}`;
 ---
 
 <AdminLayout title="Productos" currentPath="/admin/productos" userEmail={session.user.email}>
   <header class="admin-page-head compact">
     <div>
       <p class="admin-kicker">Catalogo CMS</p>
-      <h1>Productos</h1>
-      <p class="admin-note">{total} productos en el catalogo.</p>
+      <h1>{familyView ? 'Familias del catálogo' : 'Acabados / colores'}</h1>
+      <p class="admin-note">{total} {familyView ? 'familias' : 'acabados'} · Inventario canónico: producto → familia/subcategoría → color.</p>
     </div>
-    <a class="admin-link-button" href="/admin/productos/nuevo">Crear acabado</a>
+    <a class="admin-link-button" href={familyView ? '/admin/variantes/nuevo' : `/admin/productos/nuevo${familyId ? `?familia=${familyId}` : ''}`}>{familyView ? 'Crear familia' : 'Crear acabado'}</a>
   </header>
-  <p class="admin-note">Jerarquía: <a href="/admin/categorias">Categorías</a> → <a href="/admin/familias">Familias</a> → <a href="/admin/variantes">Variantes</a> → Acabados. Todos los niveles deben estar publicados para aparecer en el sitio.</p>
+  <p class="admin-note">Jerarquía: <a href="/admin/categorias">Categorías de uso</a> → <a href="/admin/familias">Tipos de producto</a> → <a href="/admin/variantes">Familias / subcategorías</a> → Acabados. El sitio muestra una tarjeta por familia y una URL por acabado.</p>
+  <nav class="admin-actions" aria-label="Vista del catálogo"><a href="/admin/productos?vista=familias" aria-current={familyView ? 'page' : undefined}>Por familia</a><a href="/admin/productos?vista=acabados" aria-current={!familyView ? 'page' : undefined}>Todos los acabados</a></nav>
   {Astro.url.searchParams.has('saved') && <p class="admin-success" role="status">Cambios guardados.</p>}
   {(cleanup.count ?? 0) > 0 && <p class="admin-note">Hay archivos pendientes de limpiar. <a href="/admin/proyectos">Reintentar limpieza de Storage →</a></p>}
 
   <form class="admin-filters admin-panel" method="get">
-    <input name="q" value={search} placeholder="Buscar por nombre, slug o SKU" />
+    <input type="hidden" name="vista" value={familyView ? 'familias' : 'acabados'} /><input type="hidden" name="familia" value={familyId} />
+    <input name="q" value={search} aria-label="Buscar" placeholder={familyView ? 'Buscar familia / subcategoría' : 'Buscar acabado, slug o SKU'} />
     <button class="admin-button secondary" type="submit">Buscar</button>
     <select name="status" aria-label="Estado">
       <option value="all" selected={status === 'all'}>Todos los estados</option>
@@ -91,8 +110,13 @@ const nextUrl = `/admin/productos?${new URLSearchParams({ q: search, status, pag
   </form>
 
   {error && <p class="admin-error">No se pudo cargar el catalogo: {error.message}</p>}
+  {familyError && <p class="admin-error">{familyError}</p>}
 
   <section class="admin-panel admin-products-panel">
+    {familyView ? <div class="admin-grid pad">{familyRows.map(family => {
+      const visible = family.status === 'published' && family.products?.status === 'published' && family.products?.categories?.status === 'published';
+      return <article class="admin-card"><h2>{family.name}</h2><p>{family.products?.categories?.name} / {family.products?.name}</p><p>{family.product_options.length} acabados · {family.product_options.filter(option => option.status === 'published').length} publicados</p><p>{visible ? 'Familia publicada' : 'Familia o padre en borrador: oculta en el sitio'}</p><a href={`/admin/productos?vista=acabados&familia=${family.id}`}>Ver acabados →</a><br /><a href={`/admin/variantes/${family.id}`}>Editar familia y PDF compartidos →</a></article>;
+    })}{!familyRows.length && <p>No hay familias para mostrar.</p>}</div> : <>
     <table class="admin-table admin-products-table">
       <thead>
         <tr>
@@ -110,15 +134,16 @@ const nextUrl = `/admin/productos?${new URLSearchParams({ q: search, status, pag
             <tr>
               <td>
                 <div class="admin-product-cell">
-                  {image && <img src={getPublicStorageUrl(image.storage_bucket, image.storage_path)} alt={image.alt_text ?? title} />}
+                  <img src={image ? getPublicStorageUrl(image.storage_bucket, image.storage_path) : getPublicStorageUrl('site-media', product.fallback_image_path)} alt={image?.alt_text ?? title} />
                   <div>
                     <a href={`/admin/productos/${product.id}`}>{title}</a>
                     <br />
                     <span class="admin-note">/{product.slug}</span>
+                    {!image && <p class="admin-note">Imagen temporal: falta fotografía real</p>}
                   </div>
                 </div>
               </td>
-              <td>{product.product_variants?.products?.categories?.name ?? 'Sin categoria'} · {product.product_variants?.name}</td>
+              <td>{product.product_variants?.products?.categories?.name ?? 'Sin categoria'} · <a href={`/admin/variantes/${product.variant_id}`}>{product.product_variants?.name}</a></td>
               <td><span class:list={['admin-status', product.status]}>{product.status === 'published' ? 'Publicado' : 'Borrador'}</span></td>
               <td><a href={`/admin/productos/${product.id}`}>Editar -></a></td>
             </tr>
@@ -139,7 +164,7 @@ const nextUrl = `/admin/productos?${new URLSearchParams({ q: search, status, pag
         const title = `${product.product_variants?.products?.name ?? ''} ${product.name}`.trim();
         return (
           <article class="admin-product-card">
-            {image && <img src={getPublicStorageUrl(image.storage_bucket, image.storage_path)} alt={image.alt_text ?? title} />}
+            <img src={image ? getPublicStorageUrl(image.storage_bucket, image.storage_path) : getPublicStorageUrl('site-media', product.fallback_image_path)} alt={image?.alt_text ?? title} />
             <div>
               <h3>{title}</h3>
               <span class:list={['admin-status', product.status]}>{product.status === 'published' ? 'Publicado' : 'Borrador'}</span>
@@ -150,9 +175,10 @@ const nextUrl = `/admin/productos?${new URLSearchParams({ q: search, status, pag
         );
       })}
     </div>
+    </>}
 
     <footer class="admin-pagination">
-      <p class="admin-note">Mostrando {products.length ? from + 1 : 0}-{Math.min(to + 1, total)} de {total} productos</p>
+      <p class="admin-note">Mostrando {(familyView ? familyRows : products).length ? from + 1 : 0}-{Math.min(to + 1, total)} de {total} {familyView ? 'familias' : 'acabados'}</p>
       <div>
         <a class:list={['admin-link-button', 'secondary', page <= 1 && 'disabled']} href={previousUrl}>Anterior</a>
         <a class:list={['admin-link-button', 'secondary', page >= totalPages && 'disabled']} href={nextUrl}>Siguiente</a>

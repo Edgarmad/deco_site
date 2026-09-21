@@ -11,10 +11,11 @@ if (!session) return Astro.redirect('/admin/login');
 
 const supabase = createSupabaseServerClient(Astro.request, Astro.cookies);
 const csrfToken = getCsrfToken(Astro.cookies);
-const [{ count: productCount }, { count: publishedCount }, { count: imageCount }] = await Promise.all([
+const [{ count: productCount }, { count: publishedCount }, { count: imageCount }, families] = await Promise.all([
   supabase.from('product_options').select('id', { count: 'exact', head: true }),
   supabase.from('product_options').select('id', { count: 'exact', head: true }).eq('status', 'published'),
-  supabase.from('product_images').select('id', { count: 'exact', head: true })
+  supabase.from('product_images').select('id', { count: 'exact', head: true }),
+  supabase.from('product_variants').select('id', { count: 'exact', head: true })
 ]);
 ---
 
@@ -33,19 +34,20 @@ const [{ count: productCount }, { count: publishedCount }, { count: imageCount }
   <section class="admin-grid">
     <a class="admin-card" href="/admin/productos">
       <strong>{productCount ?? 0}</strong>
-      <span>Productos editables</span>
+      <span>Acabados / colores editables</span>
       <p>Opciones/acabados publicados o en borrador.</p>
     </a>
     <div class="admin-card">
       <strong>{publishedCount ?? 0}</strong>
-      <span>Publicados</span>
-      <p>Entradas visibles en el catalogo publico.</p>
+      <span>Acabados publicados</span>
+      <p>Su visibilidad depende también del estado de categoría, tipo y familia.</p>
     </div>
     <div class="admin-card">
       <strong>{imageCount ?? 0}</strong>
       <span>Imagenes</span>
       <p>Registros asociados en el almacenamiento.</p>
     </div>
+    <a class="admin-card" href="/admin/productos"><strong>{families.count ?? 0}</strong><span>Familias / subcategorías</span><p>El catálogo público agrupa los colores por familia.</p></a>
     <a class="admin-card" href="/admin/configuracion">
       <strong>→</strong>
       <span>Configuración</span>

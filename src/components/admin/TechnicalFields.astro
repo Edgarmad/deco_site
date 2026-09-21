@@ -1,0 +1,23 @@
+---
+import { technicalFields } from '../../lib/adminContent';
+interface Props { specs: Record<string, unknown>; submitted?: FormData }
+const { specs, submitted } = Astro.props;
+const extras = Object.fromEntries(Object.entries(specs).filter(([key]) => !technicalFields.some(field => field.key === key)));
+---
+<!-- Seccion: Datos comerciales para la calculadora -->
+<fieldset class="admin-field full">
+  <legend>Presentación y rendimiento oficial</legend>
+  <input type="hidden" name="structured_specs" value="1" />
+  <p class="admin-note">Usa los datos del inventario canónico. No se aplica merma ni se sustituye la cobertura por alto × ancho. Accesorios y Grapa Deck no muestran calculadora.</p>
+  <div class="admin-form-grid">
+    {technicalFields.map(field => <div class="admin-field">
+      <label for={`spec_${field.key}`}>{field.label}</label>
+      <input id={`spec_${field.key}`} name={`spec_${field.key}`} value={submitted?.get('structured_specs') === '1' ? String(submitted.get(`spec_${field.key}`) ?? '') : String(specs[field.key] ?? '')} placeholder={field.example} maxlength="1000" />
+    </div>)}
+  </div>
+  <p class="admin-note">Sin rendimiento conocido, deja cobertura vacía o N/A. Para vigas, ángulos y quillas se utiliza el primer valor de Dimensiones como largo en cm. No inventes datos para habilitar el cálculo.</p>
+  <details><summary>Otros datos técnicos (JSON)</summary>
+    <label for="technical_specs">Claves adicionales del inventario</label>
+    <textarea id="technical_specs" name="technical_specs" rows={4}>{submitted ? String(submitted.get('technical_specs') ?? '{}') : JSON.stringify(extras, null, 2)}</textarea>
+  </details>
+</fieldset>

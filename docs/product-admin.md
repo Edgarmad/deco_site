@@ -47,12 +47,16 @@ La calculadora consume los textos guardados en `product_options.technical_specs`
 
 Los accesorios y productos sin rendimiento no deben recibir datos inventados para habilitar la calculadora. Si `pieces_per_box` es `N/A`, el cálculo considera una unidad por presentación.
 
+El admin ahora ofrece campos guiados para esos datos, validación de servidor y un diagnóstico de la calculadora con los datos guardados. Conserva claves adicionales en JSON y formatos heredados no modificados. Las dimensiones lineales importadas pueden tener sección transversal como `290 x 10*5 cm`; el primer número es el largo y la sección nunca se usa como multiplicación para calcular cobertura.
+
 ## Archivos
 
 - Los archivos de apoyo se suben desde la edición de un acabado y se guardan en `product_support_files` asociados a la familia/variante. Por eso un mismo PDF aparece en todos los acabados de esa familia.
 - El bucket público `site-media` almacena los archivos en la ruta `support/<variant_id>/...`.
 - `technical_sheet_url`: enlace externo legado a la ficha tecnica en Drive; se usa como respaldo cuando no hay un archivo de apoyo subido.
 - `installation_guide_url`: enlace externo a la guia de instalacion en Drive.
+
+La sección de apoyo también está disponible directamente en `/admin/variantes/{id}`. Permite editar títulos y orden. Los PDF de hasta 15 MB usan una subida directa firmada a Storage y solo aparecen públicamente después de la validación final; sin JavaScript el límite es 4 MB.
 
 ## Visibilidad de secciones
 

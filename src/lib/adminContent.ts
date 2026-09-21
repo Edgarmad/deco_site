@@ -4,6 +4,7 @@ export type Field = {
   type?: 'text' | 'textarea' | 'number' | 'checkbox' | 'url' | 'json' | 'lines' | 'select';
   required?: boolean; min?: number; max?: number; step?: string;
   relation?: string; choices?: string[];
+  hint?: string;
 };
 export type ContentModule = {
   table: string; label: string; titleKey: string; fields: Field[];
@@ -20,17 +21,17 @@ const featured: Field = { key: 'featured', label: 'Destacado', type: 'checkbox' 
 const seo: Field[] = [{ key: 'seo_title', label: 'Título SEO' }, { key: 'seo_description', label: 'Descripción SEO', type: 'textarea' }];
 export const contentModules: Record<string, ContentModule> = {
   categorias: { table: 'categories', label: 'Categorías', titleKey: 'name', fields: [name, slug, description, status, order, ...seo], child: { table: 'products', key: 'category_id' } },
-  familias: { table: 'products', label: 'Familias', titleKey: 'name', fields: [name, slug, { key: 'category_id', label: 'Categoría', relation: 'categorias', required: true }, summary, description, status, featured, order, ...seo], child: { table: 'product_variants', key: 'product_id' } },
-  variantes: { table: 'product_variants', label: 'Variantes', titleKey: 'name', fields: [name, slug, { key: 'product_id', label: 'Familia', relation: 'familias', required: true }, summary, description, status, order], child: { table: 'product_options', key: 'variant_id' } },
+  familias: { table: 'products', label: 'Tipos de producto', titleKey: 'name', fields: [name, slug, { key: 'category_id', label: 'Categoría de uso (Interior / Exterior)', relation: 'categorias', required: true }, summary, description, status, featured, order, ...seo], child: { table: 'product_variants', key: 'product_id' } },
+  variantes: { table: 'product_variants', label: 'Familias / subcategorías', titleKey: 'name', fields: [name, slug, { key: 'product_id', label: 'Tipo de producto', relation: 'familias', required: true }, summary, description, status, order], child: { table: 'product_options', key: 'variant_id' } },
   productos: {
-    table: 'product_options', label: 'Productos / acabados', titleKey: 'name',
-    fields: [name, slug, { key: 'variant_id', label: 'Variante / familia', relation: 'variantes', required: true },
-      { key: 'sku', label: 'SKU' }, { key: 'price', label: 'Precio', type: 'number', min: 0, max: 9999999999.99, step: '0.01', required: true }, summary, description,
+    table: 'product_options', label: 'Acabados / colores', titleKey: 'name',
+    fields: [{ ...name, label: 'Nombre del acabado / color', hint: 'Solo el acabado, por ejemplo Roble. No repitas el tipo ni la familia.' }, slug, { key: 'variant_id', label: 'Familia / subcategoría', relation: 'variantes', required: true, hint: 'El catálogo muestra una tarjeta por familia. Cada color conserva su URL y sus datos comerciales.' },
+      { key: 'sku', label: 'SKU (opcional)' }, { key: 'price', label: 'Precio del acabado', type: 'number', min: 0, max: 9999999999.99, step: '0.01', required: true, hint: 'Se muestra en la ficha pública. $1.00 es el precio temporal de la importación; captura el precio comercial real.' }, summary, description,
       ...[['color_name', 'Color'], ['color_slug', 'Slug del color'], ['color_hex', 'Color hexadecimal'], ['finish', 'Acabado'], ['dimensions', 'Dimensiones'], ['thickness', 'Espesor'], ['material', 'Material'], ['usage', 'Uso']].map(([key, label]): Field => ({ key, label })),
-      { key: 'technical_specs', label: 'Especificaciones técnicas (objeto JSON)', type: 'json' },
+       { key: 'technical_specs', label: 'Especificaciones técnicas', type: 'json' },
       { key: 'faq_items', label: 'Preguntas frecuentes (JSON: {"Pregunta": "Respuesta"})', type: 'json' },
       { key: 'installation_notes', label: 'Instalación', type: 'textarea' }, { key: 'care_notes', label: 'Cuidados', type: 'textarea' },
-      { key: 'technical_sheet_url', label: 'Enlace a ficha técnica', type: 'url' }, { key: 'installation_guide_url', label: 'Enlace a guía de instalación', type: 'url' },
+       { key: 'technical_sheet_url', label: 'Ficha técnica: enlace legado', type: 'url', hint: 'Solo se muestra si la familia no tiene PDF de apoyo subidos.' }, { key: 'installation_guide_url', label: 'Enlace a guía de instalación', type: 'url' },
       status, featured, order, ...seo, { key: 'canonical_path', label: 'Canonical (vacío = URL actual)' }],
     media: { table: 'product_images', key: 'option_id', kinds: ['main', 'secondary', 'gallery', 'extra', 'technical'] }
   },
@@ -47,9 +48,18 @@ export const contentModules: Record<string, ContentModule> = {
     { key: 'latitude', label: 'Latitud', type: 'number', min: -90, max: 90, step: 'any' }, { key: 'longitude', label: 'Longitud', type: 'number', min: -180, max: 180, step: 'any' }, status, order, ...seo] }
 };
 export const sectionLabels = { technical: 'Ficha técnica', support: 'Soporte', faq: 'Preguntas frecuentes', installation: 'Instalación' };
+export const technicalFields = [
+  { key: 'presentation', label: 'Presentación', example: 'Caja, Paquete o Placa' },
+  { key: 'pieces_per_box', label: 'Piezas por presentación', example: '10 piezas o N/A' },
+  { key: 'coverage', label: 'Cobertura comercial por presentación', example: '4.60 m²' },
+  { key: 'weight', label: 'Peso', example: '2 kg' },
+  { key: 'water_resistance', label: 'Resistencia al agua', example: '' },
+  { key: 'fire_classification', label: 'Clasificación de fuego', example: '' }
+];
+export const productPlaceholderPath = 'products/_placeholder/product-placeholder.webp';
 export const isUuid = (value: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
 export const validWebUrl = (value: string) => { try { return ['https:', 'http:'].includes(new URL(value).protocol); } catch { return false; } };
-export function parseContentForm(module: ContentModule, form: FormData) {
+export function parseContentForm(module: ContentModule, form: FormData, existing: Record<string, unknown> = {}) {
   const result: Record<string, unknown> = {};
   for (const field of module.fields) {
     const value = String(form.get(field.key) ?? '').trim();
@@ -76,6 +86,29 @@ export function parseContentForm(module: ContentModule, form: FormData) {
     else result[field.key] = value || null;
   }
   if (module.table === 'product_options') {
+    const specs = result.technical_specs as Record<string, unknown>;
+    if (form.get('structured_specs') === '1') {
+      for (const field of technicalFields) {
+        const text = String(form.get(`spec_${field.key}`) ?? '').trim();
+        if (text.length > 1000) throw new Error(`${field.label}: máximo 1000 caracteres.`);
+        if (text) specs[field.key] = text;
+        else delete specs[field.key];
+      }
+    }
+    // No reinterpretar las unidades oficiales: el cálculo usa el rendimiento comercial, no el área geométrica.
+    const previousSpecs = (existing.technical_specs ?? {}) as Record<string, unknown>;
+    for (const [key, pattern, message] of [
+      ['coverage', /^(?:\d+(?:\.\d+)? m²|N\/A)$/, 'Cobertura: usa un número positivo seguido de m², por ejemplo 4.60 m², o N/A.'],
+      ['pieces_per_box', /^(?:[1-9]\d* piezas|N\/A)$/, 'Piezas: usa un entero seguido de piezas (10 piezas) o N/A.']
+    ] as const) {
+      const raw = specs[key];
+      if (raw === previousSpecs[key]) continue;
+      if (raw != null && raw !== '' && (typeof raw !== 'string' || !pattern.test(raw) || (key === 'coverage' && raw !== 'N/A' && Number.parseFloat(raw) <= 0))) throw new Error(message);
+    }
+    const dimensions = result.dimensions;
+    // La sección transversal 10*5 del inventario se conserva como texto; nunca se multiplica para calcular longitud.
+    if (dimensions && dimensions !== existing.dimensions && !/^[1-9]\d*(?:\.\d+)? x \d+(?:\.\d+)?(?:\*\d+(?:\.\d+)?)? cm$|^0\.\d*[1-9]\d* x \d+(?:\.\d+)? cm$/.test(String(dimensions))) throw new Error('Dimensiones: usa Alto x Ancho cm (290 x 10 cm). En vigas, el primer valor es el largo; 10*5 solo puede ser la sección transversal.');
+    if (!existing.id) result.fallback_image_path = productPlaceholderPath;
     const visibility: Record<string, boolean> = {};
     for (const key of Object.keys(sectionLabels)) {
       const value = String(form.get(`section_${key}`) ?? 'inherit');

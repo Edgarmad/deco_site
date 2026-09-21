@@ -31,3 +31,26 @@ test('limita coordenadas y exige datos mínimos de ubicaciones', () => {
   form.delete('city');
   assert.throws(() => parseContentForm(contentModules.ubicaciones, form), /obligatorio/);
 });
+test('valida los formatos oficiales de la calculadora sin inventar rendimiento', () => {
+  for (const specs of [{ coverage: '4.60' }, { coverage: '-4.60 m²' }, { coverage: '0 m²' }, { pieces_per_box: '10*5' }, { pieces_per_box: '1.5 piezas' }]) {
+    assert.throws(() => parseContentForm(contentModules.productos, productForm({ technical_specs: JSON.stringify(specs) })));
+  }
+  const valid = parseContentForm(contentModules.productos, productForm({ technical_specs: '{"coverage":"4.35 m²","pieces_per_box":"N/A"}', dimensions: '290 x 10*5 cm' }));
+  assert.equal(valid.technical_specs.coverage, '4.35 m²');
+  assert.equal(valid.dimensions, '290 x 10*5 cm');
+  assert.throws(() => parseContentForm(contentModules.productos, productForm({ dimensions: '10*5 x 290 cm' })), /Dimensiones/);
+});
+test('los campos guiados conservan claves adicionales y permiten quitar un rendimiento', () => {
+  const form = productForm({ structured_specs: '1', technical_specs: '{"custom":"conservar"}', spec_coverage: '4.60 m²', spec_pieces_per_box: '10 piezas', spec_presentation: 'Caja' });
+  const values = parseContentForm(contentModules.productos, form);
+  assert.deepEqual(values.technical_specs, { custom: 'conservar', coverage: '4.60 m²', pieces_per_box: '10 piezas', presentation: 'Caja' });
+  form.set('spec_coverage', '');
+  assert.equal(parseContentForm(contentModules.productos, form).technical_specs.coverage, undefined);
+  assert.equal(values.fallback_image_path, 'products/_placeholder/product-placeholder.webp');
+});
+test('guardar otro campo no destruye ni bloquea formatos heredados del inventario', () => {
+  const form = productForm({ technical_specs: '{"pieces_per_box":"N/A piezas"}' });
+  const values = parseContentForm(contentModules.productos, form, { id: 'existing', technical_specs: { pieces_per_box: 'N/A piezas' } });
+  assert.equal(values.technical_specs.pieces_per_box, 'N/A piezas');
+  assert.equal('fallback_image_path' in values, false);
+});

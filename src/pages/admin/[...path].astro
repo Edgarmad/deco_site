@@ -3,10 +3,12 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import { getAdminSession } from '../../lib/adminAuth';
 import { createSupabaseServerClient } from '../../lib/supabaseServer';
 import { getCsrfToken, validateCsrfToken } from '../../lib/adminSecurity';
-import { contentModules, contentError, isUuid, parseContentForm, sectionLabels } from '../../lib/adminContent';
+import { contentModules, contentError, isUuid, parseContentForm, sectionLabels, productPlaceholderPath } from '../../lib/adminContent';
+import TechnicalFields from '../../components/admin/TechnicalFields.astro';
+import { getProductCalculator } from '../../lib/productCalculator';
 import { cleanMediaQueue, uploadMedia, type MediaRow } from '../../lib/adminMedia';
 import { getPublicStorageUrl } from '../../lib/supabase';
-import { deleteSupportFile, uploadSupportFile, type SupportFileRow } from '../../lib/adminSupportFiles';
+import { deleteSupportFile, uploadSupportFile, supportMetadata, type SupportFileRow } from '../../lib/adminSupportFiles';
 
 export const prerender = false;
 const [section, routeId, extra] = (Astro.params.path ?? '').split('/').filter(Boolean);
@@ -20,7 +22,8 @@ const base = `/admin/${section}`;
 const isNew = routeId === 'nuevo' || routeId === 'nueva';
 if (routeId && !isNew && !isUuid(routeId)) return new Response('No encontrado', { status: 404 });
 const id = !isNew ? routeId : undefined;
-let record: Record<string, unknown> = { status: 'draft', sort_order: 0, price: 0 };
+let record: Record<string, unknown> = { status: 'draft', sort_order: 0, price: 1, fallback_image_path: productPlaceholderPath };
+if (isNew && section === 'productos' && isUuid(Astro.url.searchParams.get('familia') ?? '')) record.variant_id = Astro.url.searchParams.get('familia');
 let errorMessage = '';
 let warning = '';
 let submitted: FormData | undefined;
@@ -30,6 +33,7 @@ if (id) {
   if (!loaded.data) return new Response('No encontrado', { status: 404 });
   record = loaded.data;
 }
+const supportVariantId = section === 'variantes' ? id : section === 'productos' ? String(record.variant_id ?? '') : undefined;
 
 // Todas las escrituras usan la sesión del editor y las políticas RLS.
 if (Astro.request.method === 'POST') {
@@ -45,7 +49,7 @@ if (Astro.request.method === 'POST') {
     if (!routeId) throw new Error('Acción no válida.');
     if (intent === 'save') {
       submitted = form;
-      const values = parseContentForm(module, form);
+      const values = parseContentForm(module, form, record);
       if (id && values.slug !== undefined && values.slug !== record.slug && form.get('confirm_slug') !== 'on') throw new Error('Confirma el cambio de slug: la URL anterior dejará de funcionar.');
       const saved = id ? await client.from(module.table).update(values).eq('id', id).select('id').single() : await client.from(module.table).insert(values).select('id').single();
       if (saved.error) throw new Error(contentError(saved.error));
@@ -53,14 +57,20 @@ if (Astro.request.method === 'POST') {
     }
     if (!id) throw new Error('Guarda primero el contenido.');
     if (intent === 'support-upload') {
-      if (module.table !== 'product_options' || !record.variant_id) throw new Error('El archivo de apoyo solo puede asociarse a un producto válido.');
-      await uploadSupportFile(client, String(record.variant_id), form);
+      if (!supportVariantId) throw new Error('El archivo debe asociarse a una familia válida.');
+      await uploadSupportFile(client, supportVariantId, form);
       return Astro.redirect(`${base}/${id}?saved=1`, 303);
     }
     if (intent === 'support-delete') {
-      if (module.table !== 'product_options') throw new Error('Acción no válida.');
+      if (!supportVariantId) throw new Error('Acción no válida.');
       if (form.get('confirm_support_delete') !== 'on') throw new Error('Confirma la eliminación del archivo.');
-      await deleteSupportFile(client, String(form.get('support_id') ?? ''));
+      await deleteSupportFile(client, String(form.get('support_id') ?? ''), supportVariantId);
+      return Astro.redirect(`${base}/${id}?saved=1`, 303);
+    }
+    if (intent === 'support-save') {
+      if (!supportVariantId) throw new Error('Acción no válida.');
+      const updated = await client.from('product_support_files').update(supportMetadata(form)).eq('id', String(form.get('support_id') ?? '')).eq('variant_id', supportVariantId).select('id').single();
+      if (updated.error) throw new Error(contentError(updated.error));
       return Astro.redirect(`${base}/${id}?saved=1`, 303);
     }
     if (intent === 'delete') {
@@ -70,9 +80,20 @@ if (Astro.request.method === 'POST') {
         if (children.error) throw new Error(contentError(children.error));
         if (children.count) throw new Error('Primero reasigna o elimina el contenido dependiente. También puedes dejar este registro en borrador.');
       }
+      const cleanupPaths: string[] = [];
+      if (module.media) {
+        const media = await client.from(module.media.table).select('storage_path').eq(module.media.key, id);
+        if (media.error) throw new Error(contentError(media.error));
+        cleanupPaths.push(...(media.data ?? []).map(item => item.storage_path));
+      }
+      if (section === 'variantes') {
+        const files = await client.from('product_support_files').select('storage_path').eq('variant_id', id);
+        if (files.error) throw new Error(contentError(files.error));
+        cleanupPaths.push(...(files.data ?? []).map(item => item.storage_path));
+      }
       const deleted = await client.from(module.table).delete().eq('id', id).select('id').single();
       if (deleted.error) throw new Error(contentError(deleted.error));
-      if (module.media) await cleanMediaQueue(client).catch(() => undefined);
+      if (cleanupPaths.length) await cleanMediaQueue(client, cleanupPaths).catch(() => undefined);
       return Astro.redirect(`${base}?saved=1`, 303);
     }
     if (!module.media) throw new Error('Acción no válida.');
@@ -82,8 +103,9 @@ if (Astro.request.method === 'POST') {
       if (!isUuid(imageId)) throw new Error('Imagen inválida.');
       if (intent === 'image-delete') {
         if (form.get('confirm_delete') !== 'on') throw new Error('Confirma la eliminación de la imagen.');
-        const removed = await client.from(module.media.table).delete().eq('id', imageId).eq(module.media.key, id).select('id').single();
+        const removed = await client.from(module.media.table).delete().eq('id', imageId).eq(module.media.key, id).select('id,storage_path').single();
         if (removed.error) throw new Error(contentError(removed.error));
+        await cleanMediaQueue(client, [removed.data.storage_path]).catch(() => undefined);
       } else {
         const kind = String(form.get('kind'));
         const sort_order = Number(form.get('sort_order'));
@@ -92,7 +114,6 @@ if (Astro.request.method === 'POST') {
         if (updated.error) throw new Error(contentError(updated.error));
       }
     } else throw new Error('Acción no válida.');
-    await cleanMediaQueue(client).catch(() => undefined);
     return Astro.redirect(`${base}/${id}?saved=1`, 303);
   } catch (error) {
     Astro.response.status = 400;
@@ -138,8 +159,8 @@ if (id && module.media) {
   if (result.error) errorMessage = contentError(result.error);
 }
 let supportFiles: SupportFileRow[] = [];
-if (id && section === 'productos' && record.variant_id) {
-  const result = await client.from('product_support_files').select('id,title,storage_bucket,storage_path,original_filename,mime_type,size_bytes,sort_order').eq('variant_id', String(record.variant_id)).order('sort_order').order('id');
+if (id && supportVariantId) {
+  const result = await client.from('product_support_files').select('id,title,storage_bucket,storage_path,original_filename,mime_type,size_bytes,sort_order,upload_state').eq('variant_id', supportVariantId).order('sort_order').order('id');
   supportFiles = (result.data ?? []) as SupportFileRow[];
   if (result.error) errorMessage = contentError(result.error);
 }
@@ -147,19 +168,39 @@ const value = (key: string) => submitted ? String(submitted.get(key) ?? '') : St
 const checked = (key: string) => submitted ? submitted.get(key) === 'on' : record[key] === true;
 const fieldValue = (key: string, type?: string) => submitted ? value(key) : type === 'json' ? JSON.stringify(record[key] ?? {}, null, 2) : type === 'lines' ? (Array.isArray(record[key]) ? (record[key] as string[]).join('\n') : '') : value(key);
 const visibility = (record.section_visibility ?? {}) as Record<string, boolean>;
+let familyContext: { name: string; product_id: string; products: { name: string; slug: string } } | undefined;
+let familyOptions: { id: string; name: string; slug: string; status: string }[] = [];
+if (section === 'productos' && record.variant_id) {
+  const result = await client.from('product_variants').select('name,product_id,products(name,slug)').eq('id', String(record.variant_id)).maybeSingle();
+  if (result.error) errorMessage = contentError(result.error);
+  familyContext = result.data as unknown as typeof familyContext;
+}
+if (id && section === 'variantes') {
+  const result = await client.from('product_options').select('id,name,slug,status').eq('variant_id', id).order('sort_order').order('name');
+  familyOptions = result.data ?? [];
+  if (result.error) errorMessage = contentError(result.error);
+}
+const calculator = section === 'productos' && familyContext ? getProductCalculator({
+  name: `${familyContext.products.name} ${record.name ?? ''}`, slug: String(record.slug ?? ''),
+  categorySlug: familyContext.products.slug, categoryName: familyContext.products.name, macroCategory: 'interior',
+  dimensions: String(record.dimensions ?? ''), technicalSpecs: (record.technical_specs ?? {}) as Record<string, string | number | null>,
+  variants: [{ name: familyContext.name, slug: '', colors: [] }]
+}) : undefined;
 const pageUrl = (number: number) => `${base}?${new URLSearchParams({ q: search, status: statusFilter, page: String(number) })}`;
 ---
 <AdminLayout title={module.label} currentPath={base} userEmail={session.user.email}>
   <!-- Seccion: Encabezado y mensajes -->
   <header class="admin-page-head compact">
     <div><p class="admin-kicker">CMS / {module.label}</p><h1>{routeId ? isNew ? 'Nuevo registro' : String(record[module.titleKey]) : module.label}</h1>
-      <p class="admin-note">Los cambios publicados se reflejan en el sitio al recargar. Productos: categoría, familia y variante también deben estar publicados.</p>
+      <p class="admin-note">Categoría de uso → Tipo de producto → Familia / subcategoría → Acabado / color. Todos los niveles deben estar publicados. El catálogo agrupa los colores en una tarjeta por familia.</p>
     </div>
     <a class="admin-link-button" href={routeId ? base : `${base}/${section === 'ubicaciones' ? 'nueva' : 'nuevo'}`}>{routeId ? 'Volver al listado' : 'Crear nuevo'}</a>
   </header>
   {Astro.url.searchParams.has('saved') && <p class="admin-success" role="status">Cambios guardados.</p>}
   {errorMessage && <p class="admin-error" role="alert">{errorMessage}</p>}
   {warning && <div class="admin-panel pad"><p role="status">{warning}</p><form method="post"><input type="hidden" name="csrf_token" value={csrf} /><button class="admin-button secondary" name="intent" value="cleanup">Reintentar limpieza</button></form></div>}
+  {section === 'ubicaciones' && <p class="admin-note">El sitio conserva las dos ubicaciones locales como respaldo cuando no hay sucursales publicadas en Supabase. Publica una sucursal para que el sitio utilice el listado del CMS.</p>}
+  {section === 'categorias' && <p class="admin-note">La navegación pública actual usa Interior y Exterior. Los accesorios son un tipo de producto dentro de esa estructura; crear otra categoría de uso no agrega automáticamente una pestaña al sitio.</p>}
   {!routeId ? <>
     <!-- Seccion: Listado -->
     <form class="admin-filters admin-panel" method="get">
@@ -177,12 +218,14 @@ const pageUrl = (number: number) => `${base}?${new URLSearchParams({ q: search, 
   </> : <>
     <!-- Seccion: Edición de contenido -->
     <section class="admin-panel pad">
+      {familyContext && <p>Tipo: <a href={`/admin/familias/${familyContext.product_id}`}>{familyContext.products.name}</a> · Familia: <a href={`/admin/variantes/${record.variant_id}`}>{familyContext.name}</a> · <a href={`/admin/productos?vista=acabados&familia=${record.variant_id}`}>Ver colores de esta familia →</a></p>}
       {id && ['productos', 'proyectos'].includes(section) && <p><a href={`/${section}/${record.slug}`} target="_blank" rel="noreferrer">Ver página pública →</a> (los borradores devuelven 404)</p>}
       <form method="post" class="admin-form" data-content-form>
         <input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="intent" value="save" />
         <div class="admin-form-grid">
-          {module.fields.map(field => <div class:list={['admin-field', ['textarea', 'json', 'lines'].includes(field.type ?? '') && 'full']}>
+          {module.fields.map(field => field.key === 'technical_specs' ? <TechnicalFields specs={(record.technical_specs ?? {}) as Record<string, unknown>} submitted={submitted} /> : <div class:list={['admin-field', ['textarea', 'json', 'lines'].includes(field.type ?? '') && 'full']}>
             <label for={field.key}>{field.label}</label>
+            {field.hint && <small class="admin-note">{field.hint}</small>}
             {field.relation ? <><select id={field.key} name={field.key} required={field.required}><option value="">Selecciona…</option>{relations[field.key]?.map(item => <option value={item.id} selected={value(field.key) === item.id}>{item.label}</option>)}</select><a href={`/admin/${field.relation}`}>Administrar {contentModules[field.relation].label.toLowerCase()} →</a></>
               : field.choices ? <select id={field.key} name={field.key}>{field.choices.map(choice => <option value={choice} selected={value(field.key) === choice}>{choice === 'published' ? 'Publicado' : 'Borrador'}</option>)}</select>
               : ['textarea', 'json', 'lines'].includes(field.type ?? '') ? <textarea id={field.key} name={field.key} required={field.required} rows={5}>{fieldValue(field.key, field.type)}</textarea>
@@ -195,6 +238,15 @@ const pageUrl = (number: number) => `${base}?${new URLSearchParams({ q: search, 
         <button class="admin-button" type="submit">Guardar información</button><p data-save-status role="status"></p>
       </form>
     </section>
+    {section === 'productos' && <section class="admin-panel pad admin-section-spaced"><h2>Calculadora según los datos guardados</h2>
+      <p>{calculator?.mode === 'area' ? `Por área: ${calculator.coverage} m² por presentación.` : calculator?.mode === 'linear' ? `Por metros lineales: ${calculator.pieceLengthMeters} m por pieza.` : 'No se mostrará calculadora: este tipo está excluido o todavía no tiene rendimiento / longitud válidos.'}</p>
+      {calculator && <p>{calculator.piecesPerPresentation ?? 1} piezas por presentación · {calculator.presentationLabel ?? 'Presentación no especificada'} · Sin merma añadida.</p>}
+      <p class="admin-note">Guarda los cambios para actualizar este diagnóstico. La calculadora usa las mismas reglas que el sitio público.</p>
+    </section>}
+    {id && section === 'variantes' && <section class="admin-panel pad admin-section-spaced"><h2>Acabados de esta familia ({familyOptions.length})</h2><a class="admin-link-button" href={`/admin/productos/nuevo?familia=${id}`}>Añadir acabado</a>
+      <ul>{familyOptions.map(option => <li><a href={`/admin/productos/${option.id}`}>{option.name}</a> — {option.status === 'published' ? 'Publicado' : 'Borrador'}</li>)}</ul>
+      {!familyOptions.length && <p>Sin acabados. La familia aparecerá en el catálogo cuando tenga al menos un acabado publicado y sus padres estén publicados.</p>}
+    </section>}
     <!-- Seccion: Imágenes y Storage -->
     {module.media && id && <section class="admin-panel pad admin-section-spaced">
       <h2>Imágenes</h2><p>La imagen de tipo main con menor orden es la principal. Cambia el orden numérico para reordenar la galería.</p>
@@ -211,7 +263,7 @@ const pageUrl = (number: number) => `${base}?${new URLSearchParams({ q: search, 
           <label><input type="checkbox" name="confirm_delete" required /> Eliminar imagen y archivo</label><button class="admin-button secondary" name="intent" value="image-delete">Eliminar</button>
         </form></div>
       </article>)}
-      {!images.length && <p>No hay imágenes. Añade una imagen principal para la ficha.</p>}
+      {!images.length && <div><p>Sin imagen real. {section === 'productos' ? 'Se utiliza la imagen temporal compartida del inventario; una imagen real tendrá prioridad.' : 'Añade una imagen principal.'}</p>{section === 'productos' && record.fallback_image_path && <img width="160" src={getPublicStorageUrl('site-media', String(record.fallback_image_path))} alt="Imagen temporal del catálogo" />}</div>}
       <form method="post" enctype="multipart/form-data" class="admin-form admin-section-spaced" data-upload-form>
         <input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="intent" value="upload" />
         <h3>Subir o reemplazar imagen</h3><p>JPEG, PNG o WebP, máximo 4 MB. Se convierte a WebP y se reduce a 2400 px.</p>
@@ -224,22 +276,25 @@ const pageUrl = (number: number) => `${base}?${new URLSearchParams({ q: search, 
         <button class="admin-button" type="submit">Subir imagen</button><progress data-upload-progress hidden max="100" value="0"></progress><p data-upload-status role="status"></p>
       </form>
     </section>}
-    {section === 'productos' && id && record.variant_id && <section class="admin-panel pad admin-section-spaced">
+    {id && supportVariantId && <section class="admin-panel pad admin-section-spaced">
       <h2>Material de apoyo</h2>
       <p>Estos archivos quedan asociados a la familia del producto y aparecen en todos sus acabados publicados.</p>
       {supportFiles.map(file => <article class="admin-support-row">
-        <div><strong>{file.title}</strong><br /><small>{file.original_filename} · {Math.ceil(file.size_bytes / 1024)} KB</small></div>
-        <div><a href={getPublicStorageUrl(file.storage_bucket, file.storage_path)} target="_blank" rel="noreferrer">Ver archivo</a>
+        <div><strong>{file.title}</strong><br /><small>{file.original_filename} · {Math.ceil(file.size_bytes / 1024)} KB · {file.upload_state === 'pending' ? 'Subida incompleta: no visible en el sitio. Elimina este intento y vuelve a subir.' : 'Disponible para todos los acabados'}</small></div>
+        <div>{file.upload_state === 'ready' && <a href={getPublicStorageUrl(file.storage_bucket, file.storage_path)} target="_blank" rel="noreferrer">Ver archivo</a>}
+          <form method="post" class="admin-form"><input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="support_id" value={file.id} /><label>Título<input name="support_title" value={file.title} required maxlength="160" /></label><label>Orden<input name="support_sort_order" type="number" value={file.sort_order} required step="1" /></label><button class="admin-button secondary" name="intent" value="support-save">Guardar título y orden</button></form>
           <form method="post" class="admin-delete-form"><input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="support_id" value={file.id} /><label><input type="checkbox" name="confirm_support_delete" required /> Confirmo eliminar</label><button class="admin-button secondary" name="intent" value="support-delete">Eliminar</button></form>
         </div>
       </article>)}
-      <form method="post" enctype="multipart/form-data" class="admin-form admin-section-spaced">
+      <form method="post" enctype="multipart/form-data" class="admin-form admin-section-spaced" data-support-upload>
         <input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="intent" value="support-upload" />
+        <input type="hidden" name="variant_id" value={supportVariantId} />
         <h3>Subir archivo de apoyo</h3><p>PDF, máximo 15 MB. Se recomienda nombrarlo como ficha técnica.</p>
         <label>Título<input name="support_title" value="Ficha técnica" required maxlength="160" /></label>
         <label>Archivo PDF<input type="file" name="support_file" accept="application/pdf,.pdf" required /></label>
         <label>Orden<input name="support_sort_order" type="number" step="1" value="0" required /></label>
-        <button class="admin-button" type="submit">Subir archivo</button>
+        <button class="admin-button" type="submit">Subir archivo</button><progress data-support-progress hidden max="100" value="0"></progress><p data-support-status role="status"></p>
+        <noscript>Sin JavaScript el límite es 4 MB. Actívalo para subir hasta 15 MB directamente a Storage.</noscript>
       </form>
     </section>}
     <!-- Seccion: Eliminación explícita -->

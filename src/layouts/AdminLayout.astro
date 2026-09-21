@@ -12,10 +12,10 @@ const { title, currentPath = '/admin', userEmail } = Astro.props;
 const csrfToken = getCsrfToken(Astro.cookies);
 const navItems = [
   { label: 'Resumen', href: '/admin' },
-  { label: 'Productos', href: '/admin/productos' },
+  { label: 'Catálogo y acabados', href: '/admin/productos' },
   { label: 'Categorías', href: '/admin/categorias' },
-  { label: 'Familias', href: '/admin/familias' },
-  { label: 'Variantes', href: '/admin/variantes' },
+  { label: 'Tipos de producto', href: '/admin/familias' },
+  { label: 'Familias / subcategorías', href: '/admin/variantes' },
   { label: 'Proyectos', href: '/admin/proyectos' },
   { label: 'Ubicaciones', href: '/admin/ubicaciones' },
   { label: 'Configuración', href: '/admin/configuracion' }

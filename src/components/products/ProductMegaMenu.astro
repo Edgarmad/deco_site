@@ -47,7 +47,7 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
 </div>
 
 <script>
-  const groups = document.querySelectorAll('[data-mega-group]');
+  const groups = document.querySelectorAll<HTMLElement>('[data-mega-group]');
 
   groups.forEach((group) => {
     const trigger = group.querySelector('.mega-trigger');
