@@ -15,7 +15,9 @@ const visibility = {
   ...product.sectionVisibility
 };
 const specs = product.technicalSpecs ?? {};
+const formattedPrice = product.price != null ? `$${product.price.toFixed(2)}` : undefined;
 const technicalRows = [
+  ['Precio', formattedPrice],
   ['Dimensiones', product.dimensions ? `${product.dimensions}${product.thickness ? ` · Espesor: ${product.thickness}` : ''}` : undefined],
   ['Material', product.material],
   ['Uso recomendado', product.usage],
@@ -76,7 +78,7 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
              <small>{activeTone?.name ?? 'Acabado por confirmar'}</small>
              <small>{product.macroCategory}</small>
              <small>{product.variants[0]?.name ?? 'Presentacion por confirmar'}</small>
-              {product.price != null && <small>Precio: ${product.price.toFixed(2)}</small>}
+               {formattedPrice && <small>Precio: {formattedPrice}</small>}
               {product.finish && <small>{product.finish}</small>}
            </div>
          </div>
