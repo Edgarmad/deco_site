@@ -56,12 +56,9 @@ const productVariants = Array.from(
     return variants;
   }, new Map<string, { slug: string; name: string; categorySlug: string }>()).values()
 ).sort((first, second) => first.name.localeCompare(second.name, 'es'));
-const tabItems: { label: string; value: ProductMacroCategory | 'todo' }[] = [
-  { label: 'Todo', value: 'todo' },
-  ...Array.from(new Set(products.map((product) => product.macroCategory))).map((macroCategory) => ({
-    label: macroCategory === 'interior' ? 'Interior' : macroCategory === 'exterior' ? 'Exterior' : macroCategory,
-    value: macroCategory
-  }))
+const tabItems: { label: string; value: ProductMacroCategory }[] = [
+  { label: 'Interior', value: 'interior' },
+  { label: 'Exterior', value: 'exterior' }
 ];
 // Textos compartidos por la barra de acciones para mantener sincronizado el estado visual del panel.
 const filterLabels = {
@@ -137,7 +134,7 @@ const filterLabels = {
   const filterBody = document.querySelector('[data-filter-body]');
   const productGrid = document.querySelector('[data-catalog-grid]');
   const perPage = pagination instanceof HTMLElement ? Number(pagination.dataset.perPage ?? 12) : 12;
-  let currentMacro = 'todo';
+  let currentMacro = 'interior';
   let currentFamily = '';
   let currentVariant = '';
   let currentPage = 1;
@@ -156,14 +153,14 @@ const filterLabels = {
 
   const updateUrl = () => {
     const params = new URLSearchParams();
-    if (currentMacro !== 'todo') params.set('categoria', currentMacro);
+    params.set('categoria', currentMacro);
     if (currentFamily) params.set('familia', currentFamily);
     if (currentVariant) params.set('subcategoria', currentVariant);
     if (searchInput instanceof HTMLInputElement && searchInput.value.trim()) params.set('q', searchInput.value.trim());
     if (sortSelect instanceof HTMLSelectElement && sortSelect.value !== 'featured') params.set('orden', sortSelect.value);
     if (currentPage > 1) params.set('page', String(currentPage));
     const query = params.toString();
-    history.replaceState(null, '', query ? `/productos?${query}` : '/productos');
+    history.replaceState(null, '', `/productos?${query}`);
   };
 
   const sortCards = (items: HTMLElement[]) => {
@@ -194,7 +191,7 @@ const filterLabels = {
       const matchesVariant = checkedVariants.length === 0 || checkedVariants.includes(card.dataset.variant ?? '');
       const matchesColor = checkedColors.length === 0 || checkedColors.some((color) => searchText.includes(color));
       const matchesQuery = !query || searchText.includes(query);
-      const showingVariants = currentMacro !== 'todo' || checkedCategories.length > 0 || Boolean(currentFamily) || Boolean(currentVariant);
+     const showingVariants = currentMacro === 'interior' || currentMacro === 'exterior' || checkedCategories.length > 0 || Boolean(currentFamily) || Boolean(currentVariant);
       const matchesLevel = card.dataset.level === (showingVariants ? 'variant' : 'family');
       return matchesLevel && matchesMacro && matchesCategory && matchesVariant && matchesColor && matchesQuery;
     });
@@ -255,7 +252,6 @@ const filterLabels = {
   };
 
   const resetAllFilters = () => {
-    currentMacro = 'todo';
     currentFamily = '';
     currentVariant = '';
     currentPage = 1;
@@ -264,7 +260,7 @@ const filterLabels = {
     colorFilters.forEach((input) => { input.checked = false; });
     if (searchInput instanceof HTMLInputElement) searchInput.value = '';
     if (sortSelect instanceof HTMLSelectElement) sortSelect.value = 'featured';
-    tabs.forEach((tab) => tab.setAttribute('aria-pressed', String(tab.dataset.macroTab === 'todo')));
+    tabs.forEach((tab) => tab.setAttribute('aria-pressed', String(tab.dataset.macroTab === currentMacro)));
     renderCatalog();
   };
 
@@ -278,14 +274,7 @@ const filterLabels = {
   if (initialQuery && searchInput instanceof HTMLInputElement) searchInput.value = initialQuery;
   if (initialSort && sortSelect instanceof HTMLSelectElement) sortSelect.value = initialSort;
   if (Number.isInteger(initialPage) && initialPage > 0) currentPage = initialPage;
-  if (initialCategory) {
-    const macroMatch = tabs.some((tab) => tab.dataset.macroTab === initialCategory);
-    if (macroMatch) currentMacro = initialCategory;
-    else {
-      currentFamily = initialCategory;
-      categoryFilters.forEach((input) => { input.checked = input.value === initialCategory; });
-    }
-  }
+  if (initialCategory === 'interior' || initialCategory === 'exterior') currentMacro = initialCategory;
   if (initialFamily) {
     currentFamily = initialFamily;
     categoryFilters.forEach((input) => { input.checked = input.value === initialFamily; });

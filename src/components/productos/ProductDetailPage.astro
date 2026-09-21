@@ -35,12 +35,13 @@ const variantItems = siblingProducts.length > 0 ? siblingProducts : [product];
 const faqItems = Object.entries(product.faqItems ?? {});
 const installationSteps = (product.installationNotes ?? '').split(/\r?\n/).filter(Boolean);
 const galleryImages = product.galleryImages ?? (product.gallery ?? []).map(url => ({ url, alt: product.name }));
+const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' ? 'exterior' : 'interior'}`;
 ---
 
 <main>
   <!-- Seccion: Detalle de producto -->
   <section class="product-detail" data-reveal-group>
-    <a class="back-link" href="/productos">Volver al catalogo</a>
+    <a class="back-link" href={catalogUrl}>Volver al catalogo</a>
     <div class="detail-layout">
        <div class="detail-media motion-card__media" data-product-gallery>
         {product.image ? <img class="motion-product-image" src={product.image} alt={product.imageAlt ?? product.name} /> : <span class="motion-product-image" aria-hidden="true"></span>}

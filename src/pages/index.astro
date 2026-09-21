@@ -14,7 +14,7 @@ import { getProjects } from '../services/projectService';
 export const prerender = false;
 const [products, cmsCategories, cmsLocations, cmsProjects] = await Promise.all([getProducts(), getProductCategories(), getLocations(), getProjects()]);
 
-const categories = cmsCategories.map(category => ({ name: category.name, slug: category.slug, description: category.description ?? '', count: `${products.filter(product => product.macroCategory === category.slug).length} productos` }));
+const categories = cmsCategories.map(category => ({ name: category.name, slug: category.slug, macroCategory: category.macroCategory, description: category.description ?? '', count: `${products.filter(product => product.macroCategory === category.macroCategory).length} productos` }));
 
 const popularProducts = Array.from(
   products.reduce((items, product) => {

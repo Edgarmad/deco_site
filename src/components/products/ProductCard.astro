@@ -36,7 +36,7 @@ const searchText = [
   data-featured={product.featured ? 'true' : 'false'}
   data-index={index}
 >
-  <a href={level === 'family' ? `/productos?familia=${product.categorySlug}` : `/productos/${product.slug}`} aria-label={level === 'family' ? `Ver productos de ${product.name}` : `Ver ${product.name}`}>
+  <a href={level === 'family' ? `/productos?categoria=${product.macroCategory}&familia=${product.categorySlug}` : `/productos/${product.slug}`} aria-label={level === 'family' ? `Ver productos de ${product.name}` : `Ver ${product.name}`}>
     <div class={`catalog-visual catalog-visual-${(index % 6) + 1} motion-card__media`}>
       {cardImage ? <img src={cardImage} alt={product.name} loading="lazy" /> : <span aria-hidden="true"></span>}
     </div>

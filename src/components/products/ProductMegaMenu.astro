@@ -57,7 +57,7 @@ const productTypes = Array.from(
         slug: product.categorySlug,
         name: product.categoryName ?? product.categorySlug,
         macroCategory: product.macroCategory,
-        href: `/productos?familia=${product.categorySlug}`,
+        href: `/productos?categoria=${product.macroCategory}&familia=${product.categorySlug}`,
       });
     }
     return types;

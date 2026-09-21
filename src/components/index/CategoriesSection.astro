@@ -2,6 +2,7 @@
 type Category = {
   name: string;
   slug: string;
+  macroCategory: string;
   count: string;
   description: string;
 };
@@ -16,7 +17,7 @@ const { categories } = Astro.props;
 <!-- Seccion: Compra por categoria -->
 <section id="productos" class="section categories-section" data-reveal-group>
   <div class="section-head" data-reveal>
-    <a href="/productos">Compra por categoría</a>
+    <a href="/productos?categoria=interior">Compra por categoría</a>
     <span>30 productos en línea</span>
   </div>
   <div class="category-list">
@@ -29,7 +30,7 @@ const { categories } = Astro.props;
           </div>
           <h2>{category.name}</h2>
         </div>
-        <a class="round-button motion-row__arrow" href={`/productos?categoria=${category.slug}`} aria-label={`Ver ${category.name}`}>→</a>
+        <a class="round-button motion-row__arrow" href={`/productos?categoria=${category.macroCategory}`} aria-label={`Ver ${category.name}`}>→</a>
       </article>
     ))}
   </div>

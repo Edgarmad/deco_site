@@ -8,6 +8,11 @@ import { getCatalogProducts, getProductCategories } from '../services/productSer
 
 export const prerender = false;
 
+const requestedCategory = Astro.url.searchParams.get('categoria');
+if (requestedCategory !== 'interior' && requestedCategory !== 'exterior') {
+  return Astro.redirect('/productos?categoria=interior');
+}
+
 const products = await getCatalogProducts();
 const categories = await getProductCategories();
 ---
