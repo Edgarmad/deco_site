@@ -31,19 +31,6 @@ const cleanPhone = (phone: string) => phone.replace(/[^\d+]/g, '');
     </aside>
 
     {activeLocation && <section class="location-detail" aria-labelledby="active-location-title">
-      <div class="location-summary" data-reveal>
-        <div>
-          <p>{activeLocation.type}</p>
-          <h2 id="active-location-title">{activeLocation.name}</h2>
-          <address>{activeLocation.address}</address>
-          <small>{activeLocation.schedule}</small>
-        </div>
-        <div class="location-actions">
-          <a href={activeLocation.mapsUrl} target="_blank" rel="noreferrer">Abrir mapa</a>
-          {activeLocation.phone && <a href={`tel:${cleanPhone(activeLocation.phone)}`}>Llamar sucursal</a>}
-        </div>
-      </div>
-
       <div class="agents-head" data-reveal>
         <p>Equipo comercial</p>
         <h3>Elige un asesor para iniciar tu proyecto.</h3>
