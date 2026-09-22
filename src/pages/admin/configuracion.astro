@@ -3,7 +3,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import { getAdminSession } from '../../lib/adminAuth';
 import { getCsrfToken, validateCsrfToken } from '../../lib/adminSecurity';
 import { createSupabaseServerClient } from '../../lib/supabaseServer';
-import { fallbackWhatsappNumber } from '../../services/siteSettingsService';
+import { fallbackHomeHeroVideoUrl, fallbackWhatsappNumber } from '../../services/siteSettingsService';
 
 export const prerender = false;
 
@@ -13,6 +13,7 @@ if (!session) return Astro.redirect('/admin/login');
 const supabase = createSupabaseServerClient(Astro.request, Astro.cookies);
 const csrfToken = getCsrfToken(Astro.cookies);
 let whatsappNumber = fallbackWhatsappNumber;
+let homeHeroVideoUrl = fallbackHomeHeroVideoUrl;
 const sectionKeys = {
   technical: 'product_section_technical_enabled',
   support: 'product_section_support_enabled',
@@ -23,20 +24,31 @@ let sectionVisibility = { technical: true, support: true, faq: true, installatio
 let message = Astro.url.searchParams.get('saved') === '1' ? 'Configuración guardada.' : '';
 let errorMessage = '';
 
+const isValidPublicVideoUrl = (value: string) => {
+  if (!value.endsWith('.mp4')) return false;
+  if (value.startsWith('/')) return true;
+  try { return ['https:', 'http:'].includes(new URL(value).protocol); } catch { return false; }
+};
+
 if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData();
   if (!validateCsrfToken(Astro.cookies, formData)) {
     errorMessage = 'La sesión del formulario expiró. Recarga la página e intenta de nuevo.';
   } else {
     const submittedNumber = String(formData.get('whatsapp_number') ?? '').replace(/\D/g, '');
+    const submittedHeroVideoUrl = String(formData.get('home_hero_video_url') ?? '').trim();
     whatsappNumber = submittedNumber;
+    homeHeroVideoUrl = submittedHeroVideoUrl;
     for (const section of Object.keys(sectionVisibility) as (keyof typeof sectionVisibility)[]) sectionVisibility[section] = formData.get(`section_${section}`) === 'on';
     if (submittedNumber.length < 8 || submittedNumber.length > 15) {
       errorMessage = 'Ingresa un número válido de 8 a 15 dígitos.';
       whatsappNumber = submittedNumber;
+    } else if (!isValidPublicVideoUrl(submittedHeroVideoUrl)) {
+      errorMessage = 'Ingresa una ruta o URL pública válida para el video en formato .mp4.';
     } else {
       const settings = [
         { key: 'whatsapp_number', value: submittedNumber, is_public: true },
+        { key: 'home_hero_video_url', value: submittedHeroVideoUrl, is_public: true },
         ...Object.entries(sectionKeys).map(([section, key]) => ({
           key,
           value: formData.get(`section_${section}`) === 'on' ? 'true' : 'false',
@@ -53,10 +65,11 @@ if (Astro.request.method === 'POST') {
 if (!whatsappNumber || !errorMessage) {
   const { data } = await supabase
     .from('site_settings')
-    .select('value')
-    .eq('key', 'whatsapp_number')
-    .maybeSingle();
-  whatsappNumber = data?.value?.replace(/\D/g, '') || whatsappNumber;
+    .select('key,value')
+    .in('key', ['whatsapp_number', 'home_hero_video_url']);
+  const settings = new Map((data ?? []).map(setting => [setting.key, setting.value]));
+  whatsappNumber = settings.get('whatsapp_number')?.replace(/\D/g, '') || whatsappNumber;
+  homeHeroVideoUrl = settings.get('home_hero_video_url') || homeHeroVideoUrl;
 }
 
 const { data: sectionSettings } = await supabase
@@ -88,6 +101,11 @@ for (const setting of Astro.request.method === 'POST' ? [] : sectionSettings ?? 
         <label for="whatsapp_number">Número de WhatsApp</label>
         <input id="whatsapp_number" name="whatsapp_number" type="tel" value={whatsappNumber} placeholder="9931595909" required />
         <small class="admin-note">Usa el número con código de país si no es de México. Para números mexicanos de 10 dígitos se agrega +52 automáticamente.</small>
+      </div>
+      <div class="admin-field">
+        <label for="home_hero_video_url">Video principal del inicio</label>
+        <input id="home_hero_video_url" name="home_hero_video_url" type="text" value={homeHeroVideoUrl} placeholder="/assets/videos/header-hero.mp4" required />
+        <small class="admin-note">Usa una ruta pública o URL http/https en formato .mp4. Solo cambia el video proyectado, no el componente.</small>
       </div>
       <fieldset class="admin-field">
         <legend>Secciones de productos visibles globalmente</legend>

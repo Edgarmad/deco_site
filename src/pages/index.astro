@@ -10,9 +10,10 @@ import SiteHeader from '../components/layout/SiteHeader.astro';
 import { getProducts, getProductCategories } from '../services/productService';
 import { getLocations } from '../services/locationService';
 import { getProjects } from '../services/projectService';
+import { getHomeHeroVideoUrl } from '../services/siteSettingsService';
 
 export const prerender = false;
-const [products, cmsCategories, cmsLocations, cmsProjects] = await Promise.all([getProducts(), getProductCategories(), getLocations(), getProjects()]);
+const [products, cmsCategories, cmsLocations, cmsProjects, homeHeroVideoUrl] = await Promise.all([getProducts(), getProductCategories(), getLocations(), getProjects(), getHomeHeroVideoUrl()]);
 
 const categories = cmsCategories
   .filter(category => category.slug === 'interior' || category.slug === 'exterior')
@@ -51,7 +52,7 @@ const projectItems = cmsProjects.map(project => ({ ...project, type: project.cat
     <SiteHeader currentPath="/" />
 
     <main id="inicio">
-      <HeroSection />
+      <HeroSection videoUrl={homeHeroVideoUrl} />
       <CategoriesSection categories={categories} />
       <PopularProductsSection products={popularProducts} />
       <LocationsSection locations={locations} />

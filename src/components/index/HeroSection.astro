@@ -1,7 +1,13 @@
+---
+import { fallbackHomeHeroVideoUrl } from '../../services/siteSettingsService';
+
+const { videoUrl = fallbackHomeHeroVideoUrl } = Astro.props;
+---
+
 <!-- Seccion: Hero principal -->
 <section class="hero" data-hero-motion data-reveal="hero" aria-label="Vista principal Deco">
   <video class="hero-video" autoplay muted loop playsinline preload="metadata" aria-label="Video principal de Deco">
-    <source src="/assets/videos/header-hero.mp4" type="video/mp4" />
+    <source src={videoUrl} type="video/mp4" />
   </video>
   <div class="motion-scroll-cue" aria-hidden="true">Desliza ↓</div>
 </section>

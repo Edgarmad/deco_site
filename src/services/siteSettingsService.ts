@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase';
 
 export const fallbackWhatsappNumber = '9931595909';
+export const fallbackHomeHeroVideoUrl = '/assets/videos/header-hero.mp4';
 
 export type ProductSectionVisibility = {
   technical: boolean;
@@ -57,3 +58,23 @@ export const getWhatsappNumber = async () => {
 };
 
 export const getWhatsappUrl = async () => `https://wa.me/${getWhatsappInternationalNumber(await getWhatsappNumber())}`;
+
+const isValidPublicVideoUrl = (value: string) => {
+  if (!value.endsWith('.mp4')) return false;
+  if (value.startsWith('/')) return true;
+  try { return ['https:', 'http:'].includes(new URL(value).protocol); } catch { return false; }
+};
+
+export const getHomeHeroVideoUrl = async () => {
+  if (!supabase) return fallbackHomeHeroVideoUrl;
+
+  const { data, error } = await supabase
+    .from('site_settings')
+    .select('value')
+    .eq('key', 'home_hero_video_url')
+    .maybeSingle();
+
+  const value = data?.value?.trim() ?? '';
+  if (error || !isValidPublicVideoUrl(value)) return fallbackHomeHeroVideoUrl;
+  return value;
+};
