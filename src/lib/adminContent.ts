@@ -43,7 +43,7 @@ export const contentModules: Record<string, ContentModule> = {
   },
   ubicaciones: { table: 'locations', label: 'Ubicaciones', titleKey: 'name', fields: [name, { key: 'city', label: 'Ciudad', required: true },
     ...[['type', 'Tipo de sucursal'], ['address', 'Dirección'], ['schedule', 'Horario'], ['phone', 'Teléfono']].map(([key, label]): Field => ({ key, label })),
-    { key: 'whatsapp_url', label: 'Enlace WhatsApp', type: 'url' }, { key: 'maps_url', label: 'Enlace de mapa', type: 'url' },
+    { key: 'whatsapp_url', label: 'Enlace WhatsApp', type: 'url' }, { key: 'maps_url', label: 'Enlace de mapa', type: 'url' }, { key: 'catalog_url', label: 'Link de catálogo', type: 'url' },
     { key: 'latitude', label: 'Latitud', type: 'number', min: -90, max: 90, step: 'any' }, { key: 'longitude', label: 'Longitud', type: 'number', min: -180, max: 180, step: 'any' }, status, order, ...seo] }
 };
 export const sectionLabels = { technical: 'Ficha técnica', support: 'Soporte', faq: 'Preguntas frecuentes', installation: 'Instalación' };

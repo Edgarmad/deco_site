@@ -17,6 +17,7 @@ const locations = [
     schedule: 'Lun-Vie 9:00-18:00',
     phone: '+52 999 000 0000',
     maps_url: 'https://maps.app.goo.gl/FG9PJTLZq6gDspWSA?g_st=ic',
+    catalog_url: 'https://drive.google.com/drive/folders/12p5iAFIaNjnZSjPvLG4gPOmNUzrrt794?usp=drive_link',
     status: 'published',
     sort_order: 1
   },
@@ -28,6 +29,7 @@ const locations = [
     schedule: 'Lun-Sab 9:00-17:00',
     phone: '+52 984 000 0000',
     maps_url: 'https://maps.app.goo.gl/7WJnTuYAhmoqoA5QA?g_st=ic',
+    catalog_url: 'https://drive.google.com/drive/folders/12p5iAFIaNjnZSjPvLG4gPOmNUzrrt794?usp=drive_link',
     status: 'published',
     sort_order: 2
   }
@@ -88,7 +90,7 @@ if (projectResult.error) throw projectResult.error;
 
 const locationResult = await supabase
   .from('locations')
-  .select('id,name,city,phone,status,sort_order')
+  .select('id,name,city,phone,catalog_url,status,sort_order')
   .in('city', locations.map((location) => location.city))
   .order('sort_order', { ascending: true });
 if (locationResult.error) throw locationResult.error;

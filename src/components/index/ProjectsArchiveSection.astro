@@ -37,7 +37,7 @@ const initialProject = projectItems[0];
           data-project-index={index}
           aria-pressed={index === 0 ? 'true' : 'false'}
         >
-          <span>{String(index + 1).padStart(2, '0')}</span>{project.name}
+          <span aria-hidden="true" style="visibility: hidden">{String(index + 1).padStart(2, '0')}</span>{project.name}
         </button>
       ))}
     </aside>

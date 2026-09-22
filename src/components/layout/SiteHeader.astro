@@ -1,5 +1,5 @@
 ---
-import { getCatalogUrl } from '../../services/siteSettingsService';
+import { getLocations } from '../../services/locationService';
 interface Props {
   currentPath?: string;
 }
@@ -9,11 +9,12 @@ const navItems = [
   { label: 'Inicio', href: '/' },
   { label: 'Interior', href: '/productos?categoria=interior' },
   { label: 'Exterior', href: '/productos?categoria=exterior' },
-  { label: 'Catálogo', href: await getCatalogUrl(), external: true },
   { label: 'Contáctanos', href: '/contacto' }
 ];
+const catalogLocations = await getLocations();
 
 const isActive = (href: string) => currentPath === href.split('?')[0];
+const isProductsActive = isActive('/productos');
 ---
 
 <!-- Seccion: Header / Navegacion principal -->
@@ -23,11 +24,16 @@ const isActive = (href: string) => currentPath === href.split('?')[0];
       <img src="/assets/photos/deco_abc_logo.png" alt="Deco ABC" />
     </a>
     <nav class="desktop-nav" aria-label="Navegacion principal">
-      {navItems.map((item) => (
-        <a class:list={[isActive(item.href) && 'active', 'motion-nav-link']} href={item.href} target={item.external ? '_blank' : undefined} rel={item.external ? 'noreferrer' : undefined} aria-current={isActive(item.href) ? 'page' : undefined}>
-          {item.label}
-        </a>
-      ))}
+      <a class:list={[isActive('/') && 'active', 'motion-nav-link']} href="/" aria-current={isActive('/') ? 'page' : undefined}>Inicio</a>
+      <a class:list={[isProductsActive && 'active', 'motion-nav-link']} href="/productos?categoria=interior">Interior</a>
+      <a class:list={[isProductsActive && 'active', 'motion-nav-link']} href="/productos?categoria=exterior">Exterior</a>
+      <div class="catalog-menu">
+        <button class="motion-nav-link" type="button" aria-haspopup="true">Catálogo</button>
+        <div class="catalog-submenu" role="menu">
+          {catalogLocations.map((location) => <a href={location.catalogUrl} target={location.catalogUrl ? '_blank' : undefined} rel={location.catalogUrl ? 'noreferrer' : undefined} role="menuitem">{location.name}</a>)}
+        </div>
+      </div>
+      <a class:list={[isActive('/contacto') && 'active', 'motion-nav-link']} href="/contacto" aria-current={isActive('/contacto') ? 'page' : undefined}>Contáctanos</a>
     </nav>
     <a class:list={['search-link', isActive('/busqueda') && 'active']} href="/busqueda" aria-label="Buscar" aria-current={isActive('/busqueda') ? 'page' : undefined}>
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -38,7 +44,12 @@ const isActive = (href: string) => currentPath === href.split('?')[0];
     <button class="mobile-menu-button" type="button" data-mobile-menu-button aria-expanded="false">Menu</button>
   </div>
   <nav class="mobile-menu" data-mobile-menu data-motion-menu hidden aria-label="Navegacion movil">
-    {navItems.map((item) => <a class:list={[isActive(item.href) && 'active', 'motion-nav-link']} data-motion-menu-item href={item.href} target={item.external ? '_blank' : undefined} rel={item.external ? 'noreferrer' : undefined}>{item.label}</a>)}
+    {navItems.slice(0, 3).map((item) => <a class:list={[isActive(item.href) && 'active', 'motion-nav-link']} data-motion-menu-item href={item.href}>{item.label}</a>)}
+    <details class="mobile-catalog-menu">
+      <summary>Catálogo</summary>
+      {catalogLocations.map((location) => <a data-motion-menu-item href={location.catalogUrl} target={location.catalogUrl ? '_blank' : undefined} rel={location.catalogUrl ? 'noreferrer' : undefined}>{location.name}</a>)}
+    </details>
+    <a class:list={[isActive('/contacto') && 'active', 'motion-nav-link']} data-motion-menu-item href="/contacto">Contáctanos</a>
   </nav>
 </header>
 
@@ -57,8 +68,72 @@ const isActive = (href: string) => currentPath === href.split('?')[0];
 
 <style>
   .desktop-nav a.active,
+  .desktop-nav button.active,
   .mobile-menu a.active {
     color: var(--black);
+  }
+
+  .catalog-menu {
+    position: relative;
+  }
+
+  .catalog-menu::before {
+    content: '|';
+    margin-right: 22px;
+    color: rgba(20, 21, 18, 0.8);
+  }
+
+  .catalog-menu button {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .catalog-submenu {
+    position: absolute;
+    top: 100%;
+    left: 22px;
+    min-width: 210px;
+    display: grid;
+    gap: 10px;
+    padding: 28px 14px 14px;
+    background: linear-gradient(to bottom, transparent 0 14px, var(--white-pure) 14px);
+    border: 1px solid transparent;
+    border-bottom-color: var(--paper-line);
+    box-shadow: 0 18px 36px rgb(0 0 0 / 12%);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-6px);
+    transition: opacity var(--motion-fast) var(--motion-ease-ui), transform var(--motion-fast) var(--motion-ease-ui);
+  }
+
+  .catalog-menu:hover .catalog-submenu,
+  .catalog-menu:focus-within .catalog-submenu {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .catalog-submenu a {
+    display: block;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+  }
+
+  .catalog-submenu a + a::before {
+    content: none;
+    margin: 0;
+  }
+
+  .catalog-menu + a::before {
+    content: '|';
+    margin-right: 22px;
+    color: rgba(20, 21, 18, 0.8);
   }
 
   .mobile-menu-button,
@@ -128,6 +203,26 @@ const isActive = (href: string) => currentPath === href.split('?')[0];
       font-weight: 800;
       letter-spacing: 0.18em;
       text-transform: uppercase;
+    }
+
+    .mobile-catalog-menu {
+      display: grid;
+      gap: 12px;
+    }
+
+    .mobile-catalog-menu summary {
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .mobile-catalog-menu summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .mobile-catalog-menu a {
+      display: block;
+      padding-left: 16px;
+      color: var(--blue);
     }
   }
 </style>

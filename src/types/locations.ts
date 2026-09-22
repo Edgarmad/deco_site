@@ -9,4 +9,5 @@ export type Location = {
   phone?: string;
   whatsappUrl?: string;
   mapsUrl: string;
+  catalogUrl?: string;
 };
