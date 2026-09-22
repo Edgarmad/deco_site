@@ -28,7 +28,7 @@ const { locations } = Astro.props;
           {address}
           {contact && <span class="location-contact">Contacto: {contact}</span>}
         </p>
-        <a class="round-button dark motion-row__arrow" href={mapsUrl} target="_blank" rel="noreferrer" aria-label={`Ver ubicación de ${city} en Google Maps`}>→</a>
+        <a class="round-button dark motion-row__arrow" href="/ubicaciones" aria-label={`Ver ubicaciones de Deco ABC`}>→</a>
       </article>
     ))}
   </div>

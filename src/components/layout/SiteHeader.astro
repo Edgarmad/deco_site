@@ -33,7 +33,6 @@ const isProductsActive = isActive('/productos');
           {catalogLocations.map((location) => <a href={location.catalogUrl} target={location.catalogUrl ? '_blank' : undefined} rel={location.catalogUrl ? 'noreferrer' : undefined} role="menuitem">{location.name}</a>)}
         </div>
       </div>
-      <a class:list={[isActive('/contacto') && 'active', 'motion-nav-link']} href="/contacto" aria-current={isActive('/contacto') ? 'page' : undefined}>Contáctanos</a>
     </nav>
     <a class:list={['search-link', isActive('/busqueda') && 'active']} href="/busqueda" aria-label="Buscar" aria-current={isActive('/busqueda') ? 'page' : undefined}>
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">

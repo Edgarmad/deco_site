@@ -25,9 +25,20 @@ let message = Astro.url.searchParams.get('saved') === '1' ? 'Configuración guar
 let errorMessage = '';
 
 const isValidPublicVideoUrl = (value: string) => {
-  if (!value.endsWith('.mp4')) return false;
-  if (value.startsWith('/')) return true;
-  try { return ['https:', 'http:'].includes(new URL(value).protocol); } catch { return false; }
+  if (value.startsWith('/')) return value.split('?')[0].endsWith('.mp4');
+  try {
+    const url = new URL(value);
+    return ['https:', 'http:'].includes(url.protocol) && url.pathname.endsWith('.mp4');
+  } catch { return false; }
+};
+
+const uploadHomeHeroVideo = async (file: File) => {
+  if (file.size > 80 * 1024 * 1024) throw new Error('El video debe pesar como máximo 80 MB.');
+  if (file.type !== 'video/mp4' && !file.name.toLowerCase().endsWith('.mp4')) throw new Error('Solo se permiten videos en formato .mp4.');
+  const path = `settings/home-hero/${crypto.randomUUID()}.mp4`;
+  const uploaded = await supabase.storage.from('site-media').upload(path, Buffer.from(await file.arrayBuffer()), { contentType: 'video/mp4', upsert: false });
+  if (uploaded.error) throw new Error(uploaded.error.message);
+  return supabase.storage.from('site-media').getPublicUrl(path).data.publicUrl;
 };
 
 if (Astro.request.method === 'POST') {
@@ -36,16 +47,24 @@ if (Astro.request.method === 'POST') {
     errorMessage = 'La sesión del formulario expiró. Recarga la página e intenta de nuevo.';
   } else {
     const submittedNumber = String(formData.get('whatsapp_number') ?? '').replace(/\D/g, '');
-    const submittedHeroVideoUrl = String(formData.get('home_hero_video_url') ?? '').trim();
+    let submittedHeroVideoUrl = String(formData.get('home_hero_video_url') ?? '').trim();
+    const submittedHeroVideoFile = formData.get('home_hero_video_file');
     whatsappNumber = submittedNumber;
     homeHeroVideoUrl = submittedHeroVideoUrl;
     for (const section of Object.keys(sectionVisibility) as (keyof typeof sectionVisibility)[]) sectionVisibility[section] = formData.get(`section_${section}`) === 'on';
     if (submittedNumber.length < 8 || submittedNumber.length > 15) {
       errorMessage = 'Ingresa un número válido de 8 a 15 dígitos.';
       whatsappNumber = submittedNumber;
-    } else if (!isValidPublicVideoUrl(submittedHeroVideoUrl)) {
-      errorMessage = 'Ingresa una ruta o URL pública válida para el video en formato .mp4.';
     } else {
+      try {
+        if (submittedHeroVideoFile instanceof File && submittedHeroVideoFile.size) submittedHeroVideoUrl = await uploadHomeHeroVideo(submittedHeroVideoFile);
+        homeHeroVideoUrl = submittedHeroVideoUrl;
+        if (!isValidPublicVideoUrl(submittedHeroVideoUrl)) throw new Error('Ingresa una ruta o URL pública válida para el video en formato .mp4.');
+      } catch (error) {
+        errorMessage = error instanceof Error ? error.message : 'No se pudo subir el video.';
+      }
+    }
+    if (!errorMessage) {
       const settings = [
         { key: 'whatsapp_number', value: submittedNumber, is_public: true },
         { key: 'home_hero_video_url', value: submittedHeroVideoUrl, is_public: true },
@@ -95,7 +114,7 @@ for (const setting of Astro.request.method === 'POST' ? [] : sectionSettings ?? 
   {errorMessage && <p class="admin-error">No se pudo guardar: {errorMessage}</p>}
 
   <section class="admin-panel pad">
-    <form class="admin-form" method="post">
+    <form class="admin-form" method="post" enctype="multipart/form-data">
       <input type="hidden" name="csrf_token" value={csrfToken} />
       <div class="admin-field">
         <label for="whatsapp_number">Número de WhatsApp</label>
@@ -106,6 +125,11 @@ for (const setting of Astro.request.method === 'POST' ? [] : sectionSettings ?? 
         <label for="home_hero_video_url">Video principal del inicio</label>
         <input id="home_hero_video_url" name="home_hero_video_url" type="text" value={homeHeroVideoUrl} placeholder="/assets/videos/header-hero.mp4" required />
         <small class="admin-note">Usa una ruta pública o URL http/https en formato .mp4. Solo cambia el video proyectado, no el componente.</small>
+      </div>
+      <div class="admin-field">
+        <label for="home_hero_video_file">Subir video principal</label>
+        <input id="home_hero_video_file" name="home_hero_video_file" type="file" accept="video/mp4,.mp4" />
+        <small class="admin-note">La resolución debe ser Full HD: 1920 x 1080px. Si subes un archivo, reemplaza la URL del campo anterior al guardar.</small>
       </div>
       <fieldset class="admin-field">
         <legend>Secciones de productos visibles globalmente</legend>

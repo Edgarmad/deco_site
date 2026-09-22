@@ -60,9 +60,11 @@ export const getWhatsappNumber = async () => {
 export const getWhatsappUrl = async () => `https://wa.me/${getWhatsappInternationalNumber(await getWhatsappNumber())}`;
 
 const isValidPublicVideoUrl = (value: string) => {
-  if (!value.endsWith('.mp4')) return false;
-  if (value.startsWith('/')) return true;
-  try { return ['https:', 'http:'].includes(new URL(value).protocol); } catch { return false; }
+  if (value.startsWith('/')) return value.split('?')[0].endsWith('.mp4');
+  try {
+    const url = new URL(value);
+    return ['https:', 'http:'].includes(url.protocol) && url.pathname.endsWith('.mp4');
+  } catch { return false; }
 };
 
 export const getHomeHeroVideoUrl = async () => {
