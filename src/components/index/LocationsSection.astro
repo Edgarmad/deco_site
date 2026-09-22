@@ -1,6 +1,7 @@
 ---
 type LocationItem = {
   number: string;
+  slug: string;
   name: string;
   city: string;
   type: string;
@@ -19,7 +20,7 @@ const { locations } = Astro.props;
 <!-- Seccion: Ubicaciones destacadas -->
 <section id="ubicaciones" class="dark-section locations-section" data-reveal-group>
   <div class="location-list">
-    {locations.map(({ number, name, city, type, address, mapsUrl, contact }) => (
+    {locations.map(({ number, slug, name, city, type, address, mapsUrl, contact }) => (
       <article class="location-row motion-row motion-location" data-reveal>
         <span class="row-number">{number}</span>
         <h2>{name}</h2>
@@ -28,7 +29,7 @@ const { locations } = Astro.props;
           {address}
           {contact && <span class="location-contact">Contacto: {contact}</span>}
         </p>
-        <a class="round-button dark motion-row__arrow" href="/ubicaciones" aria-label={`Ver ubicaciones de Deco ABC`}>→</a>
+        <a class="round-button dark motion-row__arrow" href={`/ubicaciones?ubicacion=${slug}`} aria-label={`Ver agentes de venta en ${city}`}>→</a>
       </article>
     ))}
   </div>

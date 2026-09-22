@@ -10,6 +10,7 @@ export const prerender = false;
 
 const locations = await getLocations();
 const whatsappUrl = await getWhatsappUrl();
+const selectedSlug = Astro.url.searchParams.get('ubicacion') ?? undefined;
 ---
 
 <html lang="es">
@@ -23,7 +24,7 @@ const whatsappUrl = await getWhatsappUrl();
   </head>
   <body>
     <SiteHeader currentPath="/ubicaciones" />
-    <LocationsPage locations={locations} whatsappUrl={whatsappUrl} />
+    <LocationsPage locations={locations} whatsappUrl={whatsappUrl} selectedSlug={selectedSlug} />
     <SiteFooter />
   </body>
 </html>

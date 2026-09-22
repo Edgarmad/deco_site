@@ -12,6 +12,8 @@ export async function cleanMediaQueue(client: SupabaseClient, paths?: string[]) 
   if (error) throw new Error('Falta aplicar la migración del CMS (media_cleanup_queue) o no hay permisos.');
   for (const item of data ?? []) {
     const references = await Promise.all(['product_images', 'project_images', 'product_support_files'].map(table => client.from(table).select('id', { count: 'exact', head: true }).eq('storage_bucket', item.storage_bucket).eq('storage_path', item.storage_path)));
+    const agentReferences = await client.from('location_agents').select('id', { count: 'exact', head: true }).eq('photo_bucket', item.storage_bucket).eq('photo_path', item.storage_path);
+    if (!agentReferences.error) references.push(agentReferences);
     if (references.some(result => result.error)) continue;
     // Una importación puede reutilizar la ruta. La solicitud antigua queda resuelta;
     // su eventual eliminación volverá a encolarla mediante el trigger correspondiente.

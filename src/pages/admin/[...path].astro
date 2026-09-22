@@ -9,6 +9,7 @@ import { getProductCalculator } from '../../lib/productCalculator';
 import { cleanMediaQueue, uploadMedia, type MediaRow } from '../../lib/adminMedia';
 import { getPublicStorageUrl } from '../../lib/supabase';
 import { deleteSupportFile, uploadSupportFile, supportMetadata, type SupportFileRow } from '../../lib/adminSupportFiles';
+import { deleteLocationAgent, saveLocationAgent, type LocationAgentRow } from '../../lib/adminLocationAgents';
 
 export const prerender = false;
 const [section, routeId, extra] = (Astro.params.path ?? '').split('/').filter(Boolean);
@@ -57,6 +58,15 @@ if (Astro.request.method === 'POST') {
       return Astro.redirect(`${base}/${saved.data.id}?saved=1`, 303);
     }
     if (!id) throw new Error('Guarda primero el contenido.');
+    if (section === 'ubicaciones' && intent === 'agent-save') {
+      await saveLocationAgent(client, id, form);
+      return Astro.redirect(`${base}/${id}?saved=1#agentes`, 303);
+    }
+    if (section === 'ubicaciones' && intent === 'agent-delete') {
+      if (form.get('confirm_agent_delete') !== 'on') throw new Error('Confirma la eliminacion del agente.');
+      await deleteLocationAgent(client, id, String(form.get('agent_id') ?? ''));
+      return Astro.redirect(`${base}/${id}?saved=1#agentes`, 303);
+    }
     if (intent === 'support-upload') {
       if (!supportVariantId) throw new Error('El archivo debe asociarse a una familia válida.');
       await uploadSupportFile(client, supportVariantId, form);
@@ -91,6 +101,10 @@ if (Astro.request.method === 'POST') {
         const files = await client.from('product_support_files').select('storage_path').eq('variant_id', id);
         if (files.error) throw new Error(contentError(files.error));
         cleanupPaths.push(...(files.data ?? []).map(item => item.storage_path));
+      }
+      if (section === 'ubicaciones') {
+        const agents = await client.from('location_agents').select('photo_path').eq('location_id', id);
+        if (!agents.error) cleanupPaths.push(...(agents.data ?? []).map(item => item.photo_path).filter(Boolean));
       }
       const deleted = await client.from(module.table).delete().eq('id', id).select('id').single();
       if (deleted.error) throw new Error(contentError(deleted.error));
@@ -163,6 +177,12 @@ let supportFiles: SupportFileRow[] = [];
 if (id && supportVariantId) {
   const result = await client.from('product_support_files').select('id,title,storage_bucket,storage_path,original_filename,mime_type,size_bytes,sort_order,upload_state').eq('variant_id', supportVariantId).order('sort_order').order('id');
   supportFiles = (result.data ?? []) as SupportFileRow[];
+  if (result.error) errorMessage = contentError(result.error);
+}
+let locationAgents: LocationAgentRow[] = [];
+if (id && section === 'ubicaciones') {
+  const result = await client.from('location_agents').select('id,location_id,name,phone,photo_bucket,photo_path,sort_order,status').eq('location_id', id).order('sort_order').order('name');
+  locationAgents = (result.data ?? []) as LocationAgentRow[];
   if (result.error) errorMessage = contentError(result.error);
 }
 const value = (key: string) => submitted ? String(submitted.get(key) ?? '') : String(record[key] ?? '');
@@ -264,6 +284,36 @@ const fieldGroups = section === 'productos' ? [
     {id && section === 'variantes' && <section class="admin-panel pad admin-section-spaced"><h2>Acabados de esta familia ({familyOptions.length})</h2><a class="admin-link-button" href={`/admin/productos/nuevo?familia=${id}`}>Añadir acabado</a>
       <ul>{familyOptions.map(option => <li><a href={`/admin/productos/${option.id}`}>{option.name}</a> — {option.status === 'published' ? 'Publicado' : 'Borrador'}</li>)}</ul>
       {!familyOptions.length && <p>Sin acabados. La familia aparecerá en el catálogo cuando tenga al menos un acabado publicado y sus padres estén publicados.</p>}
+    </section>}
+    {id && section === 'ubicaciones' && <section id="agentes" class="admin-panel pad admin-section-spaced">
+      <h2>Agentes de venta</h2>
+      <p>Estos agentes aparecen en la página pública de esta ubicación. Si no agregas agentes, el sitio mostrará un mensaje seguro sin romper el layout.</p>
+      {locationAgents.map(agent => <article class="admin-image-row">
+        {agent.photo_path ? <img src={getPublicStorageUrl(agent.photo_bucket ?? 'site-media', agent.photo_path)} alt={`Foto de ${agent.name}`} loading="lazy" /> : <div class="admin-image-placeholder">Sin foto</div>}
+        <div><form method="post" enctype="multipart/form-data" class="admin-form">
+          <input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="agent_id" value={agent.id} />
+          <label>Nombre<input name="agent_name" value={agent.name} required maxlength="160" /></label>
+          <label>Teléfono<input name="agent_phone" value={agent.phone} required maxlength="60" /></label>
+          <label>Estado<select name="agent_status"><option value="published" selected={agent.status === 'published'}>Publicado</option><option value="draft" selected={agent.status === 'draft'}>Borrador</option></select></label>
+          <label>Orden<input name="agent_sort_order" type="number" step="1" value={agent.sort_order} required /></label>
+          <label>Reemplazar foto<input type="file" name="agent_photo" accept="image/jpeg,image/png,image/webp" /></label>
+          <button class="admin-button secondary" name="intent" value="agent-save">Guardar agente</button>
+        </form><form method="post" class="admin-delete-form">
+          <input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="agent_id" value={agent.id} />
+          <label><input type="checkbox" name="confirm_agent_delete" required /> Eliminar agente y foto</label><button class="admin-button secondary" name="intent" value="agent-delete">Eliminar</button>
+        </form></div>
+      </article>)}
+      {!locationAgents.length && <p>Sin agentes registrados para esta ubicación.</p>}
+      <form method="post" enctype="multipart/form-data" class="admin-form admin-section-spaced">
+        <input type="hidden" name="csrf_token" value={csrf} />
+        <h3>Agregar agente</h3><p>JPEG, PNG o WebP, máximo 4 MB. Se recorta a formato cuadrado.</p>
+        <label>Nombre<input name="agent_name" required maxlength="160" /></label>
+        <label>Teléfono<input name="agent_phone" required maxlength="60" /></label>
+        <label>Foto<input type="file" name="agent_photo" accept="image/jpeg,image/png,image/webp" required /></label>
+        <label>Estado<select name="agent_status"><option value="published">Publicado</option><option value="draft">Borrador</option></select></label>
+        <label>Orden<input name="agent_sort_order" type="number" step="1" value="0" required /></label>
+        <button class="admin-button" name="intent" value="agent-save">Agregar agente</button>
+      </form>
     </section>}
     <!-- Seccion: Imágenes y Storage -->
     {module.media && id && <section id="imagenes" class="admin-panel pad admin-section-spaced">

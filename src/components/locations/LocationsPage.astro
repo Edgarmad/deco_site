@@ -4,57 +4,81 @@ import type { Location as LocationItem } from '../../types/locations';
 type Props = {
   locations: LocationItem[];
   whatsappUrl: string;
+  selectedSlug?: string;
 };
 
-const { locations, whatsappUrl } = Astro.props;
+const { locations, whatsappUrl, selectedSlug } = Astro.props;
+const activeLocation = locations.find(location => location.slug === selectedSlug) ?? locations[0];
+const cleanPhone = (phone: string) => phone.replace(/[^\d+]/g, '');
 ---
 
 <main class="locations-page">
-  <!-- Seccion: Hero de ubicaciones -->
+  <!-- Seccion: Hero de ubicacion activa -->
   <section class="locations-hero" data-reveal-group aria-labelledby="locations-title">
-    <p data-reveal>Red Deco ABC</p>
-    <h1 id="locations-title" data-reveal>Visítanos cerca <span>de tu proyecto.</span></h1>
-    <small data-reveal>{locations.length} ubicaciones · atención directa</small>
+    <p data-reveal>Agentes Deco ABC</p>
+    <h1 id="locations-title" data-reveal>Atención directa <span>{activeLocation ? `en ${activeLocation.city}` : 'por ubicación'}.</span></h1>
+    <small data-reveal>{locations.length} ubicaciones · asesores por sucursal</small>
   </section>
 
-  <!-- Seccion: Lista de ubicaciones -->
-  <section class="locations-list" data-reveal-group aria-label="Sucursales Deco ABC">
-    {locations.map((location) => (
-      <article class="location-card motion-row motion-location" data-reveal>
+  {locations.length > 0 ? <section class="locations-shell" data-reveal-group>
+    <aside class="location-switcher" aria-label="Seleccionar ubicación">
+      <p>Sucursales</p>
+      {locations.map(location => <a class:list={['location-tab', location.slug === activeLocation?.slug && 'active']} href={`/ubicaciones?ubicacion=${location.slug}`} data-reveal>
         <span>{location.number}</span>
-        <h2>{location.name}</h2>
-        <strong>{location.type}</strong>
-        <div>
-          <p>{location.address}</p>
-          <small>{location.schedule}</small>
-          <p>{location.city}</p>
-          {location.phone && <p><a href={`tel:${location.phone.replace(/[^\d+]/g, '')}`}>{location.phone}</a></p>}
-          {location.whatsappUrl && <a href={location.whatsappUrl} target="_blank" rel="noreferrer">WhatsApp de la sucursal →</a>}
-        </div>
-        <a class="motion-row__arrow" href={location.mapsUrl} target="_blank" rel="noreferrer">Abrir en maps ↗</a>
-      </article>
-    ))}
-    {!locations.length && <p>No hay ubicaciones publicadas por el momento.</p>}
-  </section>
+        <strong>{location.city}</strong>
+        <small>{location.name}</small>
+      </a>)}
+    </aside>
 
-  <!-- Seccion: Confirmacion por WhatsApp -->
-  <section class="locations-cta" data-reveal="section" aria-label="Confirmar existencias">
-    <h2>¿Necesitas confirmar existencias antes de visitarnos?</h2>
-    <a class="motion-button" href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp →</a>
-  </section>
+    {activeLocation && <section class="location-detail" aria-labelledby="active-location-title">
+      <div class="location-summary" data-reveal>
+        <div>
+          <p>{activeLocation.type}</p>
+          <h2 id="active-location-title">{activeLocation.name}</h2>
+          <address>{activeLocation.address}</address>
+          <small>{activeLocation.schedule}</small>
+        </div>
+        <div class="location-actions">
+          <a href={activeLocation.mapsUrl} target="_blank" rel="noreferrer">Abrir mapa</a>
+          {activeLocation.phone && <a href={`tel:${cleanPhone(activeLocation.phone)}`}>Llamar sucursal</a>}
+        </div>
+      </div>
+
+      <div class="agents-head" data-reveal>
+        <p>Equipo comercial</p>
+        <h3>Elige un asesor para iniciar tu proyecto.</h3>
+      </div>
+
+      <div class="agents-grid" data-reveal-group>
+        {activeLocation.agents.map(agent => <article class="agent-card" data-reveal>
+          {agent.photoUrl ? <img src={agent.photoUrl} alt={`Foto de ${agent.name}`} loading="lazy" /> : <div class="agent-photo-fallback" aria-hidden="true">{agent.name.slice(0, 1)}</div>}
+          <div>
+            <h4>{agent.name}</h4>
+            <a href={`tel:${cleanPhone(agent.phone)}`}>{agent.phone}</a>
+          </div>
+        </article>)}
+        {!activeLocation.agents.length && <article class="agents-empty" data-reveal>
+          <h4>Pronto agregaremos asesores para esta ubicación.</h4>
+          <p>Mientras tanto, puedes contactar a la sucursal o escribirnos por WhatsApp para recibir atención.</p>
+          <a href={whatsappUrl} target="_blank" rel="noreferrer">WhatsApp general →</a>
+        </article>}
+      </div>
+    </section>}
+  </section> : <section class="agents-empty standalone"><h2>No hay ubicaciones publicadas por el momento.</h2><a href={whatsappUrl} target="_blank" rel="noreferrer">Contactar por WhatsApp →</a></section>}
 </main>
 
 <style>
   .locations-page {
     min-height: 100vh;
     padding: 70px 6.6vw 74px;
-    background: var(--black);
+    background: #080908;
     color: var(--white);
   }
 
   .locations-hero p,
-  .location-card span,
-  .location-card strong {
+  .location-switcher p,
+  .location-summary p,
+  .agents-head p {
     margin: 0;
     color: var(--green);
     font-size: 0.74rem;
@@ -64,11 +88,11 @@ const { locations, whatsappUrl } = Astro.props;
   }
 
   .locations-hero h1 {
-    max-width: 650px;
-    margin: 26px 0 22px;
-    font-size: clamp(3.5rem, 6vw, 6.4rem);
-    line-height: 0.95;
-    letter-spacing: -0.06em;
+    max-width: 840px;
+    margin: 24px 0 18px;
+    font-size: clamp(3.4rem, 6.6vw, 7.2rem);
+    line-height: 0.9;
+    letter-spacing: -0.07em;
   }
 
   .locations-hero h1 span {
@@ -84,46 +108,93 @@ const { locations, whatsappUrl } = Astro.props;
     text-transform: uppercase;
   }
 
-  .locations-list {
-    margin-top: 44px;
-    border-top: 1px solid var(--line);
-  }
-
-  .location-card {
+  .locations-shell {
     display: grid;
-    grid-template-columns: 58px minmax(230px, 1fr) 110px minmax(320px, 1.2fr) 180px;
+    grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
     gap: 34px;
-    align-items: start;
-    padding: 34px 0 70px;
-    border-bottom: 1px solid var(--line);
+    margin-top: 52px;
   }
 
-  .location-card h2 {
-    margin: 0;
-    font-size: clamp(2rem, 3vw, 3.5rem);
-    line-height: 1;
-    letter-spacing: -0.04em;
+  .location-switcher {
+    position: sticky;
+    top: 88px;
+    align-self: start;
+    display: grid;
+    gap: 12px;
+  }
+
+  .location-tab {
+    display: grid;
+    gap: 8px;
+    padding: 18px;
+    border: 1px solid var(--line);
+    color: var(--white);
+    text-decoration: none;
+  }
+
+  .location-tab.active {
+    border-color: var(--green);
+    background: rgba(148, 255, 64, 0.08);
+  }
+
+  .location-tab span,
+  .location-tab small {
+    color: #8f948e;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
 
-  .location-card p {
-    margin: 0 0 34px;
-    color: #9ca19a;
-    line-height: 1.5;
-  }
-
-  .location-card small {
-    color: #c2c6bf;
-    font-size: 0.74rem;
+  .location-tab strong {
+    font-size: 1.2rem;
     text-transform: uppercase;
   }
 
-  .location-card a,
-  .locations-cta a {
+  .location-detail {
+    display: grid;
+    gap: 30px;
+  }
+
+  .location-summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 30px;
+    padding: clamp(24px, 4vw, 48px);
+    border: 1px solid var(--line);
+    background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+  }
+
+  .location-summary h2 {
+    margin: 18px 0;
+    font-size: clamp(2.4rem, 5vw, 5.6rem);
+    line-height: 0.9;
+    letter-spacing: -0.06em;
+    text-transform: uppercase;
+  }
+
+  .location-summary address,
+  .location-summary small {
+    display: block;
+    max-width: 560px;
+    color: #c4c8c0;
+    font-style: normal;
+    line-height: 1.6;
+  }
+
+  .location-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 190px;
+  }
+
+  .location-actions a,
+  .agents-empty a {
     display: inline-grid;
+    min-height: 52px;
     place-items: center;
-    min-height: 62px;
-    padding: 0 26px;
+    padding: 0 22px;
     border: 1px solid var(--green);
     color: var(--white);
     font-size: 0.72rem;
@@ -132,86 +203,117 @@ const { locations, whatsappUrl } = Astro.props;
     text-transform: uppercase;
   }
 
-  .locations-cta {
+  .agents-head h3 {
+    max-width: 560px;
+    margin: 12px 0 0;
+    font-size: clamp(1.8rem, 3vw, 3.4rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .agents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 18px;
+  }
+
+  .agent-card {
+    min-height: 360px;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: space-between;
-    gap: 28px;
-    margin-top: 48px;
-    padding: 22px 28px;
-    background: var(--blue-deep);
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background: #11130f;
   }
 
-  .locations-cta h2 {
+  .agent-card img,
+  .agent-photo-fallback {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    background: #1b1f18;
+  }
+
+  .agent-photo-fallback {
+    display: grid;
+    place-items: center;
+    color: var(--green);
+    font-size: 4rem;
+    font-weight: 900;
+  }
+
+  .agent-card div {
+    display: grid;
+    gap: 8px;
+    padding: 18px;
+  }
+
+  .agent-card h4,
+  .agents-empty h4 {
     margin: 0;
-    font-size: clamp(1.2rem, 1.8vw, 2rem);
+    font-size: 1.35rem;
+    letter-spacing: -0.03em;
   }
 
-  .locations-cta a {
-    min-width: 200px;
-    border-color: var(--green);
-    background: var(--green);
+  .agent-card a {
+    color: var(--green);
+    font-size: 0.82rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .agents-empty {
+    padding: 28px;
+    border: 1px dashed var(--line);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .agents-empty p {
+    max-width: 520px;
+    color: #a7aca4;
+    line-height: 1.6;
+  }
+
+  .agents-empty.standalone {
+    margin-top: 48px;
   }
 
   @media (max-width: 860px) {
     .locations-page {
-      padding: 42px 14px 28px;
+      padding: 42px 14px 32px;
     }
 
     .locations-hero h1 {
-      font-size: 2.35rem;
-      line-height: 1.08;
+      font-size: 2.55rem;
+      line-height: 1;
     }
 
-    .locations-list {
-      display: grid;
-      gap: 24px;
-      margin-top: 26px;
-      border-top: 0;
-    }
-
-    .location-card {
+    .locations-shell,
+    .location-summary {
       grid-template-columns: 1fr;
-      gap: 14px;
-      padding: 24px 18px 18px;
-      border: 1px solid var(--line);
-      border-radius: 5px;
-      background: rgba(255, 255, 255, 0.03);
     }
 
-    .location-card h2 {
-      font-size: 1.5rem;
+    .locations-shell {
+      margin-top: 30px;
     }
 
-    .location-card p {
-      margin-bottom: 0;
-      font-size: 0.82rem;
+    .location-switcher {
+      position: static;
+      grid-template-columns: 1fr;
     }
 
-    .location-card small,
-    .location-card strong {
-      display: none;
+    .location-summary h2 {
+      font-size: 2.15rem;
     }
 
-    .location-card a {
-      min-height: 42px;
-      margin-top: 6px;
-    }
-
-    .locations-cta {
-      display: grid;
-      margin-top: 32px;
-      padding: 24px 18px;
-    }
-
-    .locations-cta a {
+    .location-actions {
       min-width: 0;
-      min-height: auto;
-      place-items: start;
-      padding: 0;
-      border: 0;
-      background: transparent;
-      color: var(--green);
+    }
+
+    .agent-card {
+      min-height: 0;
     }
   }
 </style>
