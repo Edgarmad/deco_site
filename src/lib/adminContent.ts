@@ -31,7 +31,6 @@ export const contentModules: Record<string, ContentModule> = {
        { key: 'technical_specs', label: 'Especificaciones técnicas', type: 'json' },
       { key: 'faq_items', label: 'Preguntas frecuentes (JSON: {"Pregunta": "Respuesta"})', type: 'json' },
       { key: 'installation_notes', label: 'Instalación', type: 'textarea' }, { key: 'care_notes', label: 'Cuidados', type: 'textarea' },
-       { key: 'technical_sheet_url', label: 'Ficha técnica: enlace legado', type: 'url', hint: 'Solo se muestra si la familia no tiene PDF de apoyo subidos.' }, { key: 'installation_guide_url', label: 'Enlace a guía de instalación', type: 'url' },
       status, featured, order, ...seo, { key: 'canonical_path', label: 'Canonical (vacío = URL actual)' }],
     media: { table: 'product_images', key: 'option_id', kinds: ['main', 'secondary', 'gallery', 'extra', 'technical'] }
   },

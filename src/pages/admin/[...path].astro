@@ -24,6 +24,7 @@ if (routeId && !isNew && !isUuid(routeId)) return new Response('No encontrado', 
 const id = !isNew ? routeId : undefined;
 let record: Record<string, unknown> = { status: 'draft', sort_order: 0, price: 1, fallback_image_path: productPlaceholderPath };
 if (isNew && section === 'productos' && isUuid(Astro.url.searchParams.get('familia') ?? '')) record.variant_id = Astro.url.searchParams.get('familia');
+if (isNew && section === 'variantes' && isUuid(Astro.url.searchParams.get('tipo') ?? '')) record.product_id = Astro.url.searchParams.get('tipo');
 let errorMessage = '';
 let warning = '';
 let submitted: FormData | undefined;
@@ -33,7 +34,7 @@ if (id) {
   if (!loaded.data) return new Response('No encontrado', { status: 404 });
   record = loaded.data;
 }
-const supportVariantId = section === 'variantes' ? id : section === 'productos' ? String(record.variant_id ?? '') : undefined;
+const supportVariantId = section === 'variantes' ? id : undefined;
 
 // Todas las escrituras usan la sesión del editor y las políticas RLS.
 if (Astro.request.method === 'POST') {
@@ -169,14 +170,14 @@ const checked = (key: string) => submitted ? submitted.get(key) === 'on' : recor
 const fieldValue = (key: string, type?: string) => submitted ? value(key) : type === 'json' ? JSON.stringify(record[key] ?? {}, null, 2) : type === 'lines' ? (Array.isArray(record[key]) ? (record[key] as string[]).join('\n') : '') : value(key);
 const visibility = (record.section_visibility ?? {}) as Record<string, boolean>;
 let familyContext: { name: string; product_id: string; products: { name: string; slug: string } } | undefined;
-let familyOptions: { id: string; name: string; slug: string; status: string }[] = [];
+let familyOptions: { id: string; name: string; slug: string; status: string; technical_sheet_url: string | null; installation_guide_url: string | null }[] = [];
 if (section === 'productos' && record.variant_id) {
   const result = await client.from('product_variants').select('name,product_id,products(name,slug)').eq('id', String(record.variant_id)).maybeSingle();
   if (result.error) errorMessage = contentError(result.error);
   familyContext = result.data as unknown as typeof familyContext;
 }
 if (id && section === 'variantes') {
-  const result = await client.from('product_options').select('id,name,slug,status').eq('variant_id', id).order('sort_order').order('name');
+  const result = await client.from('product_options').select('id,name,slug,status,technical_sheet_url,installation_guide_url').eq('variant_id', id).order('sort_order').order('name');
   familyOptions = result.data ?? [];
   if (result.error) errorMessage = contentError(result.error);
 }
@@ -187,14 +188,28 @@ const calculator = section === 'productos' && familyContext ? getProductCalculat
   variants: [{ name: familyContext.name, slug: '', colors: [] }]
 }) : undefined;
 const pageUrl = (number: number) => `${base}?${new URLSearchParams({ q: search, status: statusFilter, page: String(number) })}`;
+const catalogSection = ['familias', 'variantes', 'productos'].includes(section);
+const backUrl = section === 'productos' && record.variant_id ? `/admin/productos?familia=${record.variant_id}` : section === 'variantes' && record.product_id ? `/admin/productos?tipo=${record.product_id}` : catalogSection ? '/admin/productos' : base;
+const mainImage = images.find(image => image.kind === 'main') ?? images[0];
+const toneUrl = mainImage ? getPublicStorageUrl(mainImage.storage_bucket, mainImage.storage_path) : getPublicStorageUrl('site-media', String(record.fallback_image_path ?? ''));
+const imageLabels: Record<string, string> = { main: section === 'productos' ? 'Principal y muestra del acabado / color' : 'Imagen principal', secondary: 'Imagen secundaria', gallery: 'Galería / producto instalado', extra: 'Fotografía adicional', technical: 'Imagen técnica / medidas', before: 'Antes', after: 'Después' };
+const legacyDocuments = familyOptions.flatMap(option => [
+  { name: option.name, title: 'Ficha técnica', url: option.technical_sheet_url },
+  { name: option.name, title: 'Guía de instalación', url: option.installation_guide_url }
+]).filter(item => item.url && /^https?:\/\//i.test(item.url));
+const fieldGroups = section === 'productos' ? [
+  { title: 'Identificación y familia', keys: ['name', 'variant_id', 'sku'] },
+  { title: 'Información comercial y técnica', keys: ['price', 'summary', 'description', 'color_name', 'color_slug', 'color_hex', 'finish', 'dimensions', 'thickness', 'material', 'usage', 'technical_specs', 'faq_items', 'installation_notes', 'care_notes'] },
+  { title: 'Publicación y SEO', keys: ['status', 'featured', 'sort_order', 'slug', 'seo_title', 'seo_description', 'canonical_path'] }
+] : [{ title: 'Información', keys: module.fields.map(field => field.key) }];
 ---
 <AdminLayout title={module.label} currentPath={base} userEmail={session.user.email}>
   <!-- Seccion: Encabezado y mensajes -->
   <header class="admin-page-head compact">
     <div><p class="admin-kicker">CMS / {module.label}</p><h1>{routeId ? isNew ? 'Nuevo registro' : String(record[module.titleKey]) : module.label}</h1>
-      <p class="admin-note">Categoría de uso → Tipo de producto → Familia / subcategoría → Acabado / color. En el Excel: Producto → Familia(Subcategoria) → Variante / Color. El sitio solo debe mezclar colores dentro de la misma Familia(Subcategoria).</p>
+      {catalogSection && <p class="admin-note">Tipo de producto → Familia / subcategoría → Acabado / color. Cada familia comparte sus PDF y agrupa únicamente sus propios colores.</p>}
     </div>
-    <a class="admin-link-button" href={routeId ? base : `${base}/${section === 'ubicaciones' ? 'nueva' : 'nuevo'}`}>{routeId ? 'Volver al listado' : 'Crear nuevo'}</a>
+    <a class="admin-link-button" href={routeId ? backUrl : `${base}/${section === 'ubicaciones' ? 'nueva' : 'nuevo'}`}>{routeId ? 'Volver al listado' : 'Crear nuevo'}</a>
   </header>
   {Astro.url.searchParams.has('saved') && <p class="admin-success" role="status">Cambios guardados.</p>}
   {errorMessage && <p class="admin-error" role="alert">{errorMessage}</p>}
@@ -218,12 +233,15 @@ const pageUrl = (number: number) => `${base}?${new URLSearchParams({ q: search, 
   </> : <>
     <!-- Seccion: Edición de contenido -->
     <section class="admin-panel pad">
-      {familyContext && <p>Tipo: <a href={`/admin/familias/${familyContext.product_id}`}>{familyContext.products.name}</a> · Familia: <a href={`/admin/variantes/${record.variant_id}`}>{familyContext.name}</a> · <a href={`/admin/productos?vista=acabados&familia=${record.variant_id}`}>Ver colores de esta familia →</a></p>}
+      {familyContext && <nav aria-label="Jerarquía del acabado"><a href="/admin/productos">Productos</a> → <a href={`/admin/productos?tipo=${familyContext.product_id}`}>{familyContext.products.name}</a> → <a href={`/admin/variantes/${record.variant_id}`}>{familyContext.name}</a> → {isNew ? 'Nuevo acabado / color' : String(record.name)}</nav>}
+      {section === 'familias' && id && <p><a href={`/admin/productos?tipo=${id}`}>Ver familias de este tipo de producto →</a></p>}
+      {section === 'variantes' && record.product_id && <nav aria-label="Jerarquía de la familia"><a href="/admin/productos">Productos</a> → <a href={`/admin/productos?tipo=${record.product_id}`}>{relations.product_id?.find(item => item.id === record.product_id)?.label ?? 'Tipo de producto'}</a> → {isNew ? 'Nueva familia' : String(record.name)}</nav>}
+      {section === 'productos' && <p class="admin-note">Cada acabado necesita una imagen principal que también lo identificará en los círculos de colores. {id ? <a href="#imagenes">Revisar imágenes y muestra de color →</a> : 'Guarda primero el acabado para subir su imagen.'}</p>}
       {id && ['productos', 'proyectos'].includes(section) && <p><a href={`/${section}/${record.slug}`} target="_blank" rel="noreferrer">Ver página pública →</a> (los borradores devuelven 404)</p>}
       <form method="post" class="admin-form" data-content-form>
         <input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="intent" value="save" />
         <div class="admin-form-grid">
-          {module.fields.map(field => field.key === 'technical_specs' ? <TechnicalFields specs={(record.technical_specs ?? {}) as Record<string, unknown>} submitted={submitted} /> : <div class:list={['admin-field', ['textarea', 'json', 'lines'].includes(field.type ?? '') && 'full']}>
+          {fieldGroups.map(group => <fieldset class="admin-field full"><legend>{group.title}</legend><div class="admin-form-grid">{group.keys.map(key => module.fields.find(field => field.key === key)!).map(field => field.key === 'technical_specs' ? <TechnicalFields specs={(record.technical_specs ?? {}) as Record<string, unknown>} submitted={submitted} /> : <div class:list={['admin-field', ['textarea', 'json', 'lines'].includes(field.type ?? '') && 'full']}>
             <label for={field.key}>{field.label}</label>
             {field.hint && <small class="admin-note">{field.hint}</small>}
             {field.relation ? <><select id={field.key} name={field.key} required={field.required}><option value="">Selecciona…</option>{relations[field.key]?.map(item => <option value={item.id} selected={value(field.key) === item.id}>{item.label}</option>)}</select><a href={`/admin/${field.relation}`}>Administrar {contentModules[field.relation].label.toLowerCase()} →</a></>
@@ -231,7 +249,7 @@ const pageUrl = (number: number) => `${base}?${new URLSearchParams({ q: search, 
               : ['textarea', 'json', 'lines'].includes(field.type ?? '') ? <textarea id={field.key} name={field.key} required={field.required} rows={5}>{fieldValue(field.key, field.type)}</textarea>
               : field.type === 'checkbox' ? <input id={field.key} name={field.key} type="checkbox" checked={checked(field.key)} />
               : <input id={field.key} name={field.key} type={field.type === 'number' ? 'number' : field.type === 'url' ? 'url' : 'text'} value={value(field.key)} required={field.required} min={field.min} max={field.max} step={field.step} />}
-          </div>)}
+          </div>)}</div></fieldset>)}
           {section === 'productos' && <fieldset class="admin-field full"><legend>Visibilidad individual de secciones</legend>{Object.entries(sectionLabels).map(([key, label]) => <label>{label}<select name={`section_${key}`}>{[['inherit', 'Heredar configuración global'], ['true', 'Mostrar'], ['false', 'Ocultar']].map(([option, title]) => <option value={option} selected={(submitted ? value(`section_${key}`) : visibility[key] === undefined ? 'inherit' : String(visibility[key])) === option}>{title}</option>)}</select></label>)}</fieldset>}
         </div>
         {id && record.slug && <label><input type="checkbox" name="confirm_slug" /> Confirmo cambiar la URL si modifiqué el slug.</label>}
@@ -248,14 +266,20 @@ const pageUrl = (number: number) => `${base}?${new URLSearchParams({ q: search, 
       {!familyOptions.length && <p>Sin acabados. La familia aparecerá en el catálogo cuando tenga al menos un acabado publicado y sus padres estén publicados.</p>}
     </section>}
     <!-- Seccion: Imágenes y Storage -->
-    {module.media && id && <section class="admin-panel pad admin-section-spaced">
-      <h2>Imágenes</h2><p>La imagen de tipo main con menor orden es la principal. Cambia el orden numérico para reordenar la galería.</p>
+    {module.media && id && <section id="imagenes" class="admin-panel pad admin-section-spaced">
+      <h2>Imágenes{section === 'productos' ? ' y muestra del acabado / color' : ''}</h2>
+      {section === 'productos' && <aside class="admin-image-guidance"><h3>La imagen principal también aparece en los círculos de colores</h3><p>Sube una muestra cercana del producto donde se distingan claramente su color y textura. No uses una casa, fachada o ambiente completo como imagen principal: esas fotografías van en la galería.</p>
+        {toneUrl && <figure><img src={toneUrl} alt={`Vista previa del color ${record.name}`} width="72" height="72" style="border-radius:50%;object-fit:cover;width:72px;height:72px" /><figcaption>Así se verá este acabado en el selector de colores.</figcaption></figure>}
+        {!images.some(image => image.kind === 'main') && <p><strong>Falta asignar una imagen principal de muestra del acabado.</strong> Actualmente el sitio usa {images.length ? 'la primera imagen disponible' : 'la imagen temporal'}. Añade una muestra que represente este color.</p>}
+        <p><strong>Si borras o reemplazas esta imagen, asegúrate de subir otra muestra del mismo acabado o textura.</strong> Esto cambia tanto la presentación principal como el círculo de color.</p></aside>}
+      <p>La imagen principal con menor orden se usa como presentación. Si no hay principal, el sitio usa la primera imagen disponible. Las demás aparecen en la galería; usa imágenes secundarias o de galería para ambientes, extras para detalles e imágenes técnicas para medidas.</p>
       {images.map(image => <article class="admin-image-row">
         <img src={getPublicStorageUrl(image.storage_bucket, image.storage_path)} alt={image.alt_text ?? ''} loading="lazy" />
         <div><form method="post" class="admin-form">
           <input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="image_id" value={image.id} />
           <label>Texto alternativo<input name="alt_text" value={image.alt_text ?? ''} /></label>
-          <label>Tipo<select name="kind">{module.media!.kinds.map(kind => <option value={kind} selected={image.kind === kind}>{kind}</option>)}</select></label>
+          {section === 'productos' && image.id === mainImage?.id && <p><strong>Esta imagen representa el color del producto en el selector.</strong> Al cambiarla o eliminarla, reemplázala por una muestra similar del mismo acabado, no por una casa o ambiente.</p>}
+          <label>Uso de la imagen<select name="kind">{module.media!.kinds.map(kind => <option value={kind} selected={image.kind === kind}>{imageLabels[kind]}</option>)}</select></label>
           <label>Orden<input name="sort_order" type="number" step="1" value={image.sort_order} required /></label>
           <button class="admin-button secondary" name="intent" value="image-save">Guardar imagen</button>
         </form><form method="post" class="admin-delete-form">
@@ -269,16 +293,19 @@ const pageUrl = (number: number) => `${base}?${new URLSearchParams({ q: search, 
         <h3>Subir o reemplazar imagen</h3><p>JPEG, PNG o WebP, máximo 4 MB. Se convierte a WebP y se reduce a 2400 px.</p>
         <label>Archivo<input type="file" name="file" accept="image/jpeg,image/png,image/webp" required /></label>
         <img data-upload-preview hidden alt="Vista previa del archivo seleccionado" width="200" />
-        <label>Reemplazar<select name="replace_id"><option value="">Añadir nueva imagen</option>{images.map(image => <option value={image.id}>{image.kind} / {image.alt_text || image.storage_path}</option>)}</select></label>
+        {section === 'productos' && <p class="admin-note">Para la principal, elige una muestra del color o textura. Para una casa o un producto instalado, elige «Galería / producto instalado». Si reemplazas la muestra actual, conserva su función de principal.</p>}
+        <label>Reemplazar<select name="replace_id"><option value="">Añadir nueva imagen</option>{images.map(image => <option value={image.id}>{imageLabels[image.kind]} / {image.alt_text || image.storage_path}</option>)}</select></label>
         <label>Texto alternativo<input name="alt_text" required maxlength="1000" /></label>
-        <label>Tipo<select name="kind">{module.media.kinds.map(kind => <option value={kind}>{kind}</option>)}</select></label>
+        <label>Uso de la imagen<select name="kind">{module.media.kinds.map(kind => <option value={kind}>{imageLabels[kind]}</option>)}</select></label>
         <label>Orden<input name="sort_order" type="number" step="1" value="0" required /></label>
         <button class="admin-button" type="submit">Subir imagen</button><progress data-upload-progress hidden max="100" value="0"></progress><p data-upload-status role="status"></p>
       </form>
     </section>}
-    {id && supportVariantId && <section class="admin-panel pad admin-section-spaced">
-      <h2>Material de apoyo</h2>
+    {section === 'productos' && familyContext && <section class="admin-panel pad admin-section-spaced"><h2>Documentos de la familia</h2><p>Los PDF se administran en la familia <strong>{familyContext.name}</strong> y se comparten con todos sus acabados.</p><a href={`/admin/variantes/${record.variant_id}#documentos`}>Ir a los documentos de la familia →</a></section>}
+    {id && supportVariantId && <section id="documentos" class="admin-panel pad admin-section-spaced">
+      <h2>PDF de esta familia</h2>
       <p>Estos archivos quedan asociados a la familia del producto y aparecen en todos sus acabados publicados.</p>
+      {legacyDocuments.length > 0 && <details><summary>Enlaces anteriores conservados ({legacyDocuments.length})</summary><p>Estos enlaces existían en acabados individuales. Se conservan como referencia para recuperar los documentos y subirlos aquí como PDF compartidos de la familia.</p><ul>{legacyDocuments.map(item => <li>{item.name}: <a href={item.url!} target="_blank" rel="noreferrer">{item.title}</a></li>)}</ul></details>}
       {supportFiles.map(file => <article class="admin-support-row">
         <div><strong>{file.title}</strong><br /><small>{file.original_filename} · {Math.ceil(file.size_bytes / 1024)} KB · {file.upload_state === 'pending' ? 'Subida incompleta: no visible en el sitio. Elimina este intento y vuelve a subir.' : 'Disponible para todos los acabados'}</small></div>
         <div>{file.upload_state === 'ready' && <a href={getPublicStorageUrl(file.storage_bucket, file.storage_path)} target="_blank" rel="noreferrer">Ver archivo</a>}

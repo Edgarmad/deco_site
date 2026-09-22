@@ -435,6 +435,30 @@ p { margin-top: 0; }
 
 .admin-field.full { grid-column: 1 / -1; }
 
+fieldset.admin-field {
+  min-width: 0;
+  border: 1px solid #d8dfda;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+fieldset.admin-field > legend {
+  padding: 0 8px;
+  font-weight: 800;
+}
+
+.admin-image-guidance {
+  margin: 20px 0;
+  padding: 20px;
+  border-left: 4px solid #42634d;
+  border-radius: 8px;
+  background: #edf4ef;
+  color: #22382a;
+}
+
+.admin-image-guidance figure { margin: 16px 0; }
+.admin-image-guidance figcaption { margin-top: 8px; }
+
 .admin-field label {
   color: var(--admin-ink);
   font-size: 0.74rem;

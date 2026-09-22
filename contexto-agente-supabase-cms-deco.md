@@ -95,6 +95,16 @@ La familia de producto tambien puede existir como entidad administrativa, pero l
 
 No meter todos los productos en una sola tabla plana. El inventario real tiene familia, variante y color/acabado; esa estructura debe conservarse.
 
+Mapeo obligatorio desde el Excel `DECO_ABC_Plantilla_Inventario_Productos (1).xlsx`:
+
+```text
+Producto                -> products              -> Tipo de producto base
+Familia(Subcategoria)   -> product_variants      -> Familia publica agrupadora
+Variante / Color        -> product_options       -> Color/acabado con URL propia
+```
+
+Regla publica: las fichas y selectores de producto deben mostrar unicamente los colores/acabados (`product_options`) que pertenecen a la misma familia del Excel (`product_variants`). No se deben mezclar colores de otras familias aunque compartan el mismo `Producto` del Excel o el mismo tipo visual del catalogo. Ejemplo: `Lambrin Irregular` solo puede listar sus 6 colores; no debe incluir colores de `Lambrin Premium` ni `Lambrin Wavy Max`.
+
 Tablas sugeridas:
 
 ```text

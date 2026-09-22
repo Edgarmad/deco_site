@@ -12,9 +12,19 @@ test('rechaza JSON malformado sin convertirlo silenciosamente en datos vacíos',
   assert.throws(() => parseContentForm(contentModules.productos, productForm({ technical_specs: '{"weight":[]}' })), /textos o números/);
 });
 test('valida en servidor URLs, identificadores, slugs, precios y estados manipulados', () => {
-  for (const invalid of [{ technical_sheet_url: 'javascript:alert(1)' }, { variant_id: 'invalid' }, { slug: '../test' }, { price: '-1' }, { price: 'NaN' }, { status: 'private' }, { sort_order: '1.5' }, { canonical_path: '//external.test' }]) {
+  for (const invalid of [{ variant_id: 'invalid' }, { slug: '../test' }, { price: '-1' }, { price: 'NaN' }, { status: 'private' }, { sort_order: '1.5' }, { canonical_path: '//external.test' }]) {
     assert.throws(() => parseContentForm(contentModules.productos, productForm(invalid)));
   }
+  const location = new FormData();
+  for (const [key, value] of Object.entries({ name: 'Sucursal', city: 'Mérida', status: 'draft', maps_url: 'javascript:alert(1)' })) location.set(key, value);
+  assert.throws(() => parseContentForm(contentModules.ubicaciones, location), /URL http o https/);
+});
+test('editar un acabado no sobrescribe los enlaces documentales anteriores ni permite crear nuevos', () => {
+  const existing = { id: 'existing', technical_sheet_url: 'https://example.com/ficha.pdf', installation_guide_url: 'https://example.com/guia.pdf' };
+  const values = parseContentForm(contentModules.productos, productForm({ technical_sheet_url: 'https://example.com/otra.pdf', installation_guide_url: '' }), existing);
+  assert.equal(Object.hasOwn(values, 'technical_sheet_url'), false);
+  assert.equal(Object.hasOwn(values, 'installation_guide_url'), false);
+  assert.equal({ ...existing, ...values }.technical_sheet_url, existing.technical_sheet_url);
 });
 test('la herencia de secciones no se convierte en una anulación global al guardar', () => {
   const values = parseContentForm(contentModules.productos, productForm({ section_support: 'false', section_faq: 'true' }));

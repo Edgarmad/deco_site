@@ -41,7 +41,9 @@ const supabase = createSupabaseServerClient(Astro.request, Astro.cookies);
 const search = Astro.url.searchParams.get('q')?.trim() ?? '';
 const status = Astro.url.searchParams.get('status') ?? 'all';
 const familyId = isUuid(Astro.url.searchParams.get('familia') ?? '') ? Astro.url.searchParams.get('familia')! : '';
-const familyView = !familyId && Astro.url.searchParams.get('vista') !== 'acabados';
+const typeId = isUuid(Astro.url.searchParams.get('tipo') ?? '') ? Astro.url.searchParams.get('tipo')! : '';
+const typeView = !familyId && !typeId && !['familias', 'acabados'].includes(Astro.url.searchParams.get('vista') ?? '');
+const familyView = !typeView && !familyId && Astro.url.searchParams.get('vista') !== 'acabados';
 const rawPage = Number(Astro.url.searchParams.get('page') ?? '1');
 const page = Number.isSafeInteger(rawPage) && rawPage > 0 ? Math.min(rawPage, 100000) : 1;
 const pageSize = 8;
@@ -67,10 +69,18 @@ type FamilyRow = { id: string; name: string; status: string; products: { name: s
 let familyRows: FamilyRow[] = [];
 let familyCount = 0;
 let familyError = '';
+let typeQuery = supabase.from('products').select('id,name,status,categories(name)', { count: 'exact' }).order('sort_order').order('id').range(from, to);
+if (search) typeQuery = typeQuery.ilike('name', `%${search.replace(/[%_]/g, '\\$&')}%`);
+if (['draft', 'published'].includes(status)) typeQuery = typeQuery.eq('status', status);
+const typeResult = typeView ? await typeQuery : undefined;
+const typeRows = (typeResult?.data ?? []) as unknown as { id: string; name: string; status: string; categories: { name: string } | null }[];
+const selectedType = typeId ? await supabase.from('products').select('name').eq('id', typeId).maybeSingle() : undefined;
+const selectedFamily = familyId ? await supabase.from('product_variants').select('name,product_id').eq('id', familyId).maybeSingle() : undefined;
 if (familyView) {
   let families = supabase.from('product_variants').select('id,name,status,products(name,status,categories(name,status)),product_options(id,status)', { count: 'exact' }).order('sort_order').order('id').range(from, to);
   if (search) families = families.ilike('name', `%${search.replace(/[%_]/g, '\\$&')}%`);
   if (['draft', 'published'].includes(status)) families = families.eq('status', status);
+  if (typeId) families = families.eq('product_id', typeId);
   const result = await families;
   familyRows = (result.data ?? []) as unknown as FamilyRow[]; familyCount = result.count ?? 0; familyError = result.error?.message ?? '';
 }
@@ -78,29 +88,32 @@ if (familyView) {
 const { data, error, count } = await query;
 const cleanup = await supabase.from('media_cleanup_queue').select('id', { count: 'exact', head: true });
 const products = (data ?? []) as unknown as ProductOptionAdminRow[];
-const total = familyView ? familyCount : count ?? 0;
+const total = typeView ? typeResult?.count ?? 0 : familyView ? familyCount : count ?? 0;
 const totalPages = Math.max(Math.ceil(total / pageSize), 1);
-const previousUrl = `/admin/productos?${new URLSearchParams({ q: search, status, vista: familyView ? 'familias' : 'acabados', familia: familyId, page: String(Math.max(page - 1, 1)) })}`;
-const nextUrl = `/admin/productos?${new URLSearchParams({ q: search, status, vista: familyView ? 'familias' : 'acabados', familia: familyId, page: String(Math.min(page + 1, totalPages)) })}`;
+const view = typeView ? 'tipos' : familyView ? 'familias' : 'acabados';
+const entityLabel = typeView ? 'tipos de producto' : familyView ? 'familias' : 'acabados';
+const previousUrl = `/admin/productos?${new URLSearchParams({ q: search, status, vista: view, tipo: typeId, familia: familyId, page: String(Math.max(page - 1, 1)) })}`;
+const nextUrl = `/admin/productos?${new URLSearchParams({ q: search, status, vista: view, tipo: typeId, familia: familyId, page: String(Math.min(page + 1, totalPages)) })}`;
 ---
 
 <AdminLayout title="Productos" currentPath="/admin/productos" userEmail={session.user.email}>
   <header class="admin-page-head compact">
     <div>
       <p class="admin-kicker">Catalogo CMS</p>
-      <h1>{familyView ? 'Familias del catálogo' : 'Acabados / colores'}</h1>
-      <p class="admin-note">{total} {familyView ? 'familias' : 'acabados'} · Inventario canónico: producto → familia/subcategoría → color.</p>
+      <h1>{typeView ? 'Tipos de producto' : familyView ? `Familias${selectedType?.data ? ` de ${selectedType.data.name}` : ' del catálogo'}` : `Acabados / colores${selectedFamily?.data ? ` de ${selectedFamily.data.name}` : ''}`}</h1>
+      <p class="admin-note">{total} {entityLabel} · Tipo de producto → Familia / subcategoría → Acabado / color.</p>
     </div>
-    <a class="admin-link-button" href={familyView ? '/admin/variantes/nuevo' : `/admin/productos/nuevo${familyId ? `?familia=${familyId}` : ''}`}>{familyView ? 'Crear familia' : 'Crear acabado'}</a>
+    <a class="admin-link-button" href={typeView ? '/admin/familias/nuevo' : familyView ? `/admin/variantes/nuevo${typeId ? `?tipo=${typeId}` : ''}` : `/admin/productos/nuevo${familyId ? `?familia=${familyId}` : ''}`}>{typeView ? 'Crear tipo de producto' : familyView ? 'Crear familia' : 'Crear acabado'}</a>
   </header>
   <p class="admin-note">Jerarquía: <a href="/admin/categorias">Categorías de uso</a> → <a href="/admin/familias">Tipos de producto</a> → <a href="/admin/variantes">Familias / subcategorías</a> → Acabados. En el Excel: Producto → Familia(Subcategoria) → Variante / Color. El sitio muestra una tarjeta por Familia(Subcategoria) y una URL por acabado.</p>
-  <nav class="admin-actions" aria-label="Vista del catálogo"><a href="/admin/productos?vista=familias" aria-current={familyView ? 'page' : undefined}>Por familia</a><a href="/admin/productos?vista=acabados" aria-current={!familyView ? 'page' : undefined}>Todos los acabados</a></nav>
+  <nav class="admin-actions" aria-label="Vista del catálogo"><a href="/admin/productos" aria-current={typeView ? 'page' : undefined}>Tipos de producto</a><a href="/admin/productos?vista=familias" aria-current={familyView ? 'page' : undefined}>Todas las familias</a><a href="/admin/productos?vista=acabados" aria-current={!typeView && !familyView ? 'page' : undefined}>Todos los acabados</a></nav>
+  {selectedFamily?.data && <p><a href={`/admin/productos?tipo=${selectedFamily.data.product_id}`}>← Volver a las familias de este tipo</a> · <a href={`/admin/variantes/${familyId}`}>Editar familia y sus PDF</a></p>}
   {Astro.url.searchParams.has('saved') && <p class="admin-success" role="status">Cambios guardados.</p>}
   {(cleanup.count ?? 0) > 0 && <p class="admin-note">Hay archivos pendientes de limpiar. <a href="/admin/proyectos">Reintentar limpieza de Storage →</a></p>}
 
   <form class="admin-filters admin-panel" method="get">
-    <input type="hidden" name="vista" value={familyView ? 'familias' : 'acabados'} /><input type="hidden" name="familia" value={familyId} />
-    <input name="q" value={search} aria-label="Buscar" placeholder={familyView ? 'Buscar familia / subcategoría' : 'Buscar acabado, slug o SKU'} />
+    <input type="hidden" name="vista" value={view} /><input type="hidden" name="familia" value={familyId} /><input type="hidden" name="tipo" value={typeId} />
+    <input name="q" value={search} aria-label="Buscar" placeholder={typeView ? 'Buscar tipo de producto' : familyView ? 'Buscar familia / subcategoría' : 'Buscar acabado, slug o SKU'} />
     <button class="admin-button secondary" type="submit">Buscar</button>
     <select name="status" aria-label="Estado">
       <option value="all" selected={status === 'all'}>Todos los estados</option>
@@ -111,16 +124,17 @@ const nextUrl = `/admin/productos?${new URLSearchParams({ q: search, status, vis
 
   {error && <p class="admin-error">No se pudo cargar el catalogo: {error.message}</p>}
   {familyError && <p class="admin-error">{familyError}</p>}
+  {typeResult?.error && <p class="admin-error">{typeResult.error.message}</p>}
 
   <section class="admin-panel admin-products-panel">
-    {familyView ? <div class="admin-grid pad">{familyRows.map(family => {
+    {typeView ? <div class="admin-grid pad">{typeRows.map(type => <article class="admin-card"><h2>{type.name}</h2><p>{type.categories?.name} · {type.status === 'published' ? 'Publicado' : 'Borrador'}</p><a href={`/admin/productos?tipo=${type.id}`}>Ver familias →</a><br /><a href={`/admin/familias/${type.id}`}>Editar tipo de producto →</a></article>)}{!typeRows.length && <p>No hay tipos de producto para mostrar.</p>}</div> : familyView ? <div class="admin-grid pad">{familyRows.map(family => {
       const visible = family.status === 'published' && family.products?.status === 'published' && family.products?.categories?.status === 'published';
       return <article class="admin-card"><h2>{family.name}</h2><p>{family.products?.categories?.name} / {family.products?.name}</p><p>{family.product_options.length} acabados · {family.product_options.filter(option => option.status === 'published').length} publicados</p><p>{visible ? 'Familia publicada' : 'Familia o padre en borrador: oculta en el sitio'}</p><a href={`/admin/productos?vista=acabados&familia=${family.id}`}>Ver acabados →</a><br /><a href={`/admin/variantes/${family.id}`}>Editar familia y PDF compartidos →</a></article>;
     })}{!familyRows.length && <p>No hay familias para mostrar.</p>}</div> : <>
     <table class="admin-table admin-products-table">
       <thead>
         <tr>
-          <th>Producto</th>
+          <th>Acabado / color</th>
           <th>Familia</th>
           <th>Estado</th>
           <th>Acciones</th>
@@ -151,14 +165,14 @@ const nextUrl = `/admin/productos?${new URLSearchParams({ q: search, status, vis
         })}
         {!products.length && (
           <tr>
-            <td colspan="4">No hay productos para mostrar.</td>
+            <td colspan="4">No hay acabados para mostrar.</td>
           </tr>
         )}
       </tbody>
     </table>
 
     <div class="admin-products-list">
-      <h2>{total} productos</h2>
+      <h2>{total} acabados</h2>
       {products.map((product) => {
         const image = product.product_images?.slice().sort((first, second) => first.sort_order - second.sort_order).find((item) => item.kind === 'main') ?? product.product_images?.[0];
         const title = `${product.product_variants?.products?.name ?? ''} ${product.name}`.trim();
@@ -169,7 +183,7 @@ const nextUrl = `/admin/productos?${new URLSearchParams({ q: search, status, vis
               <h3>{title}</h3>
               <span class:list={['admin-status', product.status]}>{product.status === 'published' ? 'Publicado' : 'Borrador'}</span>
               <p>{product.product_variants?.products?.categories?.name ?? 'Sin categoria'} · {product.product_variants?.name}</p>
-              <a href={`/admin/productos/${product.id}`}>Editar producto -></a>
+              <a href={`/admin/productos/${product.id}`}>Editar acabado →</a>
             </div>
           </article>
         );
@@ -178,7 +192,7 @@ const nextUrl = `/admin/productos?${new URLSearchParams({ q: search, status, vis
     </>}
 
     <footer class="admin-pagination">
-      <p class="admin-note">Mostrando {(familyView ? familyRows : products).length ? from + 1 : 0}-{Math.min(to + 1, total)} de {total} {familyView ? 'familias' : 'acabados'}</p>
+      <p class="admin-note">Mostrando {(typeView ? typeRows : familyView ? familyRows : products).length ? from + 1 : 0}-{Math.min(to + 1, total)} de {total} {entityLabel}</p>
       <div>
         <a class:list={['admin-link-button', 'secondary', page <= 1 && 'disabled']} href={previousUrl}>Anterior</a>
         <a class:list={['admin-link-button', 'secondary', page >= totalPages && 'disabled']} href={nextUrl}>Siguiente</a>
