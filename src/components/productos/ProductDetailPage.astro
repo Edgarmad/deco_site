@@ -72,9 +72,10 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
         </div>}
         <div class="detail-block" data-reveal>
           <h2>Colores de esta familia</h2>
-           <div class="tone-selector" aria-label="Variantes disponibles">
-             <p class="tone-hint">Desliza para ver más</p>
-             <div class="tone-selector-track">
+           <div class="tone-navigation" data-tone-navigation>
+             <button class="tone-arrow" type="button" data-tone-direction="-1" aria-label="Ver colores anteriores" aria-controls="product-tone-selector">←</button>
+             <div class="tone-selector" id="product-tone-selector" role="group" aria-label="Variantes disponibles">
+              <div class="tone-selector-track">
                {variantItems.map((variantProduct, index) => (
                  <a class={variantProduct.slug === product.slug ? 'active' : ''} href={`/productos/${variantProduct.slug}`} aria-current={variantProduct.slug === product.slug ? 'page' : undefined} title={variantProduct.name}>
                     <span class={`tone-dot${variantProduct.image ? ' tone-dot-image' : ` tone-dot-${(index % 8) + 1}`}`} style={!variantProduct.image && variantProduct.variants[0]?.colors[0]?.hex ? { background: variantProduct.variants[0].colors[0].hex } : undefined} aria-hidden="true">
@@ -83,8 +84,10 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
                    <small>{variantProduct.variants[0]?.colors[0]?.name ?? variantProduct.name}</small>
                  </a>
                ))}
+              </div>
              </div>
-           </div>
+             <button class="tone-arrow" type="button" data-tone-direction="1" aria-label="Ver más colores" aria-controls="product-tone-selector">→</button>
+            </div>
         </div>
         <div class="detail-block" data-reveal>
           <h2>Datos comerciales</h2>
@@ -168,6 +171,35 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
     </div>
   </section>
 </main>
+
+<script>
+  const navigation = document.querySelector<HTMLElement>('[data-tone-navigation]');
+  const selector = navigation?.querySelector<HTMLElement>('.tone-selector');
+  const previous = navigation?.querySelector<HTMLButtonElement>('[data-tone-direction="-1"]');
+  const next = navigation?.querySelector<HTMLButtonElement>('[data-tone-direction="1"]');
+
+  if (navigation && selector && previous && next) {
+    const updateControls = () => {
+      const maxScroll = selector.scrollWidth - selector.clientWidth;
+      navigation.toggleAttribute('data-enhanced', maxScroll > 1);
+      previous.disabled = selector.scrollLeft <= 1;
+      next.disabled = selector.scrollLeft >= maxScroll - 1;
+    };
+
+    const scrollVariants = (direction: number) => {
+      const firstVariant = selector.querySelector<HTMLElement>('.tone-selector-track a');
+      const track = selector.querySelector<HTMLElement>('.tone-selector-track');
+      const gap = track ? parseFloat(getComputedStyle(track).columnGap) || 0 : 0;
+      selector.scrollBy({ left: direction * ((firstVariant?.offsetWidth ?? selector.clientWidth) + gap), behavior: 'smooth' });
+    };
+
+    previous.addEventListener('click', () => scrollVariants(-1));
+    next.addEventListener('click', () => scrollVariants(1));
+    selector.addEventListener('scroll', updateControls, { passive: true });
+    new ResizeObserver(updateControls).observe(selector);
+    updateControls();
+  }
+</script>
 
 <style>
   .detail-main-image {
@@ -341,10 +373,64 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
     gap: 10px;
   }
 
+  .tone-navigation {
+    position: relative;
+    min-width: 0;
+  }
+
   .tone-selector {
+    width: 100%;
+    min-width: 0;
     overflow-x: auto;
     scrollbar-width: thin;
     scrollbar-color: #c5cac3 transparent;
+  }
+
+  .tone-navigation[data-enhanced] .tone-selector {
+    scrollbar-width: none;
+  }
+
+  .tone-navigation[data-enhanced] .tone-selector::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tone-arrow {
+    display: none;
+    width: 36px;
+    height: 36px;
+    position: absolute;
+    z-index: 1;
+    top: 50%;
+    transform: translateY(-50%);
+    place-items: center;
+    border: 1px solid #d4d8d2;
+    border-radius: 50%;
+    background: var(--white-pure);
+    color: var(--green-text);
+    cursor: pointer;
+    font-size: 1.2rem;
+  }
+
+  .tone-arrow[data-tone-direction="-1"] {
+    left: 0;
+  }
+
+  .tone-arrow[data-tone-direction="1"] {
+    right: 0;
+  }
+
+  .tone-navigation[data-enhanced] .tone-arrow {
+    display: grid;
+  }
+
+  .tone-arrow:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .tone-arrow:focus-visible {
+    outline: 2px solid var(--green);
+    outline-offset: 2px;
   }
 
   .tone-selector-track {
@@ -353,22 +439,13 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
     gap: 18px;
   }
 
-  .tone-hint {
-    margin: 0 0 10px;
-    color: #818781;
-    font-size: 0.62rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
   .tone-selector a {
     flex: 0 0 auto;
     display: grid;
     justify-items: center;
     gap: 8px;
     color: var(--black);
-    font-size: 1.32rem;
+    font-size: 1.12rem;
     font-weight: 800;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -704,8 +781,8 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
     }
 
     .tone-dot {
-      width: 126px;
-      height: 126px;
+      width: 112px;
+      height: 112px;
     }
 
     .product-specs {
@@ -752,8 +829,8 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
     }
 
     .tone-dot {
-      width: clamp(132px, 6vw, 156px);
-      height: clamp(132px, 6vw, 156px);
+      width: clamp(120px, 6vw, 140px);
+      height: clamp(120px, 6vw, 140px);
     }
 
     .product-specs {
@@ -839,7 +916,6 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
 
     .tone-selector {
       width: 100%;
-      overflow-x: auto;
       overscroll-behavior-inline: contain;
       scroll-snap-type: x proximity;
       -webkit-overflow-scrolling: touch;
@@ -958,13 +1034,13 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
     }
 
     .tone-selector a {
-      min-width: 144px;
-      font-size: 1.32rem;
+      min-width: 120px;
+      font-size: 1.1rem;
     }
 
     .tone-dot {
-      width: 132px;
-      height: 132px;
+      width: 112px;
+      height: 112px;
     }
 
     .chips small {
