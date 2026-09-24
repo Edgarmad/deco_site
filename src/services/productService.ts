@@ -52,6 +52,7 @@ type ProductOptionRow = {
     id: string;
     name: string;
     slug: string;
+    sort_order: number;
     price_presentation: 'Caja' | 'Pieza' | null;
     summary: string | null;
     description: string | null;
@@ -138,6 +139,7 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
         id: variant.id,
         name: variantDisplayName,
         slug: variant.slug,
+        sortOrder: variant.sort_order,
         pricePresentation: variant.price_presentation ?? undefined,
         colors: [
           {
@@ -227,14 +229,17 @@ export const groupProductsByVariant = (products: Product[]): Product[] => {
     );
   });
 
-  return Array.from(grouped.values());
+  return Array.from(grouped.values()).sort((first, second) =>
+    (first.variants[0]?.sortOrder ?? 0) - (second.variants[0]?.sortOrder ?? 0)
+    || Number(Boolean(second.featured)) - Number(Boolean(first.featured))
+  );
 };
 
 const productOptionSelect = `
   id,name,slug,sku,price,summary,description,dimensions,thickness,material,usage,installation_notes,care_notes,technical_specs,technical_sheet_url,installation_guide_url,section_visibility,fallback_image_path,featured,status,seo_title,seo_description,
   canonical_path,faq_items,finish,color_name,color_hex,
   product_images(storage_bucket,storage_path,kind,sort_order,alt_text),
-  product_variants(id,name,slug,price_presentation,summary,description,products(id,name,slug,summary,description,categories(id,name,slug)),product_support_files(id,title,storage_bucket,storage_path,original_filename,mime_type,sort_order,upload_state))
+  product_variants(id,name,slug,sort_order,price_presentation,summary,description,products(id,name,slug,summary,description,categories(id,name,slug)),product_support_files(id,title,storage_bucket,storage_path,original_filename,mime_type,sort_order,upload_state))
 `;
 
 export const getProducts = async (): Promise<Product[]> => {

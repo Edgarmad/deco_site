@@ -51,6 +51,7 @@ export type ProductVariant = {
   id?: string;
   name: string;
   slug: string;
+  sortOrder?: number;
   pricePresentation?: 'Caja' | 'Pieza';
   colors: ProductColor[];
 };

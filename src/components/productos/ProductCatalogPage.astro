@@ -67,7 +67,7 @@ const filterLabels = {
         <label>
           Ordenar por
           <select class="motion-field" data-sort-select>
-            <option value="featured">Destacados</option>
+            <option value="featured">Orden del catálogo</option>
             <option value="name">Nombre</option>
           </select>
         </label>
@@ -150,6 +150,9 @@ const filterLabels = {
       if (sortValue === 'name') {
         return (firstCard.dataset.name ?? '').localeCompare(secondCard.dataset.name ?? '', 'es');
       }
+
+      const orderDifference = Number(firstCard.dataset.order ?? 0) - Number(secondCard.dataset.order ?? 0);
+      if (orderDifference !== 0) return orderDifference;
 
       const firstFeatured = firstCard.dataset.featured === 'true' ? 0 : 1;
       const secondFeatured = secondCard.dataset.featured === 'true' ? 0 : 1;

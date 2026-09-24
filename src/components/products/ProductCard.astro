@@ -35,6 +35,7 @@ const searchText = [
   data-search={searchText}
   data-name={product.name.toLowerCase()}
   data-featured={product.featured ? 'true' : 'false'}
+  data-order={productVariant?.sortOrder ?? 0}
   data-index={index}
 >
   <a href={level === 'family' ? `/productos?categoria=${product.macroCategory}&subcategoria=${productVariantKey}` : `/productos/${product.slug}`} aria-label={level === 'family' ? `Ver acabados de ${product.name}` : `Ver ${product.name}`}>
