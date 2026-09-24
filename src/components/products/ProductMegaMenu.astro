@@ -30,10 +30,10 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
   {groups.map((group) => {
     const groupProductTypes = productTypes.filter((productType) => productType.macroCategory === group.macroCategory);
     return (
-      <section class="mega-group" data-mega-group data-macro-category={group.macroCategory}>
-        <button type="button" class="mega-trigger" aria-expanded="false">
+      <section class="mega-group">
+        <a class="mega-trigger" href={`/productos?categoria=${group.macroCategory}`}>
           {group.label}
-        </button>
+        </a>
         <nav class="mega-panel" aria-label={group.label}>
             {groupProductTypes.map((productType) => (
               <a class={activeCategory === productType.slug ? 'active' : ''} href={productType.href} aria-current={activeCategory === productType.slug ? 'page' : undefined}>
@@ -45,33 +45,6 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
     );
   })}
 </div>
-
-<script>
-  const groups = document.querySelectorAll<HTMLElement>('[data-mega-group]');
-
-  groups.forEach((group) => {
-    const trigger = group.querySelector('.mega-trigger');
-    if (!(trigger instanceof HTMLButtonElement)) return;
-
-    const setExpanded = (expanded: boolean) => {
-      group.classList.toggle('open', expanded);
-      trigger.setAttribute('aria-expanded', String(expanded));
-    };
-
-    group.addEventListener('mouseenter', () => setExpanded(true));
-    group.addEventListener('mouseleave', () => setExpanded(false));
-    group.addEventListener('focusin', () => setExpanded(true));
-    group.addEventListener('focusout', (event) => {
-      if (!(event instanceof FocusEvent)) return;
-      const nextTarget = event.relatedTarget;
-      if (nextTarget instanceof Node && group.contains(nextTarget)) return;
-      setExpanded(false);
-    });
-    trigger.addEventListener('click', () => {
-      window.location.href = `/productos?categoria=${group.dataset.macroCategory ?? ''}`;
-    });
-  });
-</script>
 
 <style>
   .product-mega-menu {
@@ -92,9 +65,9 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
   }
 
   .mega-trigger {
-    width: 100%;
+    display: grid;
+    place-items: center;
     min-height: 42px;
-    border: 0;
     background: transparent;
     color: inherit;
     font: inherit;
@@ -111,27 +84,11 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
 
   .mega-panel {
     display: flex;
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-    pointer-events: none;
     flex-wrap: wrap;
     gap: 14px;
     justify-content: center;
-    padding: 0 8vw;
-    background: var(--black-deep);
-    transform: translateY(-6px);
-    transition: max-height 500ms ease, opacity 500ms ease, padding 500ms ease, transform 500ms ease;
-  }
-
-  .mega-group.open .mega-panel,
-  .mega-group:hover .mega-panel,
-  .mega-group:focus-within .mega-panel {
-    max-height: 420px;
-    opacity: 1;
     padding: 8px 8vw 28px;
-    pointer-events: auto;
-    transform: translateY(0);
+    background: var(--black-deep);
   }
 
   .mega-panel a {
@@ -168,13 +125,6 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
 
     .mega-panel {
       justify-content: flex-start;
-      padding: 0 20px;
-    }
-
-    .mega-group.open .mega-panel,
-    .mega-group:hover .mega-panel,
-    .mega-group:focus-within .mega-panel {
-      max-height: 520px;
       padding: 0 20px 22px;
     }
   }

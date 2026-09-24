@@ -116,7 +116,7 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
 
   {product.calculator && <ProductCalculator config={product.calculator} productName={product.name} />}
 
-   {(visibility.technical || visibility.support) && <section class="technical-section" data-reveal="section" aria-labelledby="technical-title">
+   {(visibility.technical || visibility.support) && <section class="technical-section" data-reveal="section" aria-labelledby={visibility.technical ? 'technical-title' : 'support-title'}>
      {visibility.technical && <div class="technical-copy">
       <p>Informacion tecnica</p>
       <h2 id="technical-title">Especificacion, cuidados y soporte</h2>
@@ -133,9 +133,18 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
          <p>{product.careNotes ?? 'Cuidados por confirmar.'}</p>
        </details>
      </div>}
-      {visibility.support && <aside class="support-card">
-       <h2>Material de apoyo</h2>
-        {visibility.support && supportFiles.map((file) => <a class="support-download" href={file.url} download={file.originalFilename} target="_blank" rel="noreferrer">Descargar {file.title}</a>)}
+       {visibility.support && <aside class="support-card">
+        <h2 id="support-title">Material de apoyo</h2>
+         {supportFiles.map((file) => <div class="support-file">
+           <h3>{file.title}</h3>
+           {(file.mimeType === 'application/pdf' || file.originalFilename?.toLowerCase().endsWith('.pdf')) && <iframe
+             class="support-preview"
+             src={`${file.url}#page=1&toolbar=0&navpanes=0&view=FitH`}
+             title={`Vista previa de ${file.title}`}
+             loading="lazy"
+           ></iframe>}
+           <a class="support-download" href={file.url} download={file.originalFilename} target="_blank" rel="noreferrer">Descargar {file.title}</a>
+         </div>)}
          {!supportFiles.length && <p class="support-empty">No hay archivos de apoyo disponibles por ahora.</p>}
       </aside>}
    </section>}
@@ -634,8 +643,8 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
 
   .technical-section {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 340px;
-    gap: 40px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 32px;
     background: var(--white-pure);
   }
 
@@ -675,9 +684,35 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
     text-transform: uppercase;
   }
 
+  .support-file {
+    min-width: 0;
+    display: grid;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--paper-line);
+  }
+
+  .support-file + .support-file {
+    margin-top: 12px;
+  }
+
+  .support-file h3 {
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  .support-preview {
+    display: block;
+    width: 100%;
+    max-width: 900px;
+    height: clamp(220px, 30vw, 360px);
+    border: 1px solid var(--paper-line);
+    background: var(--white-pure);
+  }
+
   .support-card a {
+    justify-self: start;
     padding: 13px 0;
-    border-bottom: 1px solid var(--paper-line);
     color: var(--blue);
     font-size: 0.72rem;
     font-weight: 800;
