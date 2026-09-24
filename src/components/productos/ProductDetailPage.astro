@@ -220,16 +220,21 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
 
   .detail-layout {
     display: grid;
-    grid-template-columns: minmax(300px, 0.9fr) minmax(320px, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 58px;
-    align-items: center;
+    align-items: start;
   }
 
   .detail-media {
     width: 100%;
+    min-width: 0;
     height: auto;
     min-height: 0;
     overflow: hidden;
+  }
+
+  .detail-copy {
+    min-width: 0;
   }
 
   .detail-main-image img {
@@ -676,11 +681,6 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
       gap: 28px;
     }
 
-    .detail-media {
-      align-self: start;
-      width: min(100%, 560px);
-    }
-
     .detail-copy h1 {
       margin-bottom: 10px;
       font-size: clamp(2.2rem, 3vw, 2.5rem);
@@ -722,12 +722,6 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
 
   }
 
-  @media (min-width: 851px) and (max-width: 1600px) {
-    .detail-media {
-      width: min(100%, 440px);
-    }
-  }
-
   /* Scale the desktop detail progressively on 2K and larger displays. */
   @media (min-width: 1921px) {
     .product-detail {
@@ -737,11 +731,6 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
     .detail-layout {
       align-items: start;
       gap: clamp(34px, 3vw, 58px);
-    }
-
-    .detail-media {
-      align-self: start;
-      width: min(100%, clamp(560px, 31vw, 800px));
     }
 
     .detail-copy h1 {
