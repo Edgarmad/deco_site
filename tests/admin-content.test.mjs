@@ -19,6 +19,17 @@ test('valida en servidor URLs, identificadores, slugs, precios y estados manipul
   for (const [key, value] of Object.entries({ name: 'Sucursal', city: 'Mérida', status: 'draft', maps_url: 'javascript:alert(1)' })) location.set(key, value);
   assert.throws(() => parseContentForm(contentModules.ubicaciones, location), /URL http o https/);
 });
+test('la unidad del precio se guarda en la familia y admite solo caja, pieza o vacío', () => {
+  const form = new FormData();
+  for (const [key, value] of Object.entries({ name: 'Lambrín', slug: 'lambrin', product_id: '00000000-0000-4000-8000-000000000001', status: 'published', price_presentation: 'Caja' })) form.set(key, value);
+  assert.equal(parseContentForm(contentModules.variantes, form).price_presentation, 'Caja');
+  form.set('price_presentation', 'Pieza');
+  assert.equal(parseContentForm(contentModules.variantes, form).price_presentation, 'Pieza');
+  form.set('price_presentation', '');
+  assert.equal(parseContentForm(contentModules.variantes, form).price_presentation, null);
+  form.set('price_presentation', 'Paquete');
+  assert.throws(() => parseContentForm(contentModules.variantes, form), /valor inválido/);
+});
 test('editar un acabado no sobrescribe los enlaces documentales anteriores ni permite crear nuevos', () => {
   const existing = { id: 'existing', technical_sheet_url: 'https://example.com/ficha.pdf', installation_guide_url: 'https://example.com/guia.pdf' };
   const values = parseContentForm(contentModules.productos, productForm({ technical_sheet_url: 'https://example.com/otra.pdf', installation_guide_url: '' }), existing);

@@ -146,6 +146,15 @@ def technical_specs(row):
     return values
 
 
+def price_presentation(value):
+    text = normalize(value)
+    if re.fullmatch(r'\d+ piezas por caja', text):
+        return 'Caja'
+    if text == 'pieza':
+        return 'Pieza'
+    return None
+
+
 def option_update(row, product_id, variant_id, option_slug):
     dimensions = None
     if row['Alto (cm)'] is not None and row['Ancho (cm)'] is not None:
@@ -269,20 +278,30 @@ def main():
         product_ids[(product, use)] = created[0]['id']
 
     variant_ids = {}
+    variant_units = {}
     option_records = []
     for (product, family, use, color), row in canonical_rows.items():
         product_id = product_ids[(product, use)]
         _, family_slug, _ = canonical_key(product, family, color)
         variant_key = (product_id, family_slug)
+        unit = price_presentation(row['Presentación'])
+        previous_unit = variant_units.get(variant_key)
+        if unit and previous_unit and previous_unit != unit:
+            raise ValueError(f'Presentaciones contradictorias para {product} / {family}')
+        if unit:
+            variant_units[variant_key] = unit
         if variant_key not in variant_ids:
             variant = rest('product_variants', 'POST', {
                 'product_id': product_id,
                 'name': family or 'General',
                 'slug': family_slug,
+                'price_presentation': unit,
                 'status': 'published',
                 'sort_order': len(variant_ids),
             }, {'Prefer': 'return=representation'})
             variant_ids[variant_key] = variant[0]['id']
+        elif unit and not previous_unit:
+            rest(f"product_variants?id=eq.{variant_ids[variant_key]}", 'PATCH', {'price_presentation': unit})
         option_slug = canonical_option_slug(product, family, color)
         record = option_update(row, product_id, variant_ids[variant_key], option_slug)
         created = rest('product_options', 'POST', record, {'Prefer': 'return=representation'})

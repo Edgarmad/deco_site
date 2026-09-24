@@ -10,6 +10,6 @@ supabase/.temp/
 # Local product media source; final images live in Supabase Storage.
 CATALOGO_DECO/
 src/types/CATALOGO_DECO/
-
+IMAGENES FONDO BLANCO PARA WEB/
 .vercel
 auditoria-saro-deco/

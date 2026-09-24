@@ -265,7 +265,7 @@ const fieldGroups = section === 'productos' ? [
             <label for={field.key}>{field.label}</label>
             {field.hint && <small class="admin-note">{field.hint}</small>}
             {field.relation ? <><select id={field.key} name={field.key} required={field.required}><option value="">Selecciona…</option>{relations[field.key]?.map(item => <option value={item.id} selected={value(field.key) === item.id}>{item.label}</option>)}</select><a href={`/admin/${field.relation}`}>Administrar {contentModules[field.relation].label.toLowerCase()} →</a></>
-              : field.choices ? <select id={field.key} name={field.key}>{field.choices.map(choice => <option value={choice} selected={value(field.key) === choice}>{choice === 'published' ? 'Publicado' : 'Borrador'}</option>)}</select>
+              : field.choices ? <select id={field.key} name={field.key}>{field.choices.map(choice => <option value={choice} selected={value(field.key) === choice}>{choice === 'published' ? 'Publicado' : choice === 'draft' ? 'Borrador' : choice || 'Sin especificar'}</option>)}</select>
               : ['textarea', 'json', 'lines'].includes(field.type ?? '') ? <textarea id={field.key} name={field.key} required={field.required} rows={5}>{fieldValue(field.key, field.type)}</textarea>
               : field.type === 'checkbox' ? <input id={field.key} name={field.key} type="checkbox" checked={checked(field.key)} />
               : <input id={field.key} name={field.key} type={field.type === 'number' ? 'number' : field.type === 'url' ? 'url' : 'text'} value={value(field.key)} required={field.required} min={field.min} max={field.max} step={field.step} />}

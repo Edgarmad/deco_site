@@ -27,6 +27,15 @@ def slug(value):
     return re.sub(r'[^a-z0-9]+', '-', value).strip('-')
 
 
+def price_presentation(value):
+    text = slug(value)
+    if re.fullmatch(r'\d+-piezas-por-caja', text):
+        return 'Caja'
+    if text == 'pieza':
+        return 'Pieza'
+    return None
+
+
 def clean_color(value):
     value = re.sub(r'^a\d+[- ]', '', str(value or ''), flags=re.IGNORECASE)
     return (
@@ -89,8 +98,9 @@ def request_json(url, method='GET', payload=None, headers=None):
 def main():
     load_env()
     base = os.environ['SUPABASE_URL'].rstrip('/') + '/rest/v1'
-    options = request_json(base + '/product_options?select=id,slug')
+    options = request_json(base + '/product_options?select=id,slug,variant_id')
     option_ids = {item['slug']: item['id'] for item in options}
+    option_variants = {item['slug']: item['variant_id'] for item in options}
 
     # Every existing option receives the temporary published price, including options without a spreadsheet match.
     for option_id in option_ids.values():
@@ -102,6 +112,7 @@ def main():
     matched = 0
     unmatched = []
     seen = set()
+    variant_units = {}
 
     for row_number, row in enumerate(rows[1:], 2):
         record = dict(zip(headers, row))
@@ -124,6 +135,12 @@ def main():
         if option_slug in seen:
             continue
         seen.add(option_slug)
+        unit = price_presentation(record['Presentación'])
+        variant_id = option_variants[option_slug]
+        if unit and variant_id in variant_units and variant_units[variant_id] != unit:
+            raise ValueError(f'Presentaciones contradictorias para {option_slug}')
+        if unit:
+            variant_units[variant_id] = unit
         specs = {}
         if record['Peso por pieza (kg)'] is not None:
             specs['weight'] = f"{record['Peso por pieza (kg)']} kg"
@@ -155,6 +172,9 @@ def main():
         }
         request_json(f'{base}/product_options?id=eq.{quote(option_id)}', 'PATCH', update)
         matched += 1
+
+    for variant_id, unit in variant_units.items():
+        request_json(f'{base}/product_variants?id=eq.{quote(variant_id)}', 'PATCH', {'price_presentation': unit})
 
     print(json.dumps({'matched_rows': matched, 'published_options': len(option_ids), 'unmatched_rows': unmatched}, ensure_ascii=False, indent=2))
 
