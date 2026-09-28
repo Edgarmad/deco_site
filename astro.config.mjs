@@ -2,6 +2,8 @@ import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel';
 
 export default defineConfig({
+  // El panel permite scripts externos del sitio; CSP bloquea scripts inline.
+  vite: { build: { assetsInlineLimit: 0 } },
   security: {
     checkOrigin: false,
     allowedDomains: [

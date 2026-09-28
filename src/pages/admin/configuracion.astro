@@ -24,18 +24,12 @@ let sectionVisibility = { technical: true, support: true, faq: true, installatio
 let message = Astro.url.searchParams.get('saved') === '1' ? 'Configuración guardada.' : '';
 let errorMessage = '';
 
-const isValidPublicVideoUrl = (value: string) => {
-  if (value.startsWith('/')) return value.split('?')[0].endsWith('.mp4');
-  try {
-    const url = new URL(value);
-    return ['https:', 'http:'].includes(url.protocol) && url.pathname.endsWith('.mp4');
-  } catch { return false; }
-};
+const json = (data: object, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 
 if (Astro.request.method === 'POST') {
   const formData = await Astro.request.formData();
   if (!validateCsrfToken(Astro.cookies, formData)) {
-    if (formData.get('intent') === 'prepare-video') return new Response(JSON.stringify({ error: 'La sesión expiró. Recarga la página.' }), { status: 403, headers: { 'Content-Type': 'application/json' } });
+    if (['prepare-video', 'finish-video'].includes(String(formData.get('intent')))) return json({ error: 'La sesión expiró. Recarga la página.' }, 403);
     errorMessage = 'La sesión del formulario expiró. Recarga la página e intenta de nuevo.';
   } else if (formData.get('intent') === 'prepare-video') {
     const size = Number(formData.get('size_bytes'));
@@ -46,28 +40,35 @@ if (Astro.request.method === 'POST') {
     const path = `settings/home-hero/${crypto.randomUUID()}.mp4`;
     const signed = await supabase.storage.from('site-media').createSignedUploadUrl(path, { upsert: false });
     if (signed.error) return new Response(JSON.stringify({ error: signed.error.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
-    return new Response(JSON.stringify({ signedUrl: signed.data.signedUrl, publicUrl: supabase.storage.from('site-media').getPublicUrl(path).data.publicUrl }), { headers: { 'Content-Type': 'application/json' } });
+    return json({ signedUrl: signed.data.signedUrl, path });
+  } else if (formData.get('intent') === 'finish-video') {
+    try {
+      const path = String(formData.get('path') ?? '');
+      const size = Number(formData.get('size_bytes'));
+      if (!/^settings\/home-hero\/[0-9a-f-]{36}\.mp4$/.test(path) || !Number.isSafeInteger(size) || size <= 0 || size > 50 * 1024 * 1024) throw new Error('La subida no es válida.');
+      const filename = path.split('/').pop()!;
+      const files = await supabase.storage.from('site-media').list('settings/home-hero', { search: filename });
+      if (files.error) throw new Error(files.error.message);
+      const file = files.data.find(item => item.name === filename);
+      if (!file || Number(file.metadata?.size) !== size || file.metadata?.mimetype !== 'video/mp4') throw new Error('No se pudo confirmar el video completo en Supabase. El video actual se conserva.');
+      const publicUrl = supabase.storage.from('site-media').getPublicUrl(path).data.publicUrl;
+      const saved = await supabase.from('site_settings').upsert({ key: 'home_hero_video_url', value: publicUrl, is_public: true }, { onConflict: 'key' }).select('value').single();
+      if (saved.error) throw new Error(saved.error.message);
+      return json({ publicUrl: saved.data.value });
+    } catch (error) {
+      return json({ error: error instanceof Error ? error.message : 'No se pudo guardar el video.' }, 400);
+    }
   } else {
     const submittedNumber = String(formData.get('whatsapp_number') ?? '').replace(/\D/g, '');
-    let submittedHeroVideoUrl = String(formData.get('home_hero_video_url') ?? '').trim();
     whatsappNumber = submittedNumber;
-    homeHeroVideoUrl = submittedHeroVideoUrl;
     for (const section of Object.keys(sectionVisibility) as (keyof typeof sectionVisibility)[]) sectionVisibility[section] = formData.get(`section_${section}`) === 'on';
     if (submittedNumber.length < 8 || submittedNumber.length > 15) {
       errorMessage = 'Ingresa un número válido de 8 a 15 dígitos.';
       whatsappNumber = submittedNumber;
-    } else {
-      try {
-        homeHeroVideoUrl = submittedHeroVideoUrl;
-        if (!isValidPublicVideoUrl(submittedHeroVideoUrl)) throw new Error('Ingresa una ruta o URL pública válida para el video en formato .mp4.');
-      } catch (error) {
-        errorMessage = error instanceof Error ? error.message : 'No se pudo subir el video.';
-      }
     }
     if (!errorMessage) {
       const settings = [
         { key: 'whatsapp_number', value: submittedNumber, is_public: true },
-        { key: 'home_hero_video_url', value: submittedHeroVideoUrl, is_public: true },
         ...Object.entries(sectionKeys).map(([section, key]) => ({
           key,
           value: formData.get(`section_${section}`) === 'on' ? 'true' : 'false',
@@ -114,24 +115,12 @@ for (const setting of Astro.request.method === 'POST' ? [] : sectionSettings ?? 
   {errorMessage && <p class="admin-error">No se pudo guardar: {errorMessage}</p>}
 
   <section class="admin-panel pad">
-    <form class="admin-form" method="post" data-video-settings>
+    <form class="admin-form" method="post">
       <input type="hidden" name="csrf_token" value={csrfToken} />
       <div class="admin-field">
         <label for="whatsapp_number">Número de WhatsApp</label>
         <input id="whatsapp_number" name="whatsapp_number" type="tel" value={whatsappNumber} placeholder="9931595909" required />
         <small class="admin-note">Usa el número con código de país si no es de México. Para números mexicanos de 10 dígitos se agrega +52 automáticamente.</small>
-      </div>
-      <div class="admin-field">
-        <label for="home_hero_video_url">Video principal del inicio</label>
-        <input id="home_hero_video_url" name="home_hero_video_url" type="text" value={homeHeroVideoUrl} placeholder="/assets/videos/header-hero.mp4" required />
-        <small class="admin-note">Usa una ruta pública o URL http/https en formato .mp4. Solo cambia el video proyectado, no el componente.</small>
-      </div>
-      <div class="admin-field">
-        <label for="home_hero_video_file">Subir video principal</label>
-        <input id="home_hero_video_file" type="file" accept="video/mp4,.mp4" />
-        <small class="admin-note">Archivo MP4 de hasta 50 MB; resolución recomendada: 1920 × 1080 px. Si eliges un archivo, se sube directamente a Storage y se guarda su URL.</small>
-        <progress data-video-progress max="100" hidden></progress>
-        <small data-video-status role="status" aria-live="polite"></small>
       </div>
       <fieldset class="admin-field">
         <legend>Secciones de productos visibles globalmente</legend>
@@ -143,6 +132,21 @@ for (const setting of Astro.request.method === 'POST' ? [] : sectionSettings ?? 
       <button class="admin-button" type="submit">Guardar configuración</button>
     </form>
   </section>
+  <section class="admin-panel pad" data-video-settings>
+    <h2>Video del inicio</h2>
+    <p class="admin-note">Sube un nuevo video. Se reemplazará el video del hero únicamente después de confirmar la subida y guardar el cambio.</p>
+    <input type="hidden" name="csrf_token" value={csrfToken} />
+    <div class="admin-field">
+      <label for="home_hero_video_file">Seleccionar nuevo video</label>
+      <input id="home_hero_video_file" type="file" accept="video/mp4,.mp4" />
+      <small class="admin-note">MP4 de hasta 50 MB. Resolución recomendada: 1920 × 1080 px.</small>
+    </div>
+    <button class="admin-button" type="button" data-video-upload disabled>Subir y actualizar video</button>
+    <progress data-video-progress max="100" hidden aria-label="Progreso de subida del video"></progress>
+    <p data-video-status role="status" aria-live="polite">Selecciona un archivo para subirlo.</p>
+    <p>Video actual: <a data-current-video href={homeHeroVideoUrl} target="_blank" rel="noopener">Abrir video guardado</a></p>
+    <a href="/" target="_blank" rel="noopener">Ver video en el homepage</a>
+    <noscript>Activa JavaScript para subir el video.</noscript>
+  </section>
+  <script src="../../scripts/adminVideoSettings.ts"></script>
 </AdminLayout>
-
-<script src="../../scripts/adminVideoSettings.ts"></script>
