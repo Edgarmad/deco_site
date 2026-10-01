@@ -16,7 +16,10 @@ const { items, otherFiles } = getProductGallery(product, documentsVisible);
     </a>
   </div>
   {items.length > 0 && <div class="cms-product-gallery">{items.map(item => <a href={item.url} data-gallery-item data-document={item.document ? 'true' : 'false'} data-title={item.alt} target="_blank" rel="noopener noreferrer" aria-label={`Mostrar ${item.alt}`}>
-    {item.document ? <div class="document-thumbnail"><b>PDF</b><small>{item.alt}</small></div> : <img src={item.url} alt={item.alt} loading="lazy" />}
+    {item.document ? <div class="document-thumbnail">
+      <iframe src={`${item.url.split('#')[0]}#page=1&toolbar=0&navpanes=0&view=Fit`} title={`Vista previa de ${item.alt}`} loading="lazy" tabindex="-1" aria-hidden="true"></iframe>
+      <small>PDF · {item.alt}</small>
+    </div> : <img src={item.url} alt={item.alt} loading="lazy" />}
   </a>)}</div>}
   {otherFiles.length > 0 && <nav class="other-documents" aria-label="Otros documentos de la familia">{otherFiles.map(file => <a href={file.url} target="_blank" rel="noopener noreferrer">{file.title} ↗</a>)}</nav>}
 </div>
@@ -73,8 +76,9 @@ const { items, otherFiles } = getProductGallery(product, documentsVisible);
   .cms-product-gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
   .cms-product-gallery a { display: block; aspect-ratio: 1.25; background: #f0f0ec; overflow: hidden; }
   .cms-product-gallery img { display: block; width: 100%; height: 100%; object-fit: contain; }
-  .document-thumbnail { box-sizing: border-box; height: 100%; display: grid; place-content: center; gap: 12px; text-align: center; padding: 12px; color: #1b5590; }
-  .document-thumbnail b { font-size: 1.8rem; }
+  .document-thumbnail { position: relative; height: 100%; background: white; overflow: hidden; }
+  .document-thumbnail iframe { display: block; width: 100%; height: 100%; border: 0; pointer-events: none; }
+  .document-thumbnail small { position: absolute; bottom: 0; left: 0; box-sizing: border-box; width: 100%; padding: 8px 12px; background: #1b5590; color: white; font-size: 0.72rem; text-align: center; pointer-events: none; }
   .cms-product-gallery a[aria-current="true"], a:focus-visible { outline: 3px solid #1b5590; outline-offset: -3px; }
   .other-documents { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
   .other-documents a { color: #1b5590; }

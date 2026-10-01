@@ -110,6 +110,26 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
 
   {product.calculator && <ProductCalculator config={product.calculator} productName={product.name} />}
 
+  <!-- Seccion: Informacion tecnica -->
+  {visibility.technical && <section class="technical-section" data-reveal="section" aria-labelledby="technical-title">
+    <div class="technical-copy">
+      <p>Informacion tecnica</p>
+      <h2 id="technical-title">Especificacion, cuidados y soporte</h2>
+      <details open>
+        <summary>Descripcion</summary>
+        <p>{product.description ?? product.summary ?? 'Revestimiento decorativo para proyectos residenciales y comerciales.'}</p>
+      </details>
+      <details>
+        <summary>Dimensiones</summary>
+        <p>{product.dimensions ?? 'Medidas por confirmar en ficha tecnica.'}{product.thickness ? ` · Espesor: ${product.thickness}` : ''}</p>
+      </details>
+      <details>
+        <summary>Cuidados y garantia</summary>
+        <p>{product.careNotes ?? 'Cuidados por confirmar.'}</p>
+      </details>
+    </div>
+  </section>}
+
    {(visibility.faq || visibility.installation) && <section class="faq-installation" data-reveal-group>
       {visibility.faq && faqItems.length > 0 && <div class="faq-list">
       <h2>Preguntas frecuentes</h2>
