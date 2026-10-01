@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { cleanMediaQueue } from './adminMedia';
+import { isUuid } from './adminContent';
 
 export type SupportFileRow = {
   id: string;
@@ -14,6 +15,15 @@ export type SupportFileRow = {
 };
 
 export const supportMaxBytes = 15 * 1024 * 1024;
+export async function selectTechnicalSupportFile(client: SupabaseClient, variantId: string, fileId: string) {
+  if (!isUuid(variantId) || (fileId && !isUuid(fileId))) throw new Error('Familia o archivo inválido.');
+  if (fileId) {
+    const file = await client.from('product_support_files').select('id,mime_type,upload_state').eq('id', fileId).eq('variant_id', variantId).maybeSingle();
+    if (file.error || !file.data || file.data.upload_state !== 'ready' || file.data.mime_type !== 'application/pdf') throw new Error('Selecciona un PDF disponible que pertenezca a esta familia.');
+  }
+  const saved = await client.from('product_variants').update({ technical_support_file_id: fileId || null }).eq('id', variantId).select('id').single();
+  if (saved.error) throw new Error(saved.error.message);
+}
 export function supportMetadata(form: FormData) {
   const title = String(form.get('support_title') ?? '').trim();
   if (!title || title.length > 160) throw new Error('El título debe tener entre 1 y 160 caracteres.');

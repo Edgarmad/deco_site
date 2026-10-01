@@ -1,3 +1,4 @@
+import { selectProductMedia } from '../lib/productMedia';
 import { productCategories, productPlaceholders } from '../data/products';
 import type { Product, ProductCategory, ProductMacroCategory } from '../types/products';
 import { getProductCalculator } from '../lib/productCalculator';
@@ -12,9 +13,10 @@ type SupabaseCategory = {
 };
 
 type ProductImageRow = {
+  id: string;
   storage_bucket: string;
   storage_path: string;
-  kind: 'main' | 'secondary' | 'gallery' | 'extra' | 'technical';
+  kind: 'main' | 'swatch' | 'secondary' | 'gallery' | 'extra' | 'technical';
   sort_order: number | null;
   alt_text: string | null;
 };
@@ -53,6 +55,7 @@ type ProductOptionRow = {
     name: string;
     slug: string;
     sort_order: number;
+    technical_support_file_id: string | null;
     price_presentation: 'Caja' | 'Pieza' | null;
     summary: string | null;
     description: string | null;
@@ -96,16 +99,12 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
   const category = product?.categories;
   if (!variant || !product || !category) return null;
 
-  const images = (option.product_images ?? [])
-    .slice()
-    .sort((first, second) => (first.sort_order ?? 0) - (second.sort_order ?? 0));
-  const mainImage = images.find((image) => image.kind === 'main') ?? images[0];
+  const media = selectProductMedia(option.product_images ?? []);
+  const mainImage = media.main;
   const fallbackImage = getPublicStorageUrl('site-media', option.fallback_image_path ?? '');
-  const secondaryImage = images.find((image) => image.kind === 'secondary');
-  const gallery = images
-    .filter((image) => image !== mainImage)
-    .map((image) => getPublicStorageUrl(image.storage_bucket, image.storage_path))
-    .filter((image): image is string => Boolean(image));
+  const secondaryImage = media.secondary;
+  const swatchImage = getPublicStorageUrl(media.swatch?.storage_bucket ?? '', media.swatch?.storage_path) ?? fallbackImage;
+  const gallery = media.gallery.map(image => getPublicStorageUrl(image.storage_bucket, image.storage_path)).filter((image): image is string => Boolean(image));
   const variantDisplayName = variant.name.trim().toLowerCase() === 'general' ? product.name : variant.name;
   const supportFiles = (variant.product_support_files ?? []).filter(file => file.upload_state === 'ready').sort((a, b) => a.sort_order - b.sort_order || a.id.localeCompare(b.id)).map((file) => ({
     id: file.id,
@@ -127,10 +126,11 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
     sku: option.sku ?? undefined,
     price: option.price ?? undefined,
     image: getPublicStorageUrl(mainImage?.storage_bucket ?? '', mainImage?.storage_path) ?? fallbackImage,
+    swatchImage,
     secondaryImage: getPublicStorageUrl(secondaryImage?.storage_bucket ?? '', secondaryImage?.storage_path),
     gallery,
     imageAlt: mainImage?.alt_text ?? undefined,
-    galleryImages: images.filter(image => image !== mainImage).map(image => ({ url: getPublicStorageUrl(image.storage_bucket, image.storage_path) ?? '', alt: image.alt_text ?? option.name })),
+    galleryImages: media.gallery.map(image => ({ url: getPublicStorageUrl(image.storage_bucket, image.storage_path) ?? '', alt: image.alt_text ?? option.name })),
     canonicalPath: option.canonical_path ?? undefined,
     faqItems: option.faq_items ?? {},
     finish: option.finish ?? undefined,
@@ -144,6 +144,7 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
         colors: [
           {
             id: option.id,
+            image: swatchImage,
             name: option.color_name ?? option.name,
             hex: option.color_hex ?? undefined,
             slug: option.slug,
@@ -167,6 +168,7 @@ const normalizeOption = (option: ProductOptionRow): Product | null => {
     technicalSheetUrl: option.technical_sheet_url ?? undefined,
     installationGuideUrl: option.installation_guide_url ?? undefined,
     supportFiles,
+    technicalSupportFileId: variant.technical_support_file_id ?? undefined,
     sectionVisibility: option.section_visibility ?? undefined
   };
   return { ...normalizedProduct, calculator: getProductCalculator(normalizedProduct) };
@@ -238,8 +240,8 @@ export const groupProductsByVariant = (products: Product[]): Product[] => {
 const productOptionSelect = `
   id,name,slug,sku,price,summary,description,dimensions,thickness,material,usage,installation_notes,care_notes,technical_specs,technical_sheet_url,installation_guide_url,section_visibility,fallback_image_path,featured,status,seo_title,seo_description,
   canonical_path,faq_items,finish,color_name,color_hex,
-  product_images(storage_bucket,storage_path,kind,sort_order,alt_text),
-  product_variants(id,name,slug,sort_order,price_presentation,summary,description,products(id,name,slug,summary,description,categories(id,name,slug)),product_support_files(id,title,storage_bucket,storage_path,original_filename,mime_type,sort_order,upload_state))
+  product_images(id,storage_bucket,storage_path,kind,sort_order,alt_text),
+  product_variants(id,name,slug,sort_order,technical_support_file_id,price_presentation,summary,description,products(id,name,slug,summary,description,categories(id,name,slug)),product_support_files!product_support_files_variant_id_fkey(id,title,storage_bucket,storage_path,original_filename,mime_type,sort_order,upload_state))
 `;
 
 export const getProducts = async (): Promise<Product[]> => {

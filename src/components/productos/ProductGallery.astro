@@ -1,0 +1,82 @@
+---
+import { getProductGallery, type GalleryProduct } from '../../lib/productMedia';
+type Props = { product: GalleryProduct; documentsVisible?: boolean };
+const { product, documentsVisible = true } = Astro.props;
+const { items, otherFiles } = getProductGallery(product, documentsVisible);
+---
+<div class="detail-media" data-product-gallery>
+  <div class="detail-main-image">
+    <div class="gallery-photo" data-gallery-photo>
+      <img src={product.image} alt={product.imageAlt ?? product.name} hidden={!product.image} />
+      {!product.image && <span class="image-placeholder">Imagen no disponible</span>}
+    </div>
+    <a class="gallery-document" data-gallery-document hidden target="_blank" rel="noopener noreferrer" aria-label="Abrir ficha técnica completa en otra pestaña">
+      <iframe title="Vista previa de ficha técnica" data-gallery-pdf tabindex="-1"></iframe>
+      <small>Abrir ficha técnica completa ↗</small>
+    </a>
+  </div>
+  {items.length > 0 && <div class="cms-product-gallery">{items.map(item => <a href={item.url} data-gallery-item data-document={item.document ? 'true' : 'false'} data-title={item.alt} target="_blank" rel="noopener noreferrer" aria-label={`Mostrar ${item.alt}`}>
+    {item.document ? <div class="document-thumbnail"><b>PDF</b><small>{item.alt}</small></div> : <img src={item.url} alt={item.alt} loading="lazy" />}
+  </a>)}</div>}
+  {otherFiles.length > 0 && <nav class="other-documents" aria-label="Otros documentos de la familia">{otherFiles.map(file => <a href={file.url} target="_blank" rel="noopener noreferrer">{file.title} ↗</a>)}</nav>}
+</div>
+<script>
+  document.querySelectorAll<HTMLElement>('[data-product-gallery]').forEach(gallery => {
+    const photo = gallery.querySelector<HTMLElement>('[data-gallery-photo]');
+    const documentLink = gallery.querySelector<HTMLAnchorElement>('[data-gallery-document]');
+    const pdf = gallery.querySelector<HTMLIFrameElement>('[data-gallery-pdf]');
+    if (!photo || !documentLink || !pdf) return;
+    const items = gallery.querySelectorAll<HTMLAnchorElement>('[data-gallery-item]');
+    items.forEach(item => item.addEventListener('click', event => {
+      if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      const isDocument = item.dataset.document === 'true';
+      photo.hidden = isDocument;
+      documentLink.hidden = !isDocument;
+      if (isDocument) {
+        documentLink.href = item.href;
+        pdf.src = `${item.href.split('#')[0]}#page=1&toolbar=0&navpanes=0&view=Fit`;
+      } else {
+        pdf.removeAttribute('src');
+        const image = photo.querySelector('img')!;
+        const previousUrl = image.getAttribute('src');
+        const previousAlt = image.alt;
+        const selectedUrl = item.href;
+        const selectedTitle = item.dataset.title ?? '';
+        // La miniatura seleccionada conserva la foto anterior para poder regresar.
+        if (previousUrl) {
+          item.href = image.src;
+          item.dataset.title = previousAlt;
+          item.setAttribute('aria-label', `Mostrar ${previousAlt}`);
+          const thumbnail = item.querySelector('img');
+          if (thumbnail) { thumbnail.src = image.src; thumbnail.alt = previousAlt; }
+        }
+        image.src = selectedUrl;
+        image.alt = selectedTitle;
+        image.hidden = false;
+        photo.querySelector('.image-placeholder')?.remove();
+      }
+      items.forEach(link => link.setAttribute('aria-current', link === item ? 'true' : 'false'));
+    }));
+  });
+</script>
+<style>
+  .detail-media { width: 100%; min-width: 0; }
+  .detail-main-image { position: relative; width: 100%; aspect-ratio: 1; background: #f0f0ec; overflow: hidden; }
+  .gallery-photo, .gallery-document { position: absolute; inset: 0; display: grid; place-items: center; }
+  .gallery-photo[hidden], .gallery-document[hidden] { display: none; }
+  .gallery-photo img { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .gallery-photo img[hidden] { display: none; }
+  .gallery-document { background: white; }
+  .gallery-document iframe { width: 100%; height: 100%; border: 0; pointer-events: none; }
+  .gallery-document small { position: absolute; bottom: 0; box-sizing: border-box; padding: 12px; background: #1b5590; color: white; width: 100%; text-align: center; }
+  .cms-product-gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+  .cms-product-gallery a { display: block; aspect-ratio: 1.25; background: #f0f0ec; overflow: hidden; }
+  .cms-product-gallery img { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .document-thumbnail { box-sizing: border-box; height: 100%; display: grid; place-content: center; gap: 12px; text-align: center; padding: 12px; color: #1b5590; }
+  .document-thumbnail b { font-size: 1.8rem; }
+  .cms-product-gallery a[aria-current="true"], a:focus-visible { outline: 3px solid #1b5590; outline-offset: -3px; }
+  .other-documents { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+  .other-documents a { color: #1b5590; }
+  @media (max-width: 640px) { .detail-main-image { border-radius: 8px; } }
+</style>

@@ -1,4 +1,5 @@
 ---
+import { sectionLabels } from '../../lib/adminContent';
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { getAdminSession } from '../../lib/adminAuth';
 import { getCsrfToken, validateCsrfToken } from '../../lib/adminSecurity';
@@ -125,7 +126,7 @@ for (const setting of Astro.request.method === 'POST' ? [] : sectionSettings ?? 
       <fieldset class="admin-field">
         <legend>Secciones de productos visibles globalmente</legend>
         {(['technical', 'support', 'faq', 'installation'] as const).map((section) => (
-          <label><input name={`section_${section}`} type="checkbox" checked={sectionVisibility[section]} /> {section}</label>
+          <label><input name={`section_${section}`} type="checkbox" checked={sectionVisibility[section]} /> {sectionLabels[section]}</label>
         ))}
         <small class="admin-note">Estas opciones aplican a todos los productos. Cada producto puede tener una configuración individual.</small>
       </fieldset>
