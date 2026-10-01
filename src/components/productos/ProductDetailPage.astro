@@ -1,6 +1,7 @@
 ---
 import type { Product, ProductCategory } from '../../types/products';
 import type { ProductSectionVisibility } from '../../services/siteSettingsService';
+import ProductGallery from './ProductGallery.astro';
 import ProductCalculator from './ProductCalculator.astro';
 
 type Props = {
@@ -45,8 +46,6 @@ const activeTone = allColors[0];
 const variantItems = variantSiblingProducts.length > 0 ? variantSiblingProducts : [product];
 const faqItems = Object.entries(product.faqItems ?? {});
 const installationSteps = (product.installationNotes ?? '').split(/\r?\n/).filter(Boolean);
-const galleryImages = product.galleryImages ?? (product.gallery ?? []).map(url => ({ url, alt: product.name }));
-const supportFiles = product.supportFiles ?? [];
 const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' ? 'exterior' : 'interior'}`;
 ---
 
@@ -55,12 +54,7 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
   <section class="product-detail" data-reveal-group>
     <a class="back-link" href={catalogUrl}>Volver al catalogo</a>
     <div class="detail-layout">
-       <div class="detail-media motion-card__media" data-product-gallery>
-         <div class="detail-main-image">
-           {product.image ? <img class="motion-product-image" src={product.image} alt={product.imageAlt ?? product.name} /> : <span class="motion-product-image" aria-hidden="true"></span>}
-         </div>
-         {galleryImages.length > 0 && <div class="cms-product-gallery">{galleryImages.map(image => <a href={image.url} target="_blank" rel="noreferrer"><img src={image.url} alt={image.alt} loading="lazy" /></a>)}</div>}
-       </div>
+      <ProductGallery product={product} documentsVisible={visibility.support} />
       <article class="detail-copy" data-reveal-group>
         <p data-reveal>{product.categoryName ?? category?.name ?? product.macroCategory}</p>
         <h1 data-reveal>{product.name}</h1>
@@ -78,8 +72,8 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
               <div class="tone-selector-track">
                {variantItems.map((variantProduct, index) => (
                  <a class={variantProduct.slug === product.slug ? 'active' : ''} href={`/productos/${variantProduct.slug}`} aria-current={variantProduct.slug === product.slug ? 'page' : undefined} title={variantProduct.name}>
-                    <span class={`tone-dot${variantProduct.image ? ' tone-dot-image' : ` tone-dot-${(index % 8) + 1}`}`} style={!variantProduct.image && variantProduct.variants[0]?.colors[0]?.hex ? { background: variantProduct.variants[0].colors[0].hex } : undefined} aria-hidden="true">
-                     {variantProduct.image && <img src={variantProduct.image} alt="" loading="lazy" />}
+                    <span class={`tone-dot${(variantProduct.swatchImage ?? variantProduct.image) ? ' tone-dot-image' : ` tone-dot-${(index % 8) + 1}`}`} style={!(variantProduct.swatchImage ?? variantProduct.image) && variantProduct.variants[0]?.colors[0]?.hex ? { background: variantProduct.variants[0].colors[0].hex } : undefined} aria-hidden="true">
+                     {(variantProduct.swatchImage ?? variantProduct.image) && <img src={(variantProduct.swatchImage ?? variantProduct.image)} alt="" loading="lazy" />}
                    </span>
                    <small>{variantProduct.variants[0]?.colors[0]?.name ?? variantProduct.name}</small>
                  </a>
@@ -115,39 +109,6 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
    </section>
 
   {product.calculator && <ProductCalculator config={product.calculator} productName={product.name} />}
-
-   {(visibility.technical || visibility.support) && <section class="technical-section" data-reveal="section" aria-labelledby={visibility.technical ? 'technical-title' : 'support-title'}>
-     {visibility.technical && <div class="technical-copy">
-      <p>Informacion tecnica</p>
-      <h2 id="technical-title">Especificacion, cuidados y soporte</h2>
-       <details open>
-         <summary>Descripcion</summary>
-         <p>{product.description ?? product.summary ?? 'Revestimiento decorativo para proyectos residenciales y comerciales.'}</p>
-      </details>
-       <details>
-         <summary>Dimensiones</summary>
-         <p>{product.dimensions ?? 'Medidas por confirmar en ficha tecnica.'}{product.thickness ? ` · Espesor: ${product.thickness}` : ''}</p>
-       </details>
-       <details>
-         <summary>Cuidados y garantia</summary>
-         <p>{product.careNotes ?? 'Cuidados por confirmar.'}</p>
-       </details>
-     </div>}
-       {visibility.support && <aside class="support-card">
-        <h2 id="support-title">Material de apoyo</h2>
-         {supportFiles.map((file) => <div class="support-file">
-           <h3>{file.title}</h3>
-           {(file.mimeType === 'application/pdf' || file.originalFilename?.toLowerCase().endsWith('.pdf')) && <iframe
-             class="support-preview"
-             src={`${file.url}#page=1&toolbar=0&navpanes=0&view=FitH`}
-             title={`Vista previa de ${file.title}`}
-             loading="lazy"
-           ></iframe>}
-           <a class="support-download" href={file.url} download={file.originalFilename} target="_blank" rel="noreferrer">Descargar {file.title}</a>
-         </div>)}
-         {!supportFiles.length && <p class="support-empty">No hay archivos de apoyo disponibles por ahora.</p>}
-      </aside>}
-   </section>}
 
    {(visibility.faq || visibility.installation) && <section class="faq-installation" data-reveal-group>
       {visibility.faq && faqItems.length > 0 && <div class="faq-list">
@@ -211,35 +172,6 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
 </script>
 
 <style>
-  .detail-main-image {
-    width: 100%;
-    aspect-ratio: 1;
-    display: grid;
-    place-items: center;
-    background: #f0f0ec;
-    overflow: hidden;
-  }
-
-  .cms-product-gallery {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    margin-top: 12px;
-  }
-
-  .cms-product-gallery a {
-    display: block;
-    aspect-ratio: 1.25;
-    background: #f0f0ec;
-    overflow: hidden;
-  }
-
-  .cms-product-gallery img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
   .product-detail {
     padding: 64px 8vw 78px;
     background: var(--white-pure);

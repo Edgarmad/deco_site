@@ -67,7 +67,10 @@ try {
   }
   assert.ok(ready, 'El servidor de prueba no arrancó.');
   assert.equal((await request('/admin/proyectos', undefined, false)).status, 302);
-  assert.equal((await request('/admin/login/', undefined, false)).status, 200);
+  const loginPage = await request('/admin/login/', undefined, false);
+  assert.equal(loginPage.status, 200);
+  assert.match(loginPage.headers.get('content-security-policy'), /frame-src 'self' https:\/\/\*\.supabase\.co/);
+  assert.match(loginPage.headers.get('content-security-policy'), /script-src 'self'/);
   const created = await service.auth.admin.createUser({ email, password, email_confirm: true });
   if (created.error) throw created.error;
   userId = created.data.user.id;
@@ -123,10 +126,24 @@ try {
   assert.equal(pending.data.upload_state, 'pending');
   const anonymous = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, { auth: { persistSession: false } });
   assert.deepEqual((await anonymous.from('product_support_files').select('id').eq('id', prepared.id)).data, []);
+  const selectPdf = new FormData();
+  selectPdf.set('csrf_token', await token(`/admin/productos/${product}`));
+  selectPdf.set('intent', 'technical-file-save'); selectPdf.set('technical_support_file_id', prepared.id);
+  assert.equal((await request(`/admin/productos/${product}`, selectPdf)).status, 400, 'pending PDF cannot be selected');
   const storageUpload = await fetch(prepared.signedUrl, { method: 'PUT', headers: { 'Content-Type': 'application/pdf' }, body: pdf });
   assert.equal(storageUpload.status, 200, 'direct PDF upload >4MB');
   support.set('intent', 'finish'); support.set('support_id', prepared.id);
   assert.equal((await request('/admin/support-upload', support)).status, 200, 'finish PDF');
+  assert.equal((await request(`/admin/productos/${product}`, selectPdf)).status, 303, 'select technical PDF from product admin');
+  assert.equal((await service.from('product_variants').select('technical_support_file_id').eq('id', variant).single()).data.technical_support_file_id, prepared.id);
+  for (const slug of [prefix, `${prefix}-sibling`]) assert.match(await (await request(`/productos/${slug}`, undefined, false)).text(), /data-document="true"/);
+  selectPdf.set('technical_support_file_id', 'invalid');
+  assert.equal((await request(`/admin/productos/${product}`, selectPdf)).status, 400, 'reject invalid PDF id');
+  selectPdf.set('technical_support_file_id', '');
+  assert.equal((await request(`/admin/variantes/${variant}`, selectPdf)).status, 303, 'clear selection from family admin');
+  assert.doesNotMatch(await (await request(`/productos/${prefix}`, undefined, false)).text(), /data-document="true"/);
+  selectPdf.set('technical_support_file_id', prepared.id);
+  assert.equal((await request(`/admin/variantes/${variant}`, selectPdf)).status, 303);
   for (const slug of [prefix, `${prefix}-sibling`]) assert.match(await (await request(`/productos/${slug}`, undefined, false)).text(), /Ficha compartida de prueba/);
   support.set('intent', 'support-save'); support.set('support_title', 'Ficha compartida editada'); support.set('support_sort_order', '-1');
   assert.equal((await request(`/admin/variantes/${variant}`, support)).status, 303);
@@ -134,6 +151,7 @@ try {
   support.set('intent', 'support-delete'); support.set('confirm_support_delete', 'on');
   assert.equal((await request(`/admin/productos/${product}`, support)).status, 303);
   assert.ok((await service.storage.from('site-media').download(pending.data.storage_path)).error);
+  assert.equal((await service.from('product_variants').select('technical_support_file_id').eq('id', variant).single()).data.technical_support_file_id, null, 'deleting the PDF clears the selection');
   console.log('PASS familias, datos guiados, calculadora y PDF de 5 MB compartido entre colores');
 
   const projectValues = { title: prefix, slug: prefix, status: 'published', content: 'Contenido CMS', materials: 'Madera\nPiedra' };
@@ -159,6 +177,30 @@ try {
     assert.ok(removed.error, 'Replaced file should be removed');
     const html = await (await request(`/${section}/${prefix}`, undefined, false)).text();
     assert.ok(html.includes(replaced.data.storage_path), 'Public page must show uploaded media');
+    if (section === 'productos') {
+      const roleRows = [];
+      upload.delete('replace_id');
+      for (const [kind, order] of [['swatch', -20], ['secondary', -10], ['main', 3]]) {
+        upload.set('kind', kind); upload.set('sort_order', String(order)); upload.set('alt_text', `${prefix} ${kind}`);
+        assert.equal((await request(path, upload)).status, 303, `upload ${kind}`);
+        const row = await service.from(table).select('*').eq(ownerKey, id).eq('alt_text', `${prefix} ${kind}`).single();
+        assert.ok(row.data); roleRows.push(row.data); files.push(row.data.storage_path);
+      }
+      const currentHtml = await (await request(`/productos/${prefix}`, undefined, false)).text();
+      const mainSrc = currentHtml.match(/data-gallery-photo[^>]*>\s*<img[^>]*src="([^"]+)"/)?.[1];
+      assert.ok(mainSrc?.includes(replaced.data.storage_path), 'lower order main remains the primary');
+      assert.ok(currentHtml.match(/class="tone-dot[^>]*>[\s\S]*?<img[^>]*src="([^"]+)"/)?.[1].includes(roleRows[0].storage_path), 'independent swatch is used in variant circles');
+      const saveImage = new FormData(); saveImage.set('csrf_token', await token(path)); saveImage.set('intent', 'image-save');
+      saveImage.set('image_id', roleRows[2].id); saveImage.set('kind', 'main'); saveImage.set('sort_order', '-30'); saveImage.set('alt_text', 'new primary');
+      assert.equal((await request(path, saveImage)).status, 303, 'save image order');
+      const reordered = await (await request(`/productos/${prefix}`, undefined, false)).text();
+      assert.ok(reordered.match(/data-gallery-photo[^>]*>\s*<img[^>]*src="([^"]+)"/)?.[1].includes(roleRows[2].storage_path), 'saved order changes public main');
+      const thumbnails = Array.from(reordered.matchAll(/<a href="([^"]+)"[^>]*data-gallery-item/g), match => match[1]);
+      assert.ok(thumbnails[0]?.includes(roleRows[1].storage_path), 'secondary precedes other gallery photos');
+      assert.ok(!thumbnails.some(url => url.includes(roleRows[0].storage_path)), 'swatch does not appear in gallery');
+      saveImage.set('kind', 'unknown');
+      assert.equal((await request(path, saveImage)).status, 400, 'invalid image role rejected');
+    }
     const remove = new FormData(); remove.set('csrf_token', await token(path)); remove.set('intent', 'image-delete'); remove.set('image_id', replaced.data.id); remove.set('confirm_delete', 'on');
     assert.equal((await request(path, remove)).status, 303);
   }

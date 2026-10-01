@@ -53,8 +53,7 @@ El admin ahora ofrece campos guiados para esos datos, validación de servidor y 
 
 - Los archivos de apoyo se suben desde la edición de un acabado y se guardan en `product_support_files` asociados a la familia/variante. Por eso un mismo PDF aparece en todos los acabados de esa familia.
 - El bucket público `site-media` almacena los archivos en la ruta `support/<variant_id>/...`.
-- `technical_sheet_url`: enlace externo legado a la ficha tecnica en Drive; se usa como respaldo cuando no hay un archivo de apoyo subido.
-- `installation_guide_url`: enlace externo a la guia de instalacion en Drive.
+- `technical_sheet_url` e `installation_guide_url`: enlaces históricos conservados al editar; no se usan como respaldo en la página pública ni se editan desde el formulario de acabado.
 
 La sección de apoyo también está disponible directamente en `/admin/variantes/{id}`. Permite editar títulos y orden. Los PDF de hasta 15 MB usan una subida directa firmada a Storage y solo aparecen públicamente después de la validación final; sin JavaScript el límite es 4 MB.
 
@@ -79,3 +78,25 @@ El panel de admin expone ambos niveles:
 Las preguntas frecuentes se capturan en `product_options.faq_items` (objeto JSON pregunta → respuesta), y la instalación en `installation_notes` (un paso por línea). El contenido definitivo queda pendiente de captura por el cliente.
 
 El selector individual ofrece heredar, mostrar u ocultar cada sección. Ver [admin-cms.md](admin-cms.md) para el flujo completo de categorías, familias, variantes, acabados e imágenes.
+
+
+## Galería, muestra de variante y ficha técnica
+
+Requiere la migración `20260930120000_product_gallery_roles.sql` antes de usar esta versión del CMS.
+
+En «Imágenes y muestra del acabado / color» asigna el uso y guarda la imagen:
+
+| Uso | Resultado público |
+| --- | --- |
+| Principal / catálogo | Visor inicial y tarjeta del producto. |
+| Muestra para miniaturas de variantes / colores | Círculos de colores, independiente de la principal. Sin muestra se usa la principal. |
+| Secundaria / primera miniatura | Primera miniatura bajo el visor. |
+| Galería, adicional o técnica | Fotos restantes de la galería; «técnica» es una imagen de medidas, no un PDF. |
+
+Si varias imágenes tienen el mismo uso, gana el menor número de orden; los empates se resuelven por UUID. La secundaria efectiva se coloca primero y las demás fotos conservan su orden relativo. Las muestras de color no se agregan a la galería. El admin identifica las imágenes efectivas y muestra una vista previa con el mismo componente del sitio.
+
+En «Documentos de la familia», sube el PDF y luego selecciónalo en «PDF que se mostrará como ficha técnica». Puedes elegir «Sin ficha técnica en la galería». La selección no depende del nombre ni del orden del archivo. Esta elección se guarda en `product_variants.technical_support_file_id`, se comparte con todos los acabados y solo admite un PDF disponible de esa misma familia. Borrarlo limpia la selección automáticamente.
+
+La ficha técnica ocupa la segunda miniatura. Seleccionarla carga el PDF en el visor principal; pulsar el visor abre el documento completo en otra pestaña. Los otros PDF conservan enlaces propios, ordenados. La miniatura de foto intercambia su imagen con la del visor para poder volver a la principal.
+
+La visibilidad «Especificaciones del producto» controla los datos junto al precio. «Documentos en la galería» controla el PDF y los enlaces documentales. Ambas conservan las claves existentes y las opciones heredar, mostrar u ocultar.

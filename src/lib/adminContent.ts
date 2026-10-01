@@ -32,7 +32,7 @@ export const contentModules: Record<string, ContentModule> = {
       { key: 'faq_items', label: 'Preguntas frecuentes (JSON: {"Pregunta": "Respuesta"})', type: 'json' },
       { key: 'installation_notes', label: 'Instalación', type: 'textarea' }, { key: 'care_notes', label: 'Cuidados', type: 'textarea' },
       status, featured, order, ...seo, { key: 'canonical_path', label: 'Canonical (vacío = URL actual)' }],
-    media: { table: 'product_images', key: 'option_id', kinds: ['main', 'secondary', 'gallery', 'extra', 'technical'] }
+    media: { table: 'product_images', key: 'option_id', kinds: ['main', 'swatch', 'secondary', 'gallery', 'extra', 'technical'] }
   },
   proyectos: {
     table: 'projects', label: 'Proyectos', titleKey: 'title',
@@ -46,7 +46,7 @@ export const contentModules: Record<string, ContentModule> = {
     { key: 'whatsapp_url', label: 'Enlace WhatsApp', type: 'url' }, { key: 'maps_url', label: 'Enlace de mapa', type: 'url' }, { key: 'catalog_url', label: 'Link de catálogo', type: 'url' },
     { key: 'latitude', label: 'Latitud', type: 'number', min: -90, max: 90, step: 'any' }, { key: 'longitude', label: 'Longitud', type: 'number', min: -180, max: 180, step: 'any' }, status, order, ...seo] }
 };
-export const sectionLabels = { technical: 'Ficha técnica', support: 'Soporte', faq: 'Preguntas frecuentes', installation: 'Instalación' };
+export const sectionLabels = { technical: 'Especificaciones del producto', support: 'Documentos en la galería', faq: 'Preguntas frecuentes', installation: 'Instalación' };
 export const technicalFields = [
   { key: 'presentation', label: 'Presentación', example: 'Caja, Paquete o Placa' },
   { key: 'pieces_per_box', label: 'Piezas por presentación', example: '10 piezas o N/A' },

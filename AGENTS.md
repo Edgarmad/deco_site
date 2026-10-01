@@ -224,8 +224,8 @@ Datos relevantes de `product_options`:
 
 Visibilidad global en `site_settings`:
 
-- `product_section_technical_enabled`
-- `product_section_support_enabled`
+- `product_section_technical_enabled`: «Especificaciones del producto».
+- `product_section_support_enabled`: «Documentos en la galería».
 - `product_section_faq_enabled`
 - `product_section_installation_enabled`
 
@@ -259,7 +259,7 @@ Para crear el primer administrador: crear usuario email/password en Supabase Aut
 - `isAdminSecurityRelaxed()` depende de `import.meta.env.DEV`; un resultado en desarrollo no prueba la política de producción.
 - Conservar `Referrer-Policy: strict-origin-when-cross-origin`. Usar `no-referrer` puede provocar `Origin: null` y bloquear el login.
 - La CSP administrativa permite scripts de `'self'`, no scripts inline arbitrarios. `vite.build.assetsInlineLimit: 0` evita inlining de assets. Usar los scripts procesados/externos existentes.
-- La conexión de subidas firmadas a Supabase está permitida por `connect-src`; no romperla al modificar CSP.
+- La conexión de subidas firmadas a Supabase está permitida por `connect-src`; las vistas previas PDF usan `frame-src` limitado a self y Supabase. No romper estos permisos al modificar CSP.
 - `security.allowedDomains` contiene localhost, `127.0.0.1`, `deco-site-kappa.vercel.app` y subdominios de Vercel. Revisarlo cuando se configure un dominio definitivo.
 - Las cabeceras admin incluyen no-cache/no-store, bloqueo de frames y controles de contenido. Revisar también `AdminLayout.astro` para metadatos del panel.
 
@@ -271,8 +271,8 @@ El bucket **`site-media` es público**. RLS limita acceso a registros y escritur
 
 - `src/lib/adminMedia.ts`: JPEG, PNG o WebP, hasta **4 MB** por archivo; decodificación Sharp, límite de **40 megapíxeles**, orientación corregida y WebP hasta **2400 × 2400** sin ampliar.
 - Rutas nuevas bajo `products/{slug}/` o `projects/{slug}/`; reemplazar genera otra ruta para evitar caché antigua.
-- Tipos de producto: `main`, `secondary`, `gallery`, `extra`, `technical`. Proyectos: `main`, `gallery`, `before`, `after`.
-- La principal se elige por tipo `main` y orden; conservar texto alternativo y orden de galería.
+- Tipos de imagen de producto: `main`, `swatch`, `secondary`, `gallery`, `extra`, `technical`. `swatch` identifica la muestra independiente de los círculos de variantes; si falta, se usa la principal. `technical` es una imagen de medidas, no el PDF técnico. Proyectos: `main`, `gallery`, `before`, `after`.
+- La selección compartida vive en `src/lib/productMedia.ts`: principal y muestra por tipo y menor orden; empates por UUID. La secundaria efectiva ocupa la primera miniatura; otras fotos conservan orden relativo. Las muestras no se añaden a la galería. Conservar texto alternativo. El visor permite intercambiar fotos y regresar a la principal.
 - Nuevos acabados reciben `products/_placeholder/product-placeholder.webp` como fallback compartido.
 - La ruta `original_source_path` es procedencia local para migraciones, no una URL pública para renderizar.
 - Los triggers encolan objetos eliminados/reemplazados en `media_cleanup_queue`. La limpieza verifica referencias antes de borrar Storage; fallos quedan pendientes y son reintentables. El lote manual es de 20.
@@ -286,7 +286,7 @@ El bucket **`site-media` es público**. RLS limita acceso a registros y escritur
 - Hasta **15 MB** mediante subida directa firmada navegador → Storage. Vercel recibe autorización/confirmación, no el archivo grande.
 - Sin JavaScript, formulario convencional limitado a **4 MB**.
 - Estados de subida pendientes/disponibles; el servicio público solo expone `upload_state === 'ready'` después de validación de tamaño/cabecera.
-- La ficha actual muestra vista previa y descarga de `supportFiles`; si no existen muestra un estado vacío.
+- La familia selecciona explícitamente su ficha técnica con `product_variants.technical_support_file_id`; una FK compuesta impide seleccionar un archivo de otra familia y borra la selección al eliminar el PDF. El POST valida UUID, pertenencia y estado `ready`. La migración preselecciona únicamente PDF existentes cuyo título indica «Ficha técnica». Se administra desde familia o acabado, siempre compartido por todos los colores. La ficha individual integra el PDF seleccionado en la galería, respetando la visibilidad de apoyo; otros archivos se ofrecen como enlaces. La ficha técnica ocupa la segunda miniatura; seleccionarla carga el PDF en el visor principal y pulsar el visor abre el documento completo en otra pestaña. Sin PDF no se muestra una miniatura documental. La sección independiente de información técnica/material de apoyo fue retirada; las especificaciones comerciales se conservan.
 - `technical_sheet_url` y `installation_guide_url` se conservan como datos legados, pero **la UI actual no los ofrece como respaldo ni permite editarlos en el formulario de acabado**. Los tests exigen no sobrescribir esos valores históricos.
 
 ### Sucursales y agentes
@@ -321,6 +321,7 @@ El esquema se reconstruye aplicando **todas** las migraciones en orden; la prime
 | `20260922130000_home_hero_video_setting.sql` | Video del hero y configuración asociada. |
 | `20260922140000_location_agents.sql` | Agentes de sucursal, fotos, políticas y limpieza. |
 | `20260924100000_variant_price_presentation.sql` | Unidad del precio por familia, `Caja` / `Pieza`. |
+| `20260930120000_product_gallery_roles.sql` | Muestra de color independiente (`swatch`) y PDF técnico seleccionado por familia. |
 
 Para cambios nuevos de esquema, añadir una migración fechada en `supabase/migrations/`, actualizar consumidores y revisar RLS/triggers. No asumir que editar una migración ya aplicada modifica el servidor remoto.
 
@@ -372,6 +373,8 @@ Los scripts masivos no son comandos de prueba de la UI. Ejecutarlos solo cuando 
 - Para lógica/admin/modelos: ejecutar unitarias, `npx astro check` y build. Añadir casos de regresión cuando cambie comportamiento sustancial.
 - Para UI: check/build y comprobación visual de la ruta afectada en escritorio y móvil, incluyendo filtros/menús o formularios modificados.
 - Para documentación sola: verificar nombres, rutas, comandos y diff; no hace falta escribir tests ni modificar la aplicación.
+
+`tests/product-media.test.mjs` comprueba usos, orden estable, muestras, secundaria, PDF explícito y visibilidad. `supabase/tests/product_gallery.sql` prueba roles de imagen, guardado de orden, pertenencia del PDF, RLS, limpieza y cascadas en transacción.
 
 ### RLS y prueba integrada (con entorno adecuado)
 

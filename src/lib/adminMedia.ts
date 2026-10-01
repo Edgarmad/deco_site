@@ -1,4 +1,5 @@
 import sharp from 'sharp';
+import { parseMediaMetadata } from './productMedia';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { ContentModule } from './adminContent';
 
@@ -35,9 +36,7 @@ export async function uploadMedia(client: SupabaseClient, module: ContentModule,
   if (!(file instanceof File) || !file.size) throw new Error('Selecciona una imagen.');
   if (file.size > 4 * 1024 * 1024) throw new Error('La imagen debe pesar como máximo 4 MB.');
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) throw new Error('Solo se permiten JPEG, PNG y WebP.');
-  const kind = String(form.get('kind') ?? 'gallery');
-  const order = Number(form.get('sort_order') || 0);
-  if (!media.kinds.includes(kind) || !Number.isInteger(order) || Math.abs(order) > 2147483647) throw new Error('Tipo u orden de imagen inválido.');
+  const { kind, sort_order: order, alt_text } = parseMediaMetadata(form, media.kinds);
   const replacement = String(form.get('replace_id') ?? '');
   let previousPath: string | undefined;
   if (replacement) {
@@ -57,7 +56,7 @@ export async function uploadMedia(client: SupabaseClient, module: ContentModule,
   if (uploaded.error) throw new Error(uploaded.error.message);
   const row = {
     [media.key]: ownerId, storage_bucket: 'site-media', storage_path: path,
-    alt_text: String(form.get('alt_text') ?? '').trim().slice(0, 1000), kind, sort_order: order,
+    alt_text, kind, sort_order: order,
     ...(media.table === 'product_images' ? { original_filename: file.name, mime_type: 'image/webp', size_bytes: converted.info.size, width: converted.info.width, height: converted.info.height } : {})
   };
   const saved = replacement

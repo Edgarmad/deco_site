@@ -106,6 +106,7 @@ export const applyAdminSecurityHeaders = (response: Response) => {
       "base-uri 'self'",
       "object-src 'none'",
       "frame-ancestors 'none'",
+      "frame-src 'self' https://*.supabase.co",
       "form-action 'self'",
       "img-src 'self' data: blob: https:",
       "style-src 'self' 'unsafe-inline'",

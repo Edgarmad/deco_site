@@ -1,4 +1,6 @@
 ---
+import ProductGallery from '../../components/productos/ProductGallery.astro';
+import { selectProductMedia, parseMediaMetadata } from '../../lib/productMedia';
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { getAdminSession } from '../../lib/adminAuth';
 import { createSupabaseServerClient } from '../../lib/supabaseServer';
@@ -8,7 +10,7 @@ import TechnicalFields from '../../components/admin/TechnicalFields.astro';
 import { getProductCalculator } from '../../lib/productCalculator';
 import { cleanMediaQueue, uploadMedia, type MediaRow } from '../../lib/adminMedia';
 import { getPublicStorageUrl } from '../../lib/supabase';
-import { deleteSupportFile, uploadSupportFile, supportMetadata, type SupportFileRow } from '../../lib/adminSupportFiles';
+import { deleteSupportFile, uploadSupportFile, supportMetadata, selectTechnicalSupportFile, type SupportFileRow } from '../../lib/adminSupportFiles';
 import { deleteLocationAgent, saveLocationAgent, type LocationAgentRow } from '../../lib/adminLocationAgents';
 
 export const prerender = false;
@@ -35,7 +37,7 @@ if (id) {
   if (!loaded.data) return new Response('No encontrado', { status: 404 });
   record = loaded.data;
 }
-const supportVariantId = section === 'variantes' ? id : undefined;
+const supportVariantId = section === 'variantes' ? id : section === 'productos' && id && isUuid(String(record.variant_id ?? '')) ? String(record.variant_id) : undefined;
 
 // Todas las escrituras usan la sesión del editor y las políticas RLS.
 if (Astro.request.method === 'POST') {
@@ -66,6 +68,11 @@ if (Astro.request.method === 'POST') {
       if (form.get('confirm_agent_delete') !== 'on') throw new Error('Confirma la eliminacion del agente.');
       await deleteLocationAgent(client, id, String(form.get('agent_id') ?? ''));
       return Astro.redirect(`${base}/${id}?saved=1#agentes`, 303);
+    }
+    if (intent === 'technical-file-save') {
+      if (!supportVariantId) throw new Error('Guarda primero la familia del acabado.');
+      await selectTechnicalSupportFile(client, supportVariantId, String(form.get('technical_support_file_id') ?? ''));
+      return Astro.redirect(`${base}/${id}?saved=1#documentos`, 303);
     }
     if (intent === 'support-upload') {
       if (!supportVariantId) throw new Error('El archivo debe asociarse a una familia válida.');
@@ -122,10 +129,8 @@ if (Astro.request.method === 'POST') {
         if (removed.error) throw new Error(contentError(removed.error));
         await cleanMediaQueue(client, [removed.data.storage_path]).catch(() => undefined);
       } else {
-        const kind = String(form.get('kind'));
-        const sort_order = Number(form.get('sort_order'));
-        if (!module.media.kinds.includes(kind) || !Number.isInteger(sort_order) || Math.abs(sort_order) > 2147483647) throw new Error('Tipo u orden inválido.');
-        const updated = await client.from(module.media.table).update({ kind, sort_order, alt_text: String(form.get('alt_text') ?? '').slice(0, 1000) }).eq('id', imageId).eq(module.media.key, id).select('id').single();
+        const metadata = parseMediaMetadata(form, module.media.kinds);
+        const updated = await client.from(module.media.table).update(metadata).eq('id', imageId).eq(module.media.key, id).select('id').single();
         if (updated.error) throw new Error(contentError(updated.error));
       }
     } else throw new Error('Acción no válida.');
@@ -189,10 +194,10 @@ const value = (key: string) => submitted ? String(submitted.get(key) ?? '') : St
 const checked = (key: string) => submitted ? submitted.get(key) === 'on' : record[key] === true;
 const fieldValue = (key: string, type?: string) => submitted ? value(key) : type === 'json' ? JSON.stringify(record[key] ?? {}, null, 2) : type === 'lines' ? (Array.isArray(record[key]) ? (record[key] as string[]).join('\n') : '') : value(key);
 const visibility = (record.section_visibility ?? {}) as Record<string, boolean>;
-let familyContext: { name: string; product_id: string; products: { name: string; slug: string } } | undefined;
+let familyContext: { technical_support_file_id: string | null; name: string; product_id: string; products: { name: string; slug: string } } | undefined;
 let familyOptions: { id: string; name: string; slug: string; status: string; technical_sheet_url: string | null; installation_guide_url: string | null }[] = [];
 if (section === 'productos' && record.variant_id) {
-  const result = await client.from('product_variants').select('name,product_id,products(name,slug)').eq('id', String(record.variant_id)).maybeSingle();
+  const result = await client.from('product_variants').select('name,product_id,technical_support_file_id,products(name,slug)').eq('id', String(record.variant_id)).maybeSingle();
   if (result.error) errorMessage = contentError(result.error);
   familyContext = result.data as unknown as typeof familyContext;
 }
@@ -210,9 +215,20 @@ const calculator = section === 'productos' && familyContext ? getProductCalculat
 const pageUrl = (number: number) => `${base}?${new URLSearchParams({ q: search, status: statusFilter, page: String(number) })}`;
 const catalogSection = ['familias', 'variantes', 'productos'].includes(section);
 const backUrl = section === 'productos' && record.variant_id ? `/admin/productos?familia=${record.variant_id}` : section === 'variantes' && record.product_id ? `/admin/productos?tipo=${record.product_id}` : catalogSection ? '/admin/productos' : base;
-const mainImage = images.find(image => image.kind === 'main') ?? images[0];
-const toneUrl = mainImage ? getPublicStorageUrl(mainImage.storage_bucket, mainImage.storage_path) : getPublicStorageUrl('site-media', String(record.fallback_image_path ?? ''));
-const imageLabels: Record<string, string> = { main: section === 'productos' ? 'Principal y muestra del acabado / color' : 'Imagen principal', secondary: 'Imagen secundaria', gallery: 'Galería / producto instalado', extra: 'Fotografía adicional', technical: 'Imagen técnica / medidas', before: 'Antes', after: 'Después' };
+const selectedMedia = selectProductMedia(images);
+const mainImage = selectedMedia.main;
+const swatchImage = selectedMedia.swatch;
+const toneUrl = swatchImage ? getPublicStorageUrl(swatchImage.storage_bucket, swatchImage.storage_path) : getPublicStorageUrl('site-media', String(record.fallback_image_path ?? ''));
+const technicalSupportFileId = section === 'variantes' ? String(record.technical_support_file_id ?? '') : familyContext?.technical_support_file_id ?? '';
+const galleryPreviewProduct = {
+  name: String(record.name ?? ''), image: mainImage ? getPublicStorageUrl(mainImage.storage_bucket, mainImage.storage_path) : getPublicStorageUrl('site-media', String(record.fallback_image_path ?? '')),
+  imageAlt: mainImage?.alt_text ?? String(record.name ?? ''),
+  galleryImages: selectedMedia.gallery.map(image => ({ url: getPublicStorageUrl(image.storage_bucket, image.storage_path) ?? '', alt: image.alt_text ?? String(record.name ?? '') })),
+  technicalSupportFileId,
+  supportFiles: supportFiles.filter(file => file.upload_state === 'ready').map(file => ({ id: file.id, title: file.title, url: getPublicStorageUrl(file.storage_bucket, file.storage_path) ?? '', mimeType: file.mime_type }))
+};
+const selectedTechnicalFile = supportFiles.find(file => file.id === technicalSupportFileId && file.upload_state === 'ready');
+const imageLabels: Record<string, string> = { main: 'Imagen principal / catálogo', swatch: 'Muestra para miniaturas de variantes / colores', secondary: 'Imagen secundaria / primera miniatura', gallery: 'Galería / producto instalado', extra: 'Fotografía adicional', technical: 'Imagen técnica / medidas (no PDF)', before: 'Antes', after: 'Después' };
 const legacyDocuments = familyOptions.flatMap(option => [
   { name: option.name, title: 'Ficha técnica', url: option.technical_sheet_url },
   { name: option.name, title: 'Guía de instalación', url: option.installation_guide_url }
@@ -256,7 +272,7 @@ const fieldGroups = section === 'productos' ? [
       {familyContext && <nav aria-label="Jerarquía del acabado"><a href="/admin/productos">Productos</a> → <a href={`/admin/productos?tipo=${familyContext.product_id}`}>{familyContext.products.name}</a> → <a href={`/admin/variantes/${record.variant_id}`}>{familyContext.name}</a> → {isNew ? 'Nuevo acabado / color' : String(record.name)}</nav>}
       {section === 'familias' && id && <p><a href={`/admin/productos?tipo=${id}`}>Ver familias de este tipo de producto →</a></p>}
       {section === 'variantes' && record.product_id && <nav aria-label="Jerarquía de la familia"><a href="/admin/productos">Productos</a> → <a href={`/admin/productos?tipo=${record.product_id}`}>{relations.product_id?.find(item => item.id === record.product_id)?.label ?? 'Tipo de producto'}</a> → {isNew ? 'Nueva familia' : String(record.name)}</nav>}
-      {section === 'productos' && <p class="admin-note">Cada acabado necesita una imagen principal que también lo identificará en los círculos de colores. {id ? <a href="#imagenes">Revisar imágenes y muestra de color →</a> : 'Guarda primero el acabado para subir su imagen.'}</p>}
+      {section === 'productos' && <p class="admin-note">Cada acabado puede tener una principal, una secundaria y una muestra independiente para los círculos de variantes. Sin muestra, se usa la principal. {id ? <a href="#imagenes">Revisar imágenes y muestra de color →</a> : 'Guarda primero el acabado para subir su imagen.'}</p>}
       {id && ['productos', 'proyectos'].includes(section) && <p><a href={`/${section}/${record.slug}`} target="_blank" rel="noreferrer">Ver página pública →</a> (los borradores devuelven 404)</p>}
       <form method="post" class="admin-form" data-content-form>
         <input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="intent" value="save" />
@@ -318,17 +334,19 @@ const fieldGroups = section === 'productos' ? [
     <!-- Seccion: Imágenes y Storage -->
     {module.media && id && <section id="imagenes" class="admin-panel pad admin-section-spaced">
       <h2>Imágenes{section === 'productos' ? ' y muestra del acabado / color' : ''}</h2>
-      {section === 'productos' && <aside class="admin-image-guidance"><h3>La imagen principal también aparece en los círculos de colores</h3><p>Sube una muestra cercana del producto donde se distingan claramente su color y textura. No uses una casa, fachada o ambiente completo como imagen principal: esas fotografías van en la galería.</p>
-        {toneUrl && <figure><img src={toneUrl} alt={`Vista previa del color ${record.name}`} width="72" height="72" style="border-radius:50%;object-fit:cover;width:72px;height:72px" /><figcaption>Así se verá este acabado en el selector de colores.</figcaption></figure>}
-        {!images.some(image => image.kind === 'main') && <p><strong>Falta asignar una imagen principal de muestra del acabado.</strong> Actualmente el sitio usa {images.length ? 'la primera imagen disponible' : 'la imagen temporal'}. Añade una muestra que represente este color.</p>}
-        <p><strong>Si borras o reemplazas esta imagen, asegúrate de subir otra muestra del mismo acabado o textura.</strong> Esto cambia tanto la presentación principal como el círculo de color.</p></aside>}
-      <p>La imagen principal con menor orden se usa como presentación. Si no hay principal, el sitio usa la primera imagen disponible. Las demás aparecen en la galería; usa imágenes secundarias o de galería para ambientes, extras para detalles e imágenes técnicas para medidas.</p>
+      {section === 'productos' && <aside class="admin-image-guidance"><h3>Principal, muestra de color y secundaria</h3>
+        <p>«Principal / catálogo» se muestra al abrir el producto y en su tarjeta. «Muestra para miniaturas de variantes / colores» se usa únicamente en los círculos de colores; si no la asignas, se usa la principal. «Secundaria» ocupa la primera miniatura bajo el visor; la ficha técnica seleccionada ocupa la segunda.</p>
+        <p>Para cada uso se elige la imagen con menor orden. Si empatan, se usa el identificador para mantener el resultado estable. Las demás fotos se muestran después, ordenadas; las muestras de color no se agregan a la galería.</p>
+        {toneUrl && <figure><div style="border-radius:50%;overflow:hidden;width:112px;height:112px"><img src={toneUrl} alt={`Vista previa del color ${record.name}`} style="object-fit:cover;width:100%;height:100%;transform:scale(5)" /></div><figcaption>Muestra efectiva en el selector de variantes.</figcaption></figure>}
+        {!images.some(image => image.kind === 'main') && <p><strong>No hay principal asignada.</strong> Se usa la primera foto por orden o la imagen temporal.</p>}
+      </aside>}
+      {section !== 'productos' && <p>La principal con menor orden se usa como presentación. Las demás se ordenan por número e identificador.</p>}
       {images.map(image => <article class="admin-image-row">
         <img src={getPublicStorageUrl(image.storage_bucket, image.storage_path)} alt={image.alt_text ?? ''} loading="lazy" />
         <div><form method="post" class="admin-form">
           <input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="image_id" value={image.id} />
           <label>Texto alternativo<input name="alt_text" value={image.alt_text ?? ''} /></label>
-          {section === 'productos' && image.id === mainImage?.id && <p><strong>Esta imagen representa el color del producto en el selector.</strong> Al cambiarla o eliminarla, reemplázala por una muestra similar del mismo acabado, no por una casa o ambiente.</p>}
+          {section === 'productos' && <p>{image.id === mainImage?.id && <strong>Principal efectiva. </strong>}{image.id === swatchImage?.id && <strong>Muestra de variante efectiva. </strong>}{image.id === selectedMedia.secondary?.id && <strong>Secundaria efectiva. </strong>}</p>}
           <label>Uso de la imagen<select name="kind">{module.media!.kinds.map(kind => <option value={kind} selected={image.kind === kind}>{imageLabels[kind]}</option>)}</select></label>
           <label>Orden<input name="sort_order" type="number" step="1" value={image.sort_order} required /></label>
           <button class="admin-button secondary" name="intent" value="image-save">Guardar imagen</button>
@@ -343,7 +361,7 @@ const fieldGroups = section === 'productos' ? [
         <h3>Subir o reemplazar imagen</h3><p>JPEG, PNG o WebP, máximo 4 MB. Se convierte a WebP y se reduce a 2400 px.</p>
         <label>Archivo<input type="file" name="file" accept="image/jpeg,image/png,image/webp" required /></label>
         <img data-upload-preview hidden alt="Vista previa del archivo seleccionado" width="200" />
-        {section === 'productos' && <p class="admin-note">Para la principal, elige una muestra del color o textura. Para una casa o un producto instalado, elige «Galería / producto instalado». Si reemplazas la muestra actual, conserva su función de principal.</p>}
+        {section === 'productos' && <p class="admin-note">Elige el uso y el orden de la imagen. Para los círculos de variantes, sube una muestra cercana de color o textura. El PDF se selecciona en «Documentos de la familia», no como imagen técnica.</p>}
         <label>Reemplazar<select name="replace_id"><option value="">Añadir nueva imagen</option>{images.map(image => <option value={image.id}>{imageLabels[image.kind]} / {image.alt_text || image.storage_path}</option>)}</select></label>
         <label>Texto alternativo<input name="alt_text" required maxlength="1000" /></label>
         <label>Uso de la imagen<select name="kind">{module.media.kinds.map(kind => <option value={kind}>{imageLabels[kind]}</option>)}</select></label>
@@ -351,10 +369,16 @@ const fieldGroups = section === 'productos' ? [
         <button class="admin-button" type="submit">Subir imagen</button><progress data-upload-progress hidden max="100" value="0"></progress><p data-upload-status role="status"></p>
       </form>
     </section>}
-    {section === 'productos' && familyContext && <section class="admin-panel pad admin-section-spaced"><h2>Documentos de la familia</h2><p>Los PDF se administran en la familia <strong>{familyContext.name}</strong> y se comparten con todos sus acabados.</p><a href={`/admin/variantes/${record.variant_id}#documentos`}>Ir a los documentos de la familia →</a></section>}
+    {section === 'productos' && id && <section class="admin-panel pad admin-section-spaced"><h2>Vista previa de la galería guardada</h2><p>La vista previa usa las mismas reglas que el sitio. Guarda los cambios para actualizarla. La visibilidad individual y global de documentos se aplica en la página pública.</p><div class="admin-gallery-preview"><ProductGallery product={galleryPreviewProduct} /></div></section>}
     {id && supportVariantId && <section id="documentos" class="admin-panel pad admin-section-spaced">
-      <h2>PDF de esta familia</h2>
-      <p>Estos archivos quedan asociados a la familia del producto y aparecen en todos sus acabados publicados.</p>
+      <h2>Documentos de la familia</h2>
+      <p>Estos PDF y la selección de ficha técnica se comparten con TODOS los acabados de esta familia. Cambiarlos aquí también cambia los otros colores. El orden controla los documentos adicionales; la ficha técnica seleccionada siempre ocupa la segunda miniatura.</p>
+      <form method="post" class="admin-form">
+        <input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="intent" value="technical-file-save" />
+        <label>PDF que se mostrará como ficha técnica<select name="technical_support_file_id"><option value="">Sin ficha técnica en la galería</option>{supportFiles.filter(file => file.upload_state === 'ready').map(file => <option value={file.id} selected={technicalSupportFileId === file.id}>{file.title} — {file.original_filename}</option>)}</select></label>
+        <button class="admin-button secondary">Guardar ficha técnica de la familia</button>
+      </form>
+      {selectedTechnicalFile && <iframe class="admin-document-preview" title="Vista previa de la ficha técnica seleccionada" src={`${getPublicStorageUrl(selectedTechnicalFile.storage_bucket, selectedTechnicalFile.storage_path)}#page=1&toolbar=0&navpanes=0&view=Fit`} loading="lazy"></iframe>}
       {legacyDocuments.length > 0 && <details><summary>Enlaces anteriores conservados ({legacyDocuments.length})</summary><p>Estos enlaces existían en acabados individuales. Se conservan como referencia para recuperar los documentos y subirlos aquí como PDF compartidos de la familia.</p><ul>{legacyDocuments.map(item => <li>{item.name}: <a href={item.url!} target="_blank" rel="noreferrer">{item.title}</a></li>)}</ul></details>}
       {supportFiles.map(file => <article class="admin-support-row">
         <div><strong>{file.title}</strong><br /><small>{file.original_filename} · {Math.ceil(file.size_bytes / 1024)} KB · {file.upload_state === 'pending' ? 'Subida incompleta: no visible en el sitio. Elimina este intento y vuelve a subir.' : 'Disponible para todos los acabados'}</small></div>
@@ -366,7 +390,7 @@ const fieldGroups = section === 'productos' ? [
       <form method="post" enctype="multipart/form-data" class="admin-form admin-section-spaced" data-support-upload>
         <input type="hidden" name="csrf_token" value={csrf} /><input type="hidden" name="intent" value="support-upload" />
         <input type="hidden" name="variant_id" value={supportVariantId} />
-        <h3>Subir archivo de apoyo</h3><p>PDF, máximo 15 MB. Se recomienda nombrarlo como ficha técnica.</p>
+        <h3>Subir archivo de apoyo</h3><p>PDF, máximo 15 MB. Después de subirlo, selecciónalo arriba si debe aparecer como ficha técnica en la galería.</p>
         <label>Título<input name="support_title" value="Ficha técnica" required maxlength="160" /></label>
         <label>Archivo PDF<input type="file" name="support_file" accept="application/pdf,.pdf" required /></label>
         <label>Orden<input name="support_sort_order" type="number" step="1" value="0" required /></label>

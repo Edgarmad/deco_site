@@ -69,6 +69,7 @@ export type Product = {
   price?: number;
   image?: string;
   secondaryImage?: string;
+  swatchImage?: string;
   imageAlt?: string;
   galleryImages?: { url: string; alt: string }[];
   canonicalPath?: string;
@@ -90,6 +91,7 @@ export type Product = {
   technicalSheetUrl?: string;
   installationGuideUrl?: string;
   supportFiles?: ProductSupportFile[];
+  technicalSupportFileId?: string;
   sectionVisibility?: Record<string, boolean>;
   calculator?: ProductCalculatorConfig;
 };
