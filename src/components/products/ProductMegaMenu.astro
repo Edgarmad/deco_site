@@ -15,6 +15,8 @@ const productTypes: { slug: string; name: string; macroCategory: ProductMacroCat
   { slug: 'piso-spc', name: 'Piso SPC', macroCategory: 'interior', href: '/productos?categoria=interior&familia=piso-spc' },
   { slug: 'cristal-carbono', name: 'Cristal carbono', macroCategory: 'interior', href: '/productos?categoria=interior&familia=cristal-carbono' },
   { slug: 'piedra-pu', name: 'Piedra PU', macroCategory: 'interior', href: '/productos?categoria=interior&familia=piedra-pu' },
+  { slug: 'vigas-wpc', name: 'Vigas WPC', macroCategory: 'interior', href: '/productos?categoria=interior&familia=vigas-wpc' },
+  { slug: 'accesorios', name: 'Accesorios', macroCategory: 'interior', href: '/productos?categoria=interior&familia=accesorios' },
   { slug: 'lambrin-asa', name: 'Lambrin exterior', macroCategory: 'exterior', href: '/productos?categoria=exterior&familia=lambrin-asa' },
   { slug: 'wall-cladding-asa', name: 'Wall cladding', macroCategory: 'exterior', href: '/productos?categoria=exterior&familia=wall-cladding-asa' },
   { slug: 'deck-coextruido', name: 'Deck exterior', macroCategory: 'exterior', href: '/productos?categoria=exterior&familia=deck-coextruido' },
@@ -68,11 +70,11 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
   .mega-trigger {
     display: grid;
     place-items: center;
-    min-height: 42px;
-    background: transparent;
+    min-height: 60px;
+    background: #16834e;
     color: inherit;
     font: inherit;
-    font-size: 0.76rem;
+    font-size: clamp(0.95rem, 1.4vw, 1.2rem);
     font-weight: 800;
     letter-spacing: 0.18em;
     cursor: pointer;
@@ -88,15 +90,17 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
     flex-wrap: wrap;
     gap: 14px;
     justify-content: center;
-    padding: 8px 8vw 28px;
+    padding: 20px clamp(16px, 3vw, 48px) 28px;
     background: var(--black-deep);
   }
 
   .mega-panel a {
     padding: 10px 16px;
-    border-radius: 999px;
+    border: 1px solid #526658;
+    background: #263e2e;
+    border-radius: 6px;
     color: #d8ded8;
-    font-size: 0.68rem;
+    font-size: 0.8rem;
     font-weight: 800;
     letter-spacing: 0.12em;
   }
@@ -115,9 +119,9 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
     }
 
     .mega-trigger {
-      min-height: 26px;
-      font-size: 0.54rem;
-      letter-spacing: 0.24em;
+      min-height: 58px;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
     }
 
     .mega-group + .mega-group {
@@ -126,7 +130,8 @@ const groups: { label: string; macroCategory: ProductMacroCategory }[] = [
 
     .mega-panel {
       justify-content: flex-start;
-      padding: 0 20px 22px;
+      padding: 16px 12px 22px;
+      gap: 8px;
     }
   }
 </style>

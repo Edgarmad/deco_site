@@ -12,7 +12,7 @@ if (!process.env.SUPABASE_SERVICE_ROLE_KEY) throw new Error('Se requiere SUPABAS
 const service = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
 const port = 4397;
 const origin = `http://localhost:${port}`;
-const server = spawn(process.execPath, ['node_modules/astro/bin/astro.mjs', 'dev', '--host', 'localhost', '--port', String(port)], { stdio: 'ignore' });
+const server = spawn(process.execPath, ['node_modules/astro/bin/astro.mjs', 'dev', '--ignore-lock', '--host', 'localhost', '--port', String(port)], { stdio: 'ignore' });
 const prefix = `cms-smoke-${randomUUID()}`;
 const email = `${prefix}@example.com`;
 const password = `${randomUUID()}Aa1!`;
@@ -81,6 +81,21 @@ try {
   assert.equal((await request('/admin/login', login)).status, 302);
   for (const path of ['/admin', '/admin/productos', '/admin/categorias', '/admin/familias', '/admin/variantes', '/admin/proyectos', '/admin/ubicaciones', '/admin/configuracion']) assert.equal((await request(path)).status, 200, path);
   console.log('PASS login, sesión SSR, protección y módulos');
+  const presentationHtml = await (await request('/admin/configuracion')).text();
+  assert.match(presentationHtml, /Guardar portadas y aviso/);
+  assert.match(presentationHtml, /name="privacy_notice"/);
+  const invalidPresentation = new FormData();
+  invalidPresentation.set('intent', 'presentation');
+  invalidPresentation.set('csrf_token', await token('/admin/configuracion'));
+  const existingType = presentationHtml.match(/name="cover_([^"]+)"/)?.[1];
+  assert.ok(existingType);
+  invalidPresentation.set(`cover_${existingType}`, 'unpublished-missing-finish');
+  const rejectedPresentation = await request('/admin/configuracion', invalidPresentation);
+  assert.match(await rejectedPresentation.text(), /La portada debe ser un acabado publicado/);
+  invalidPresentation.set('csrf_token', 'invalid');
+  assert.match(await (await request('/admin/configuracion', invalidPresentation)).text(), /La sesión del formulario expiró/);
+  assert.equal((await request('/privacidad', undefined, false)).status, 200);
+  console.log('PASS portadas: validación de pertenencia, CSRF y página de privacidad');
 
   const category = await save('categorias', { name: prefix, slug: prefix, status: 'published' });
   const family = await save('familias', { name: prefix, slug: prefix, category_id: category, status: 'published' });
@@ -88,7 +103,7 @@ try {
   const productValues = { name: prefix, slug: prefix, variant_id: variant, status: 'draft', summary: 'CMS resumen', seo_title: `${prefix} SEO`, faq_items: '{"Pregunta de prueba":"Respuesta CMS"}', installation_notes: 'Paso CMS' };
   const product = await save('productos', productValues);
   assert.match(await (await request(`/admin/productos?familia=${variant}`)).text(), new RegExp(prefix));
-  assert.match(await (await request('/admin/productos')).text(), /Familias del catálogo/);
+  assert.match(await (await request('/admin/productos?vista=familias')).text(), /Familias del catálogo/);
   assert.equal((await request(`/productos/${prefix}`, undefined, false)).status, 404);
   await save('productos', { ...productValues, status: 'published' }, product);
   let publicProduct = await request(`/productos/${prefix}`, undefined, false);

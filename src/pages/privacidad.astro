@@ -1,0 +1,32 @@
+---
+import '../styles/global.css';
+import SiteHeader from '../components/layout/SiteHeader.astro';
+import SiteFooter from '../components/layout/SiteFooter.astro';
+import { getPrivacyNotice } from '../services/siteSettingsService';
+export const prerender = false;
+const notice = await getPrivacyNotice();
+---
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aviso de privacidad | DECO ABC</title>
+    <meta name="description" content="Información sobre el tratamiento de datos personales en DECO ABC." />
+    <link rel="icon" href="/assets/favicon.ico" />
+    <script is:inline src="/assets/scripts/deco-motion.js" defer></script>
+  </head>
+  <body>
+    <SiteHeader currentPath="/privacidad" />
+    <main class="privacy-page">
+      <h1>Aviso de privacidad</h1>
+      {notice ? <div class="privacy-copy">{notice}</div> : <p>Estamos preparando la información sobre el tratamiento de datos personales. Si tienes alguna consulta, <a href="/contacto">contacta a DECO ABC</a>.</p>}
+    </main>
+    <SiteFooter />
+  </body>
+</html>
+<style>
+  .privacy-page { max-width: 900px; margin: auto; padding: 64px 24px; min-height: 50vh; }
+  h1 { font-size: clamp(2rem, 5vw, 3.5rem); }
+  .privacy-copy { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.8; text-transform: none; }
+  a { text-decoration: underline; }
+</style>

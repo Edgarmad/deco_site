@@ -170,7 +170,7 @@ const filterLabels = {
 
     return cards.filter((card) => {
       const searchText = card.dataset.search ?? '';
-      const matchesMacro = currentMacro === 'todo' || card.dataset.macro === currentMacro;
+      const matchesMacro = currentMacro === 'todo' || (card.dataset.areas ?? card.dataset.macro ?? '').split(' ').includes(currentMacro);
       const matchesCategory = checkedCategories.length === 0 || checkedCategories.includes(card.dataset.category ?? '');
       const matchesVariant = checkedVariants.length === 0 || checkedVariants.includes(card.dataset.variant ?? '');
       const matchesColor = checkedColors.length === 0 || checkedColors.some((color) => searchText.includes(color));

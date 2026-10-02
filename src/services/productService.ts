@@ -195,6 +195,9 @@ const catalogVariantNames: Record<string, string> = {
 };
 
 const getCatalogFamily = (product: Product) => {
+  if (['accesorios', 'angulo-asa', 'angulo-coextruido', 'quilla-wpc', 'grapa-deck'].includes(product.categorySlug)) {
+    return { slug: 'accesorios', name: 'Accesorios' };
+  }
   const label = normalizeLabel(product.categoryName ?? product.categorySlug.replaceAll('-', ' '));
   return catalogFamilies.find((family) => family.matches.some((match) => label.includes(match))) ?? {
     slug: product.categorySlug,
@@ -214,9 +217,12 @@ export const groupProductsByVariant = (products: Product[]): Product[] => {
     if (!existing) {
       const family = getCatalogFamily(product);
       const variantName = catalogVariantNames[normalizeLabel(variant.name)] ?? variant.name;
+      const displayName = family.slug === 'accesorios' && product.categorySlug !== 'accesorios'
+        ? `${product.categoryName ?? product.categorySlug} ${variantName === 'N/A' ? '' : variantName}`.trim()
+        : variantName;
       grouped.set(key, {
         ...product,
-        name: variantName,
+        name: displayName,
         categorySlug: family.slug,
         categoryName: family.name,
         variants: [{ ...variant, name: variantName, colors: [...variant.colors] }]

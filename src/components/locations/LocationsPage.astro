@@ -1,4 +1,5 @@
 ---
+import { getWhatsappInternationalNumber } from '../../services/siteSettingsService';
 import type { Location as LocationItem } from '../../types/locations';
 
 type Props = {
@@ -9,7 +10,7 @@ type Props = {
 
 const { locations, whatsappUrl, selectedSlug } = Astro.props;
 const activeLocation = locations.find(location => location.slug === selectedSlug) ?? locations[0];
-const cleanPhone = (phone: string) => phone.replace(/[^\d+]/g, '');
+
 ---
 
 <main class="locations-page">
@@ -31,6 +32,12 @@ const cleanPhone = (phone: string) => phone.replace(/[^\d+]/g, '');
     </aside>
 
     {activeLocation && <section class="location-detail" aria-labelledby="active-location-title">
+      <div class="branch-info">
+        <h2 id="active-location-title">{activeLocation.name}</h2>
+        <p>{activeLocation.address}</p>
+        {activeLocation.schedule && <p><strong>Horario:</strong> {activeLocation.schedule}</p>}
+        <a href={activeLocation.mapsUrl} target="_blank" rel="noopener noreferrer">Ver ubicación en Google Maps ↗</a>
+      </div>
       <div class="agents-head" data-reveal>
         <p>Equipo comercial</p>
         <h3>Elige un asesor para iniciar tu proyecto.</h3>
@@ -41,7 +48,7 @@ const cleanPhone = (phone: string) => phone.replace(/[^\d+]/g, '');
           {agent.photoUrl ? <img src={agent.photoUrl} alt={`Foto de ${agent.name}`} loading="lazy" /> : <div class="agent-photo-fallback" aria-hidden="true">{agent.name.slice(0, 1)}</div>}
           <div>
             <h4>{agent.name}</h4>
-            <a href={`tel:${cleanPhone(agent.phone)}`}>{agent.phone}</a>
+            <a href={`https://wa.me/${getWhatsappInternationalNumber(agent.phone)}`} target="_blank" rel="noopener noreferrer" aria-label={`Escribir a ${agent.name} por WhatsApp`}>{agent.phone} · WhatsApp ↗</a>
           </div>
         </article>)}
         {!activeLocation.agents.length && <article class="agents-empty" data-reveal>
@@ -55,6 +62,9 @@ const cleanPhone = (phone: string) => phone.replace(/[^\d+]/g, '');
 </main>
 
 <style>
+  .branch-info { margin-bottom: 32px; line-height: 1.6; }
+  .branch-info h2 { margin-top: 0; }
+  .branch-info a { color: #57d18e; text-decoration: underline; }
   .locations-page {
     min-height: 100vh;
     padding: 70px 6.6vw 74px;

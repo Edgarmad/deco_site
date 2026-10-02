@@ -737,6 +737,7 @@ footer h2,
 }
 
 .footer-title {
+  font-family: Georgia, 'Times New Roman', serif;
   padding-bottom: 48px;
   border-bottom: 1px solid var(--line);
   font-size: clamp(3rem, 5.7vw, 6rem);
@@ -754,6 +755,7 @@ footer h2,
 }
 
 .footer-title span {
+  font-style: italic;
   color: var(--blue);
 }
 

@@ -58,7 +58,7 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
       <article class="detail-copy" data-reveal-group>
         <p data-reveal>{product.categoryName ?? category?.name ?? product.macroCategory}</p>
         <h1 data-reveal>{product.name}</h1>
-        {product.sku && <strong data-reveal>SKU: {product.sku}</strong>}
+        {specs.coverage && specs.coverage !== 'N/A' && <strong data-reveal>Rendimiento por presentación: {specs.coverage}</strong>}
         <div class="summary" data-reveal>{product.summary ?? 'Producto Deco en preparacion para publicacion final.'}</div>
         {formattedPrice && <div class="wholesale-price" data-reveal>
           <span class="wholesale-price-label">Precio de mayoreo</span>
@@ -364,10 +364,11 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
     top: 50%;
     transform: translateY(-50%);
     place-items: center;
-    border: 1px solid #d4d8d2;
+    border: 2px solid #106c3a;
     border-radius: 50%;
-    background: var(--white-pure);
-    color: var(--green-text);
+    background: #106c3a;
+    color: #fff;
+    box-shadow: 0 3px 10px rgb(0 0 0 / 20%);
     cursor: pointer;
     font-size: 1.2rem;
   }
@@ -385,7 +386,7 @@ const catalogUrl = `/productos?categoria=${product.macroCategory === 'exterior' 
   }
 
   .tone-arrow:disabled {
-    opacity: 0.35;
+    opacity: 0.55;
     cursor: default;
   }
 

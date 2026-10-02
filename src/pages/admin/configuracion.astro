@@ -5,6 +5,8 @@ import { getAdminSession } from '../../lib/adminAuth';
 import { getCsrfToken, validateCsrfToken } from '../../lib/adminSecurity';
 import { createSupabaseServerClient } from '../../lib/supabaseServer';
 import { fallbackHomeHeroVideoUrl, fallbackWhatsappNumber } from '../../services/siteSettingsService';
+import { getProducts } from '../../services/productService';
+import { parseHomeCovers } from '../../lib/sitePresentation';
 
 export const prerender = false;
 
@@ -24,6 +26,12 @@ const sectionKeys = {
 let sectionVisibility = { technical: true, support: true, faq: true, installation: true };
 let message = Astro.url.searchParams.get('saved') === '1' ? 'Configuración guardada.' : '';
 let errorMessage = '';
+const publishedProducts = await getProducts();
+const coverTypes = Array.from(new Map(publishedProducts.map(product => [product.categorySlug, product.categoryName ?? product.categorySlug])).entries());
+const { data: presentationSettings } = await supabase.from('site_settings').select('key,value').in('key', ['home_product_covers', 'privacy_notice']);
+const presentationValues = new Map((presentationSettings ?? []).map(setting => [setting.key, setting.value]));
+let homeCovers = parseHomeCovers(presentationValues.get('home_product_covers') ?? '{}');
+let privacyNotice = presentationValues.get('privacy_notice') ?? '';
 
 const json = (data: object, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 
@@ -32,6 +40,26 @@ if (Astro.request.method === 'POST') {
   if (!validateCsrfToken(Astro.cookies, formData)) {
     if (['prepare-video', 'finish-video'].includes(String(formData.get('intent')))) return json({ error: 'La sesión expiró. Recarga la página.' }, 403);
     errorMessage = 'La sesión del formulario expiró. Recarga la página e intenta de nuevo.';
+  } else if (formData.get('intent') === 'presentation') {
+    try {
+      homeCovers = {};
+      for (const [type] of coverTypes) {
+        const slug = String(formData.get(`cover_${type}`) ?? '').trim();
+        if (!slug) continue;
+        if (!publishedProducts.some(product => product.categorySlug === type && product.slug === slug)) throw new Error('La portada debe ser un acabado publicado del tipo seleccionado.');
+        homeCovers[type] = slug;
+      }
+      privacyNotice = String(formData.get('privacy_notice') ?? '').trim();
+      if (privacyNotice.length > 30000) throw new Error('El aviso de privacidad debe tener como máximo 30 000 caracteres.');
+      const saved = await supabase.from('site_settings').upsert([
+        { key: 'home_product_covers', value: JSON.stringify(homeCovers), is_public: true },
+        { key: 'privacy_notice', value: privacyNotice, is_public: true }
+      ], { onConflict: 'key' });
+      if (saved.error) throw new Error(saved.error.message);
+      return Astro.redirect('/admin/configuracion?saved=1');
+    } catch (error) {
+      errorMessage = error instanceof Error ? error.message : 'No se pudo guardar la presentación.';
+    }
   } else if (formData.get('intent') === 'prepare-video') {
     const size = Number(formData.get('size_bytes'));
     const filename = String(formData.get('filename') ?? '');
@@ -131,6 +159,28 @@ for (const setting of Astro.request.method === 'POST' ? [] : sectionSettings ?? 
         <small class="admin-note">Estas opciones aplican a todos los productos. Cada producto puede tener una configuración individual.</small>
       </fieldset>
       <button class="admin-button" type="submit">Guardar configuración</button>
+    </form>
+  </section>
+  <section class="admin-panel pad">
+    <h2>Portadas del inicio y aviso de privacidad</h2>
+    <form class="admin-form" method="post">
+      <input type="hidden" name="csrf_token" value={csrfToken} />
+      <input type="hidden" name="intent" value="presentation" />
+      <p class="admin-note">Elige el acabado que representa cada tipo en el carrusel del inicio. Se usa su imagen secundaria o, si falta, la principal. Cambia esas fotos en Productos → Acabados → Imágenes.</p>
+      {coverTypes.map(([type, label]) => <div class="admin-field">
+        <label for={`cover_${type}`}>{label}</label>
+        <select id={`cover_${type}`} name={`cover_${type}`}>
+          <option value="">Selección automática</option>
+          {publishedProducts.filter(product => product.categorySlug === type).map(product => <option value={product.slug} selected={homeCovers[type] === product.slug}>{product.name}</option>)}
+        </select>
+      </div>)}
+      <div class="admin-field">
+        <label for="privacy_notice">Texto del aviso de privacidad</label>
+        <textarea id="privacy_notice" name="privacy_notice" rows="16" maxlength="30000">{privacyNotice}</textarea>
+        <small class="admin-note">Captura el aviso aprobado con razón social, domicilio, contacto, finalidades y tratamiento de datos. Se publica como texto, conservando los saltos de línea. Si está vacío, la página indica que la información está en preparación.</small>
+      </div>
+      <a href="/privacidad" target="_blank" rel="noopener">Ver aviso de privacidad</a>
+      <button class="admin-button" type="submit">Guardar portadas y aviso</button>
     </form>
   </section>
   <section class="admin-panel pad" data-video-settings>

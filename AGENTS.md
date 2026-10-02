@@ -144,6 +144,7 @@ No hay rutas públicas individuales de categorías, tipos, familias ni sucursale
 - `/admin/categorias`, `/admin/familias`, `/admin/variantes`, `/admin/proyectos`, `/admin/ubicaciones`: CRUD común en `src/pages/admin/[...path].astro`.
 - Las altas usan `/nuevo` (ubicaciones, `/nueva`) y la edición `/{uuid}`. Los listados comunes paginan de 25 en 25.
 - `/admin/configuracion`: WhatsApp global, visibilidad global de secciones de producto y video del hero.
+- También permite elegir portadas por tipo del carrusel del inicio (`home_product_covers`, mapa tipo → slug de acabado publicado) y editar el texto del aviso (`privacy_notice`). `/privacidad` muestra ese texto escapado; vacío indica información en preparación.
 - `POST /admin/support-upload`: preparar/confirmar subida firmada de archivos de apoyo; no es una pantalla pública.
 
 ## 5. Modelo de datos y nomenclatura comercial
@@ -185,6 +186,7 @@ media_cleanup_queue                limpieza reintentable de objetos de Storage
 - Mantener slugs existentes salvo cambio explícito; el panel exige confirmación para cambiarlos. No existen redirecciones automáticas de slugs anteriores.
 - `summary` y `description` de acabado usan valores de familia/tipo como respaldo mediante la normalización del servicio.
 - `sort_order`, `featured`, SEO y relaciones deben preservarse durante edición/importación. Las relaciones incluyen borrados en cascada: revisar impacto antes de eliminar padres.
+- El catálogo reúne Accesorios, Ángulos ASA/coextruido, Quilla WPC y Grapa Deck bajo el filtro Accesorios, accesible desde Interior y Exterior; conserva las entidades y reglas técnicas originales de cada acabado.
 
 ### Precio y unidad comercial
 
@@ -293,6 +295,7 @@ El bucket **`site-media` es público**. RLS limita acceso a registros y escritur
 
 - `locations.catalog_url` configura el catálogo de cada sucursal y alimenta el submenú «Catálogo» del header.
 - `location_agents` contiene nombre, teléfono, foto, orden y estado de cada asesor; gestión desde la sucursal con `src/lib/adminLocationAgents.ts`.
+- Los teléfonos de los asesores enlazan a su WhatsApp individual; se añade 52 a números mexicanos de diez dígitos. Los puestos se pueden incluir en el nombre, sin un campo separado.
 - Fotos de agentes: hasta 4 MB, JPEG/PNG/WebP, límite 20 megapíxeles, WebP recortado a 900 × 900, ruta `locations/agents/{location_id}/`.
 - `locationService.ts` crea enlaces de mapa a partir de URL, coordenadas o dirección y contiene compatibilidad de lectura con esquemas antiguos.
 
@@ -385,6 +388,7 @@ node --env-file=.env scripts/test-admin-integration.mjs
 
 - El SQL prueba escritura admin, bloqueo anónimo, borradores/ancestros y limpieza en cascada. Finaliza con `ROLLBACK`; aun así se ejecuta sobre la base vinculada.
 - La prueba integrada usa service role para preparar/retirar fixtures, arranca servidor local en **4397**, crea usuario temporal y prueba login, permisos, formularios, publicación, CSRF, media, PDF y logout.
+- Su servidor usa `--ignore-lock` para mantenerse en primer plano e independiente del servidor de revisión en Astro 7; se detiene en `finally`.
 - Modifica temporalmente Supabase y Storage; no ejecutarla en paralelo con otra instancia. Una interrupción puede dejar fixtures `cms-smoke-` para retirar.
 - Leer el script antes de ampliarlo. No confundir esta integración HTTP con una suite visual de navegador.
 

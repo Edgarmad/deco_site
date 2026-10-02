@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { parseHomeCovers } from '../lib/sitePresentation';
 
 export const fallbackWhatsappNumber = '9931595909';
 export const fallbackHomeHeroVideoUrl = '/assets/videos/header-hero.mp4';
@@ -39,7 +40,7 @@ export const getProductSectionVisibility = async (): Promise<ProductSectionVisib
 
 const normalizeWhatsappNumber = (value: string) => value.replace(/\D/g, '');
 
-const getWhatsappInternationalNumber = (value: string) => {
+export const getWhatsappInternationalNumber = (value: string) => {
   const digits = normalizeWhatsappNumber(value);
   return digits.length === 10 ? `52${digits}` : digits;
 };
@@ -79,4 +80,18 @@ export const getHomeHeroVideoUrl = async () => {
   const value = data?.value?.trim() ?? '';
   if (error || !isValidPublicVideoUrl(value)) return fallbackHomeHeroVideoUrl;
   return value;
+};
+
+export const getHomeCovers = async (): Promise<Record<string, string>> => {
+  if (!supabase) return {};
+  const { data, error } = await supabase.from('site_settings').select('value').eq('key', 'home_product_covers').maybeSingle();
+  if (error) throw new Error('No se pudieron cargar las portadas del inicio.');
+  return parseHomeCovers(data?.value ?? '{}');
+};
+
+export const getPrivacyNotice = async (): Promise<string> => {
+  if (!supabase) return '';
+  const { data, error } = await supabase.from('site_settings').select('value').eq('key', 'privacy_notice').maybeSingle();
+  if (error) throw new Error('No se pudo cargar el aviso de privacidad.');
+  return data?.value?.trim() ?? '';
 };

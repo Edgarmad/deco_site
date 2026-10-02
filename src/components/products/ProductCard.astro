@@ -1,5 +1,6 @@
 ---
 import type { Product } from '../../types/products';
+import { getCatalogAreas } from '../../lib/sitePresentation';
 
 type Props = {
   product: Product;
@@ -30,6 +31,7 @@ const searchText = [
   data-product-card
   data-level={level}
   data-macro={product.macroCategory}
+  data-areas={getCatalogAreas(product.categorySlug, product.macroCategory).join(' ')}
   data-category={product.categorySlug}
   data-variant={productVariantKey || undefined}
   data-search={searchText}
@@ -44,7 +46,7 @@ const searchText = [
     </div>
     <div class="catalog-copy">
       <h2>{product.name}</h2>
-      {product.sku && <p>SKU: {product.sku}</p>}
+      {product.technicalSpecs?.coverage && product.technicalSpecs.coverage !== 'N/A' && <p>Rendimiento: {product.technicalSpecs.coverage} por presentación</p>}
       <small>{primaryColor ? `${productVariant?.name ?? 'Variante'} · ${productVariant.colors.length} colores` : productVariant?.name ?? 'Variante por confirmar'}</small>
       <em class="motion-card__arrow">Ver ficha y variantes</em>
     </div>
