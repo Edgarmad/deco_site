@@ -129,8 +129,7 @@ const filterLabels = {
     if (filterPanel instanceof HTMLElement) filterPanel.classList.toggle('is-collapsed', !isOpen);
   };
 
-  if (window.matchMedia('(max-width: 900px)').matches) setFilterVisibility(false);
-  else setFilterVisibility(true);
+  setFilterVisibility(false);
 
   const updateUrl = () => {
     const params = new URLSearchParams();

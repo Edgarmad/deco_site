@@ -135,6 +135,8 @@ Las páginas actuales declaran `export const prerender = false`. No convertirlas
 
 El catálogo usa filtros del navegador y parámetros `categoria`, `familia`, `subcategoria`, `q`, `orden`, `page`. La categoría inicial es Interior; las pestañas de uso son Interior y Exterior. Hay 12 resultados por página. Mantener enlaces profundos y sincronización entre URL y controles.
 
+Los filtros comienzan cerrados en escritorio y móvil y se abren con «Filtrar». Las tarjetas muestran hasta cuatro muestras circulares de los colores existentes encima del rendimiento y el total de colores disponibles. WhatsApp se abre automáticamente una sola vez por navegador mediante `localStorage` (`deco-whatsapp-shown`); después se abre con el botón flotante. Si el almacenamiento está bloqueado, se conserva la apertura manual.
+
 No hay rutas públicas individuales de categorías, tipos, familias ni sucursales. Sus campos SEO guardados no implican que existan esas páginas.
 
 ### Administrativas
