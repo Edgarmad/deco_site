@@ -133,6 +133,8 @@ Generados o locales: `node_modules/`, `dist/`, `.astro/`, `.vercel/`, `supabase/
 
 Las páginas actuales declaran `export const prerender = false`. No convertirlas a prerender estático: se perdería la actualización inmediata del CMS. `src/middleware.ts` añade `Cache-Control: no-store` a respuestas públicas.
 
+Las visitas públicas registran fallas de Supabase por petición mediante `src/lib/serviceAvailability.ts`. Errores de conexión, tiempo de espera (8 segundos), HTTP 401/402/403/429 o 5xx muestran un aviso local con estado 503, `Retry-After: 60` y sin caché; al reintentar se consulta normalmente. No sustituye errores de programación ni modifica el flujo administrativo. Sin configuración Supabase se conservan los fallbacks locales.
+
 El catálogo usa filtros del navegador y parámetros `categoria`, `familia`, `subcategoria`, `q`, `orden`, `page`. La categoría inicial es Interior; las pestañas de uso son Interior y Exterior. Hay 12 resultados por página. Mantener enlaces profundos y sincronización entre URL y controles.
 
 Los filtros comienzan cerrados en escritorio y móvil y se abren con «Filtrar». Las tarjetas muestran hasta cuatro muestras circulares de los colores existentes encima del rendimiento y el total de colores disponibles. WhatsApp se abre automáticamente una sola vez por navegador mediante `localStorage` (`deco-whatsapp-shown`); después se abre con el botón flotante. Si el almacenamiento está bloqueado, se conserva la apertura manual.

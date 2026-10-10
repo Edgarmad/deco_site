@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import WebSocket from 'ws';
+import { fetchWithAvailability } from './serviceAvailability';
 
 const supabaseUrl = import.meta.env.SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.SUPABASE_ANON_KEY;
@@ -10,6 +11,7 @@ export const hasSupabaseConfig = Boolean(supabaseUrl && supabaseAnonKey);
 export const supabase = hasSupabaseConfig
   ? createClient(supabaseUrl as string, supabaseAnonKey as string, {
       auth: { persistSession: false },
+      global: { fetch: fetchWithAvailability },
       realtime: { transport: WebSocket as never }
     })
   : null;
